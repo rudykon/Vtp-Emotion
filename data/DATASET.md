@@ -13,7 +13,7 @@ data/
     └── MER_PS_public_evaluation/            # 4 名外部评估被试
 ```
 
-训练、五折评估和特征提取默认使用 `data/MER_PS_trainval/`。外部来源分解默认使用 `data/download/MER_PS_public_evaluation/`。
+训练、五折 MAE 评估和特征提取默认使用 `data/MER_PS_trainval/`。外部独立评估与事后来源分析默认使用 `data/download/MER_PS_public_evaluation/`。
 
 ## 下载训练/验证数据
 
@@ -95,7 +95,7 @@ Targeted_emotions.txt
 - CSV 目标与 MAT 标注逐值一致性校验；
 - 6,143 个样本键的唯一性、顺序和时间连续性校验。
 
-重新运行数据审计与来源评估：
+重新运行数据审计、外部 MAE 评估与事后来源分析：
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \

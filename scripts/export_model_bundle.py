@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Export the source-explicit MER-PS inference model bundle.
+"""Export the low-MAE MER-PS fixed-fusion inference bundle.
 
 The default bundle uses the paper's fixed video--time prior weights and disables
 resting-output calibration. It is a full-data reproducibility artifact; the
-paper's scientific estimates are obtained from participant-held-out folds.
+paper's MAE estimates are obtained from participant-held-out folds.
 """
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ def main() -> None:
                 "resting_bias_shrink_valence": float(bias_shrink[0]),
                 "resting_bias_shrink_arousal": float(bias_shrink[1]),
                 "num_physiology_checkpoints": 1 + len(fold_models),
-                "note": "Full-data inference bundle for source-explicit reproducibility.",
+                "note": "Full-data fixed-fusion bundle for low-MAE inference reproducibility.",
             }
         ],
     )

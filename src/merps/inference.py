@@ -1,8 +1,8 @@
-"""Inference entry point for the source-explicit MER-PS model bundle.
+"""Inference entry point for the low-MAE MER-PS fixed-fusion bundle.
 
 The bundle combines a full-data video--time prior with an EEG--fNIRS
-physiological ensemble. Its default metadata matches the paper's descriptive
-fusion weights and disables resting-output calibration.
+physiological ensemble. Its default metadata matches the paper's fixed fusion
+weights and disables resting-output calibration.
 """
 
 import csv

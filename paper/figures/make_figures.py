@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the paper's three-panel source-dominance figure."""
+"""Regenerate the paper's three-panel MAE and post-hoc analysis figure."""
 
 from __future__ import annotations
 
@@ -26,6 +26,14 @@ METRICS = ("Overall", "Valence", "Arousal")
 METRIC_COLORS = ("#4C78A8", "#F58518", "#54A24B")
 PRIOR_COLOR = "#2C7FB8"
 FUSION_COLOR = "#238B45"
+
+
+def normalize_svg(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    path.write_text(
+        "\n".join(line.rstrip() for line in text.splitlines()) + "\n",
+        encoding="utf-8",
+    )
 
 
 def load_components(path: Path) -> dict[str, dict[str, float]]:
@@ -64,6 +72,8 @@ def main() -> None:
     args = parse_args()
     output_pdf = args.output_prefix.with_suffix(".pdf")
     output_svg = args.output_prefix.with_suffix(".svg")
+    output_png = args.output_prefix.with_suffix(".png")
+    output_tiff = args.output_prefix.with_suffix(".tiff")
     output_pdf.parent.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update(
         {
@@ -107,13 +117,13 @@ def main() -> None:
         values = [data[component][metric] for component in components]
         offset = (metric_index - 1) * height
         bars = ax.barh(y + offset, values, height=height, color=color, label=metric)
-        ax.bar_label(bars, fmt="%.1f", padding=1.5, fontsize=6.0)
+        ax.bar_label(bars, fmt="%.2f", padding=1.5, fontsize=5.8)
     ax.set_yticks(y, [COMPONENT_LABELS[item] for item in components])
     ax.invert_yaxis()
     component_max = max(data[component][metric] for component in components for metric in METRICS)
     ax.set_xlim(0, component_max * 1.14)
     ax.set_xlabel("Mean absolute error")
-    ax.set_title("Held-out component error", loc="left", pad=12)
+    ax.set_title("Held-out MAE comparison", loc="left", pad=12)
     ax.grid(axis="x", color="#D9D9D9", linewidth=0.5, zorder=0)
     ax.set_axisbelow(True)
     ax.legend(ncol=3, frameon=False, loc="lower left", bbox_to_anchor=(0.0, 1.0))
@@ -152,14 +162,25 @@ def main() -> None:
     ax.invert_yaxis()
     ax.set_xlim(0, 100)
     ax.set_xlabel("Share of total observed MAE reduction (%)")
-    ax.set_title("Share of physiology-to-fusion reduction", loc="left", pad=12)
+    ax.set_title("Composition of MAE reduction", loc="left", pad=12)
     ax.legend(ncol=2, frameon=False, loc="lower left", bbox_to_anchor=(0.0, 1.0))
     add_panel_label(ax, "c")
 
-    fig.savefig(output_pdf)
-    fig.savefig(output_svg)
+    fig.savefig(output_pdf, bbox_inches="tight")
+    fig.savefig(output_svg, bbox_inches="tight")
+    normalize_svg(output_svg)
+    fig.savefig(output_png, dpi=300, bbox_inches="tight")
+    fig.savefig(
+        output_tiff,
+        dpi=600,
+        bbox_inches="tight",
+        pil_kwargs={"compression": "tiff_lzw"},
+    )
+    plt.close(fig)
     print(f"Wrote {output_pdf}")
     print(f"Wrote {output_svg}")
+    print(f"Wrote {output_png}")
+    print(f"Wrote {output_tiff}")
 
 
 if __name__ == "__main__":

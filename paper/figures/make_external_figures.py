@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create publication figures for the local external-cohort analysis."""
+"""Create figures for external MAE evaluation and post-hoc analysis."""
 
 from __future__ import annotations
 
@@ -99,9 +99,19 @@ def add_panel_label(ax: plt.Axes, label: str, x: float = -0.13, y: float = 1.04)
     )
 
 
+def normalize_svg(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    path.write_text(
+        "\n".join(line.rstrip() for line in text.splitlines()) + "\n",
+        encoding="utf-8",
+    )
+
+
 def save_publication_figure(fig: plt.Figure, prefix: Path) -> None:
     prefix.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(prefix.with_suffix(".svg"), bbox_inches="tight")
+    svg_path = prefix.with_suffix(".svg")
+    fig.savefig(svg_path, bbox_inches="tight")
+    normalize_svg(svg_path)
     fig.savefig(prefix.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(prefix.with_suffix(".png"), dpi=300, bbox_inches="tight")
     fig.savefig(
@@ -153,7 +163,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_c = fig.add_subplot(grid[1, 1])
     ax_d = fig.add_subplot(grid[:, 2])
 
-    # a, overall five-way source decomposition.
+    # a, overall five-way MAE comparison.
     values = np.asarray([overall[variant] for variant in VARIANT_ORDER])
     y = np.arange(len(VARIANT_ORDER))
     bars = ax_a.barh(
@@ -168,7 +178,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_a.invert_yaxis()
     ax_a.set_xlim(0.0, 50.5)
     ax_a.set_xlabel("Mean absolute error")
-    ax_a.set_title("External source decomposition", loc="left")
+    ax_a.set_title("External MAE comparison", loc="left")
     ax_a.grid(axis="x", color="#E2E2E2", linewidth=0.5, zorder=0)
     ax_a.set_axisbelow(True)
     for bar, value in zip(bars, values):
@@ -235,7 +245,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_d.set_title("Error varies across video time", loc="left")
     ax_d.grid(color="#E5E5E5", linewidth=0.45)
     ax_d.set_axisbelow(True)
-    ax_d.legend(loc="upper right", ncol=1)
+    ax_d.legend(loc="center", bbox_to_anchor=(0.58, 0.60), ncol=2, columnspacing=0.8, handletextpad=0.4)
     add_panel_label(ax_d, "d", x=-0.16)
 
     save_publication_figure(fig, output_dir / "external_source_decomposition")

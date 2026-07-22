@@ -27,11 +27,11 @@
 \acmYear{2026}
 \acmDOI{}
 \acmISBN{}
-\hypersetup{pdfauthor={Anonymous Author(s)},pdftitle={Shared-Stimulus Structure Dominates Subject-Held-Out EEG--fNIRS Emotion Regression}}
+\hypersetup{pdfauthor={Anonymous Author(s)},pdftitle={Low-Cost Video--Time Priors Improve EEG--fNIRS Emotion Regression for New Viewers of Familiar Videos}}
 
 \begin{document}
 
-\title{Shared-Stimulus Structure Dominates Subject-Held-Out EEG--fNIRS Emotion Regression}
+\title{Low-Cost Video--Time Priors Improve EEG--fNIRS Emotion Regression for New Viewers of Familiar Videos}
 
 \author{Anonymous Author(s)}
 \affiliation{%
@@ -41,26 +41,28 @@
 \email{}
 
 \begin{abstract}
-Continuous emotion regression estimates moment-to-moment valence and arousal
-from physiological recordings. When every participant views the same
-time-aligned videos, subject-held-out evaluation leaves stimulus identity and
-time unchanged. Apparent accuracy may therefore reflect a stimulus-locked group
-trajectory rather than information decoded from an individual's physiology.
-We introduce a source-explicit decomposition that separates a fold-wise
-video--time prior from an EEG--fNIRS predictor. Across 24 participants viewing
-15 shared videos, the physiological branch obtained a mean absolute error
-(MAE) of 47.3509, the prior 29.0633, and their fixed fusion 29.0146. An external
-subject-disjoint evaluation on four viewers and 6,143 one-second samples further
-separated a global constant, video identity, video--time dynamics, physiology,
-and fusion, with MAEs of 44.3296, 33.3627, 28.0410, 42.7486, and 27.7246,
-respectively. The aggregate fusion gain was heterogeneous, occurring in 3 of 4
-viewers and 9 of 15 videos. Thus, video identity and within-video time explain
-the main gains, while physiology provides a smaller, non-uniform residual
-increment. This result does not imply that EEG or fNIRS lacks affective
-information; it shows that subject-held-out evaluation alone cannot identify
-its contribution when stimuli repeat. Source-explicit baselines and crossed
-participant-by-stimulus splits are therefore necessary for interpretable
-emotion regression.
+Continuous emotion regression can estimate how viewers' valence and arousal
+change while they watch a known video. Low-error trajectories may provide a
+group-response baseline for video editing, advertising placement, content
+recommendation, or coarse initialization for a new viewer. We therefore study
+the practical objective of reducing mean absolute error (MAE) for new viewers
+of familiar, time-aligned videos. Our predictor constructs a fold-wise
+video--time prior from training viewers and combines it with an EEG--fNIRS
+branch through fixed fusion. Across 24 participants viewing 15 shared videos,
+fixed fusion achieved the lowest MAE of 29.0146; the low-cost prior and
+physiological branch reached 29.0633 and 47.3509, respectively. In an external
+subject-disjoint evaluation on four viewers and 6,143 one-second samples, fixed
+fusion again achieved the lowest MAE of 27.7246. Post-hoc comparisons yielded
+44.3296, 33.3627, 28.0410, and 42.7486 for a global constant, video identity,
+video--time prior, and physiology, respectively. Thus, the video--time prior is itself a
+simple and effective predictor in this deployment scope, while physiology
+provides a smaller additional reduction. After establishing the MAE result, we
+use source-explicit ablations and paired residuals to show that the gain is
+mainly associated with video identity and within-video time, and that the
+fusion increment occurs in 3 of 4 viewers and 9 of 15 videos. The method targets
+new-viewer prediction for familiar videos and does not establish transfer to
+unseen content. Optimizing MAE first and analysing its sources afterwards
+provides both a useful prediction strategy and an interpretable scope of use.
 \end{abstract}
 
 \begin{CCSXML}
@@ -87,7 +89,7 @@ emotion regression.
 \ccsdesc[300]{Computing methodologies~Neural networks}
 \ccsdesc[300]{Applied computing~Psychology}
 
-\keywords{EEG--fNIRS, continuous emotion regression, shared-stimulus structure, video--time prior, subject-held-out evaluation}
+\keywords{EEG--fNIRS, continuous emotion regression, mean absolute error, video--time prior, familiar-video prediction}
 
 \maketitle
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Evaluate source-explicit affect regression on a local external cohort.
+"""Evaluate fixed-fusion MAE and post-hoc sources on a local external cohort.
 
-The script keeps the external labels outside model inference, reconstructs the
-three stimulus-only baselines from the development cohort, runs the six-model
-EEG--fNIRS ensemble once, and reports paired results for five source variants.
+The script keeps external labels outside model inference, evaluates the final
+fixed-fusion predictor, and then reports paired results for five prediction
+strategies to explain the observed error.
 """
 
 from __future__ import annotations
