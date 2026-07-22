@@ -41,24 +41,25 @@
 \email{}
 
 \begin{abstract}
-Continuous emotion regression seeks to estimate moment-to-moment valence and
-arousal from physiological recordings. When every participant views the same
-time-aligned videos, however, subject-held-out evaluation leaves stimulus
-identity and time unchanged. This creates a source ambiguity: apparent
-prediction accuracy may reflect a stimulus-locked group trajectory rather than
-information decoded from an individual's physiology. We introduce a
-source-explicit analysis that separates a fold-wise video--time prior from an
-EEG--fNIRS predictor. The prior is constructed only from training participants,
-whereas the physiological branch uses baseline-centred spectral, statistical,
-graph, and cross-modal representations. Across 24 participants viewing 15
-shared videos, the physiological branch obtained a mean absolute error (MAE) of
-47.3509, the prior 29.0633, and their fixed fusion 29.0146. Thus, under this
-repeated-stimulus protocol, most predictive performance is attributable to
-shared stimulus structure and the measured physiological increment is small.
+Continuous emotion regression estimates moment-to-moment valence and arousal
+from physiological recordings. When every participant views the same
+time-aligned videos, subject-held-out evaluation leaves stimulus identity and
+time unchanged. Apparent accuracy may therefore reflect a stimulus-locked group
+trajectory rather than information decoded from an individual's physiology.
+We introduce a source-explicit decomposition that separates a fold-wise
+video--time prior from an EEG--fNIRS predictor. Across 24 participants viewing
+15 shared videos, the physiological branch obtained a mean absolute error
+(MAE) of 47.3509, the prior 29.0633, and their fixed fusion 29.0146. A separate
+blind evaluation on four subject-disjoint viewers further decomposed the signal:
+MAE was 44.3296 for a global constant, 33.3627 for video identity, 28.0410 for
+the video--time prior, 42.7486 for physiology, and 27.7246 for fixed fusion.
+Thus, video identity and within-video time explain the main gains, while
+physiology provides a smaller but directionally consistent residual improvement.
 This result does not imply that EEG or fNIRS lacks affective information; it
 shows that subject-held-out evaluation alone cannot identify its contribution
-when stimuli repeat. Source-explicit baselines and crossed subject-by-stimulus
-splits are therefore necessary for interpretable emotion regression.
+when stimuli repeat. Source-explicit baselines and crossed
+participant-by-stimulus splits are therefore necessary for interpretable
+emotion regression.
 \end{abstract}
 
 \begin{CCSXML}

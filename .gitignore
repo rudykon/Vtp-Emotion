@@ -1,5 +1,5 @@
 # Secrets
-github_token.json
+*_token.json
 token.json
 *.pem
 *.key
