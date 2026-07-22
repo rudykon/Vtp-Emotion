@@ -1,6 +1,6 @@
-# 匿名 ACM 双栏论文
+# 连续情感回归论文源文件说明
 
-本目录包含作为正式版本的英文论文，以及便于阅读和核对的中文对照稿。
+本目录包含英文论文、中文对照稿、参考文献、论文图件及可追溯图件源数据。
 
 ## 科学范围
 
@@ -11,20 +11,37 @@
 - 仅使用训练被试、在每个交叉验证折内构建的视频—时间先验；
 - 使用图结构与跨模态特征的 EEG--fNIRS 生理比较分支；
 - 在完全相同的留出样本上，对生理信息、刺激结构和固定融合进行来源显式比较；
-- 在 4 名独立留出被试上分解全局常数、视频身份、视频—时间动态、生理和固定融合；
+- 在 4 名外部被试独立观看者上分解全局常数、视频身份、视频—时间动态、生理和固定融合；
+- 使用逐样本成对残差分析被试、视频和归一化视频时间上的异质性；
 - 区分熟悉视频上的新观看者预测与向未见刺激迁移。
 
-生理分支的总体 MAE 为 47.3509，视频—时间先验为 29.0633，固定融合为 29.0146。论文仅对较小的融合增量作描述性解释，不据此主张模型能够泛化到未见刺激。
+五折分析中，生理分支、视频—时间先验和固定融合的总体 MAE 分别为 47.3509、29.0633 和 29.0146。外部评估中，全局常数、视频身份先验、视频—时间先验、生理分支和固定融合分别为 44.3296、33.3627、28.0410、42.7486 和 27.7246。
 
-外部盲测中，全局常数、视频身份先验、视频—时间先验、生理分支和固定融合的总体 MAE 分别为 44.3296、33.3627、28.0410、42.7486 和 27.7246。该结果把共享刺激结构进一步拆分为视频层面的平均差异与视频内时间动态，并表明生理信号在强先验之上提供了较小但跨指标一致的增量。
+融合的总体增量较小且具有异质性：只在 4 名被试中的 3 名和 15 个视频中的 9 个上改善。论文据此把结论限定为“共享刺激轨迹提供主要增益，生理信号提供较小、总体有利但不均匀的互补残差”，不主张模型能够泛化到未见刺激。
+
+## 图件论证结构
+
+`source_dominance` 是单栏来源总览图，说明五折分析中视频—时间先验几乎解释了从生理分支到融合的全部误差降幅。
+
+`external_source_decomposition` 是双栏主图，其四个面板依次展示：
+
+1. 五种来源变体的总体 MAE；
+2. 4 名被试上视频—时间先验与固定融合的配对变化；
+3. 15 个视频上的融合增益与损失；
+4. 十个归一化视频时间区间上的误差曲线。
+
+`external_data_landscape` 是数据景观图，展示效价—唤醒度标签密度，以及视频×归一化时间上的平均效价和唤醒度。该图用于数据审计与补充展示，不承担主因果或显著性结论。
+
+全部图件均由 Python/matplotlib 生成。SVG 和 PDF 保留可编辑文字；本地还导出 PNG 预览与 600 dpi、LZW 压缩 TIFF。秒级样本仅用于描述性汇总，不进行伪重复显著性检验。
 
 ## 生成图件
 
 ```bash
 ../.venv/bin/python figures/make_figures.py
+../.venv/bin/python figures/make_external_figures.py
 ```
 
-脚本读取 `figures/source_data_components.csv`，重新生成单栏矢量图 `figures/source_dominance.pdf` 和 `figures/source_dominance.svg`。
+外部图件脚本默认读取 `../artifacts/external_evaluation/` 中的评估产物，以及本目录中的 `source_data_external_*.csv`。
 
 ## 编译论文
 
@@ -33,7 +50,7 @@ latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 latexmk -xelatex -interaction=nonstopmode -halt-on-error main_zh.tex
 ```
 
-使用以下命令检查输出 PDF 的页面信息：
+检查输出 PDF：
 
 ```bash
 pdfinfo main.pdf
@@ -45,9 +62,17 @@ pdfinfo main_zh.pdf
 - `main.tex` 与 `body.tex`：英文论文。
 - `main_zh.tex` 与 `body_zh.tex`：中文对照稿。
 - `references.bib`：参考文献和数据集记录。
-- `figures/source_data_components.csv`：信息来源的汇总指标。
-- `figures/source_data_external_ablation.csv`：4 名独立留出被试的五项消融指标。
-- `figures/source_dominance.pdf` 与 `.svg`：论文图件。
-- `figures/make_figures.py`：仅使用 Python 的图件生成脚本。
+- `figures/make_figures.py`：五折来源图生成脚本。
+- `figures/make_external_figures.py`：外部来源分解与数据景观图生成脚本。
+- `figures/source_data_components.csv`：五折来源汇总指标。
+- `figures/source_data_external_overall.csv`：外部五种来源的总体指标。
+- `figures/source_data_external_subject.csv`：被试分层指标。
+- `figures/source_data_external_video.csv`：视频分层指标。
+- `figures/source_data_external_time.csv`：归一化时间分层指标。
+- `figures/source_data_external_trials.csv`：试验级标签摘要。
+- `figures/source_data_external_samples.csv`：数据景观图所需的逐样本标签与元数据。
+- `figures/source_dominance.{pdf,svg}`：五折来源分解图。
+- `figures/external_source_decomposition.{pdf,svg}`：外部来源分解主图。
+- `figures/external_data_landscape.{pdf,svg}`：外部标签覆盖与视频—时间数据景观图。
 
-准备双盲审稿材料时，仅应包含 TeX 源文件、`references.bib` 和正文实际引用的图件；应排除编译日志、本地路径、工作用源数据、缓存和账户信息。
+准备匿名审稿材料时，只包含 TeX、参考文献和正文实际引用的图件；编译日志、本地路径、原始数据、缓存和账户信息均应排除。

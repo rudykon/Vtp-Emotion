@@ -45,3 +45,8 @@ paper/missfont.log
 Thumbs.db
 *.swp
 *.swo
+
+# Locally generated raster previews; vector paper figures remain versioned
+paper/figures/*.png
+paper/figures/*.tif
+paper/figures/*.tiff

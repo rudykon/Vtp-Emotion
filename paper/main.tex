@@ -49,15 +49,16 @@ trajectory rather than information decoded from an individual's physiology.
 We introduce a source-explicit decomposition that separates a fold-wise
 video--time prior from an EEG--fNIRS predictor. Across 24 participants viewing
 15 shared videos, the physiological branch obtained a mean absolute error
-(MAE) of 47.3509, the prior 29.0633, and their fixed fusion 29.0146. A separate
-blind evaluation on four subject-disjoint viewers further decomposed the signal:
-MAE was 44.3296 for a global constant, 33.3627 for video identity, 28.0410 for
-the video--time prior, 42.7486 for physiology, and 27.7246 for fixed fusion.
-Thus, video identity and within-video time explain the main gains, while
-physiology provides a smaller but directionally consistent residual improvement.
-This result does not imply that EEG or fNIRS lacks affective information; it
-shows that subject-held-out evaluation alone cannot identify its contribution
-when stimuli repeat. Source-explicit baselines and crossed
+(MAE) of 47.3509, the prior 29.0633, and their fixed fusion 29.0146. An external
+subject-disjoint evaluation on four viewers and 6,143 one-second samples further
+separated a global constant, video identity, video--time dynamics, physiology,
+and fusion, with MAEs of 44.3296, 33.3627, 28.0410, 42.7486, and 27.7246,
+respectively. The aggregate fusion gain was heterogeneous, occurring in 3 of 4
+viewers and 9 of 15 videos. Thus, video identity and within-video time explain
+the main gains, while physiology provides a smaller, non-uniform residual
+increment. This result does not imply that EEG or fNIRS lacks affective
+information; it shows that subject-held-out evaluation alone cannot identify
+its contribution when stimuli repeat. Source-explicit baselines and crossed
 participant-by-stimulus splits are therefore necessary for interpretable
 emotion regression.
 \end{abstract}

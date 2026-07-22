@@ -43,11 +43,11 @@ value. The contributions are threefold:
   \item We formulate source ambiguity in repeated-stimulus continuous emotion
   regression and introduce a fold-wise, source-explicit decomposition that
   prevents held-out participant labels from entering the stimulus prior.
-  \item We quantify the source hierarchy in both five-fold analysis and a blind
-  evaluation on four subject-disjoint viewers, separating a global constant,
-  video identity, video--time dynamics, physiology, and fusion. The results show
-  that time-resolved shared-stimulus structure supplies the main gain, while
-  physiology adds a smaller, directionally consistent residual.
+  \item We quantify the source hierarchy in five-fold analysis and an external
+  subject-disjoint evaluation, separating a global constant, video identity,
+  video--time dynamics, physiology, and fusion. Sample-level residuals show that
+  shared-stimulus structure provides most of the aggregate gain; the smaller
+  physiological increment varies across viewers and videos.
   \item We derive evaluation requirements for physiological claims: a
   stimulus-only baseline, crossed participant-by-stimulus splits, paired
   component residuals, and uncertainty estimates that respect participant and
@@ -183,25 +183,28 @@ fusion difference is reported as a descriptive incremental result rather than
 as evidence for an optimally selected hybrid. All three outputs are evaluated
 on the same held-out samples.
 
-\subsection{External subject-disjoint blind variants}
+\subsection{External subject-disjoint evaluation}
 
-We additionally evaluate five self-contained inference variants on four viewers
-that are disjoint from the development participants. Their labels are hidden
-from both model construction and inference. The global-constant variant uses
-the two-dimensional median over all development labels. The video-identity
-variant uses one development-label median per video and keeps it constant over
-time. The video--time variant uses the full development-set median trajectory
-with radius-three within-video smoothing. The physiological variant averages
-one fixed-split checkpoint and five participant-grouped fold checkpoints. The
-fixed-fusion variant combines this six-checkpoint ensemble with the video--time
-prior using (w=[0.99,0.92]).
+We additionally evaluate five source variants on four viewers who are disjoint
+from the 24 development participants. The external cohort contains 60 trials
+and 6,143 one-hertz targets. Targets are excluded from prior construction,
+checkpoint training, and inference, and are joined to the integer predictions
+only for local evaluation. The global-constant variant uses the
+two-dimensional median over all development labels. The video-identity variant
+uses the temporal median of each development video trajectory and keeps it
+constant within the video. The video--time variant uses the full
+development-set median trajectory with radius-three within-video smoothing.
+The physiological variant averages one fixed-split checkpoint and five
+participant-grouped fold checkpoints. Fixed fusion combines this six-checkpoint
+ensemble with the video--time prior using \(w=[0.99,0.92]\).
 
-All variants receive the same raw EEG, fNIRS, resting-baseline, and sample-key
-inputs and output integer predictions on the original ([1,255]) scale. The
-blind labels are used only to compute overall, valence, and arousal MAE and
-overall MSE. This evaluation therefore tests source ordering on independent
-viewers without exposing their targets to either the prior or the physiological
-models.
+All variants receive the same raw EEG, fNIRS, resting baselines, and sample
+keys. Predictions remain on the original \([1,255]\) scale. We compute
+overall, valence, and arousal MAE and overall MSE on the same 6,143 keys. To
+examine heterogeneity without treating adjacent seconds as independent
+replicates, we also aggregate MAE by viewer, by video, and by ten equal bins of
+normalized within-video time. These stratified analyses are descriptive; no
+per-second inferential test is applied.
 
 \section{Experiments and Results}
 \label{sec:experiments}
@@ -254,16 +257,36 @@ structure therefore accounts for nearly all of the observed predictive gain,
 whereas the measured physiological increment is small.
 
 This is a source-attribution result, not evidence that physiology is
-uninformative in general. The aggregate record does not retain paired
-sample-level residuals or uncertainty estimates, so the small fusion gain
-cannot be localised to particular participants, videos, or time intervals and
-should be interpreted descriptively.
+uninformative in general. The retained five-fold archive contains aggregate
+component metrics rather than paired sample-level residuals, so its small
+fusion gain remains descriptive. The external analysis below supplies the
+missing viewer-, video-, and time-stratified residual evidence.
 
-\subsection{Blind ablation separates identity, time, and physiology}
+\subsection{External evaluation separates identity, time, and physiology}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{external_source_decomposition.pdf}
+  \caption{Source decomposition and residual heterogeneity in the external
+  subject-disjoint evaluation. The analysis contains 6,143 one-second samples
+  from four viewers and 15 familiar videos. (a) Sample-pooled overall MAE for
+  all five source variants. (b) Paired viewer-level MAE for the video--time
+  prior and fixed fusion; each line is one viewer, with green indicating lower
+  fusion error and red indicating higher fusion error. (c) Video-level
+  difference between prior and fusion MAE; positive values indicate lower
+  fusion error. (d) Sample-pooled MAE across ten equal bins of normalized
+  within-video time. The stratified panels are descriptive; no inferential test
+  treats adjacent seconds as independent replicates.}
+  \Description{A four-panel quantitative figure shows the overall error of
+  five source variants, paired prior-versus-fusion error for four viewers,
+  video-specific fusion gains and losses across 15 videos, and error curves
+  across normalized video time.}
+  \label{fig:external-decomposition}
+\end{figure*}
 
 \begin{table}[t]
-  \caption{Source ablation on four subject-disjoint blind viewers. Metrics use
-  the original label scale and lower values are better.}
+  \caption{Source ablation on four external subject-disjoint viewers. Metrics
+  use the original label scale and lower values are better.}
   \label{tab:external-ablation}
   \centering
   \scriptsize
@@ -282,24 +305,36 @@ should be interpreted descriptively.
   \end{tabular}
 \end{table}
 
-The staged blind ablation reproduced the source ordering and located the gain
-more precisely (Table~\ref{tab:external-ablation}). Replacing the global
-constant with video identity reduced overall MAE from 44.3296 to 33.3627, a
-10.9670-point or 24.74\% reduction. Adding the within-video time coordinate
-reduced it by another 5.3217 points to 28.0410. This temporal refinement lowered
-valence and arousal MAE by 7.2131 and 3.4302, respectively, relative to video
-identity alone. Shared structure is therefore not limited to a video-level
-offset; its time-resolved trajectory carries substantial additional signal.
+The staged external evaluation reproduced the source ordering and located the
+aggregate gain more precisely (Table~\ref{tab:external-ablation};
+Figure~\ref{fig:external-decomposition}a). Replacing the global constant with
+video identity reduced overall MAE from 44.3296 to 33.3627, a 10.9670-point or
+24.74\% reduction. Adding within-video time reduced it by another 5.3217 points
+to 28.0410. This temporal refinement lowered valence and arousal MAE by 7.2131
+and 3.4302, respectively. Shared structure is therefore not limited to a
+video-level offset; its time-resolved trajectory carries substantial additional
+predictive information.
 
-Physiology alone reached 42.7486 MAE. Fixed fusion achieved the best result,
-27.7246, improving on the video--time prior by 0.3165 overall, 0.1467 for
-valence, 0.4862 for arousal, and 44.1240 in overall MSE. The consistent metric
-direction supports a complementary physiological residual, although its
-magnitude is small. Of the 15.0240-point reduction from physiology alone to
-fixed fusion, the video--time prior already accounted for 14.7076 points, or
-97.89\%. The blind evaluation therefore supports the same bounded conclusion
-as the internal folds: shared stimulus dynamics dominate, while physiology adds
-a measurable but secondary increment.
+Physiology alone reached 42.7486 MAE. Fixed fusion achieved 27.7246, improving
+on the video--time prior by 0.3165 overall, 0.1467 for valence, 0.4862 for
+arousal, and 44.1240 in overall MSE. All four aggregate metrics moved in the
+same direction, but paired residuals showed that the gain was not uniform:
+fusion lowered MAE for 3 of 4 viewers and 9 of 15 videos
+(Figure~\ref{fig:external-decomposition}b,c). Viewer-level changes ranged from
+a 0.0622-point worsening to a 0.6938-point improvement; video-level changes
+ranged from a 0.2971-point worsening to a 1.3105-point improvement. The
+aggregate result therefore supports a small complementary physiological
+residual, not a universal per-viewer or per-video benefit.
+
+The temporal stratification further qualified the video--time advantage
+(Figure~\ref{fig:external-decomposition}d). In the first normalized time bin,
+video identity produced an MAE of 45.53, whereas the video--time prior reached
+13.40. The temporal advantage then narrowed, and video identity was slightly
+better in each of the final five bins. Thus, the 5.3217-point aggregate gain
+from adding time was concentrated in specific phases rather than distributed
+uniformly over a video. Of the 15.0240-point reduction from physiology alone to
+fixed fusion, the video--time prior still accounted for 14.7076 points, or
+97.89\%.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -309,48 +344,43 @@ a measurable but secondary increment.
 The central finding is that subject-held-out emotion regression can remain
 dominated by information shared across participants. Rebuilding the prior
 without held-out labels rules out direct label leakage from those participants,
-yet the prior still substantially outperforms the EEG--fNIRS branch. The most
-plausible interpretation is that the aligned videos induce a reproducible
-population-level affect trajectory that is available through video identity and
-time alone.
+yet the prior still substantially outperforms the EEG--fNIRS branch. The
+bounded interpretation is that aligned familiar videos provide a reproducible
+population-level affect trajectory indexed by video identity and time.
 
-The staged blind variants refine this interpretation. Video identity alone
-captured a large part of the gain over a global constant, but adding time within
-each video produced a second substantial reduction. The relevant shortcut is
-therefore not merely recognising which stimulus is present. It is access to a
-time-resolved group trajectory tied to a familiar stimulus.
+The external stratification shows that this temporal contribution is
+phase-specific. Video identity captured the average affective level of each
+stimulus, whereas the time-resolved prior was especially advantageous early in
+the video and was slightly worse in the final half of the normalized timeline.
+The source ambiguity is therefore not simply that models can identify the
+current video. It is that the stimulus coordinate supplies a structured group
+trajectory whose usefulness changes over time.
 
-This interpretation changes what the reported error means. Low error in a
-repeated-stimulus protocol need not imply that a model has recovered an
-individual's affect primarily from physiology. It may instead indicate that
-the stimulus coordinate predicts the group response well. A source-explicit
-prior makes this information visible and allows the physiological branch to be
-judged by its incremental contribution rather than by the fused score alone.
+The physiological increment was also heterogeneous. Fusion improved every
+aggregate metric, but it did not improve every viewer or video. This distinction
+matters: an aggregate reduction of 0.3165 is compatible with complementary
+physiology on some recordings, yet it does not establish a generally reliable
+person-specific correction. The paired residuals argue for hierarchical
+reporting rather than a single fused score.
 
 The small increment should not be read as a general absence of affective
-information in EEG or fNIRS. It may reflect the limited number of participants,
+information in EEG or fNIRS. It may reflect limited participant diversity,
 sensor noise, handcrafted one-second features, imperfect haemodynamic timing,
-cross-subject shift, or an architecture that does not isolate residual
-person-specific variation. The current aggregate errors cannot distinguish
-among these explanations. A stronger physiological model could increase the
-increment, but it would not remove the need for a stimulus-only comparator.
-
-The external blind result nevertheless makes the residual claim more specific:
-fusion improved valence, arousal, aggregate MAE, and MSE in the same direction,
-with a larger MAE reduction for arousal than for valence. This pattern is
-consistent with complementary physiology, but four aggregate test-subject
-scores and no paired residuals are insufficient for a significance claim or a
-mechanistic interpretation.
+cross-subject shift, or a model that does not isolate person-specific residuals.
+The present residual analysis identifies where gains and losses occur, but it
+cannot distinguish among these mechanisms. A stronger physiological model
+could increase the increment, but it would not remove the need for a
+stimulus-only comparator.
 
 \subsection{Implications for emotion-regression evaluation}
 
 Claims about physiological decoding require evaluation axes that match the
 intended use. Subject-held-out, stimulus-retained evaluation supports
 new-viewer prediction for familiar content. Stimulus-held-out evaluation asks
-whether a model transfers affective relations to new content. Holding out both
-participants and stimuli tests the most demanding form of generalisation. These
-settings answer different scientific questions and should not be collapsed
-into one score.
+whether affective relations transfer to new content. Holding out both
+participants and stimuli tests the most demanding form of generalisation.
+These settings answer different scientific questions and should not be
+collapsed into one score.
 
 Future studies should therefore use a crossed participant-by-stimulus design
 with four clearly labelled cells: familiar participant/familiar stimulus,
@@ -361,35 +391,37 @@ weights using training data only \cite{varma2006bias,varoquaux2017decoders}.
 Within each cell, physiology alone, stimulus prior alone, and fusion should be
 evaluated on identical keys.
 
-Reporting should also preserve the hierarchy of the data. In addition to
-sample-pooled MAE, participant-macro and video-macro MAE would prevent long
-trials or difficult videos from dominating silently. Paired residuals should
-be retained for each participant--video--time coordinate, with uncertainty
-estimated by resampling participants and videos rather than treating all
-36,864 temporally adjacent seconds as independent observations.
+Reporting should preserve the hierarchy of the data. In addition to
+sample-pooled MAE, participant-macro and video-macro results should be reported,
+and paired residuals should remain available for each
+participant--video--time coordinate. Uncertainty should be estimated by
+resampling participants and videos rather than treating temporally adjacent
+seconds as independent observations. The external stratification demonstrates
+why this matters: a favourable aggregate increment coexisted with losses for
+one viewer and six videos.
 
 \subsection{Limitations}
 
 The present evidence is bounded in four ways. First, all participants viewed
 the same 15 videos, so no result measures transfer to unseen stimuli. Second,
-the blind evaluation contains only four test participants and returns aggregate
-scores; participant-, video-, and time-specific uncertainty cannot be
-reconstructed. Third, checkpoint selection and the fixed fusion weights were
-not evaluated within a documented nested procedure. The internal 0.0487 and
-external 0.3165 fusion increments are descriptive and are not directly
-comparable because the physiological ensembles and held-out groups differ.
-Fourth, the physiological pipeline uses future one-second context and no
-explicit fNIRS haemodynamic shift, making it an offline estimator rather than a
-causal real-time decoder.
+the external cohort contains only four viewers. Sample-level targets permit
+descriptive viewer-, video-, and time-stratified analyses, but four participant
+clusters are insufficient for a stable significance claim, and adjacent
+seconds remain correlated. Third, checkpoint selection and the fixed fusion
+weights were not evaluated within a documented nested procedure. The internal
+0.0487 and external 0.3165 fusion increments are descriptive and are not
+directly comparable because the physiological ensembles and held-out groups
+differ. Fourth, the physiological pipeline uses future one-second context and
+no explicit fNIRS haemodynamic shift, making it an offline estimator rather
+than a causal real-time decoder.
 
 The dataset uses anonymous participant identifiers and does not support
 demographic, clinical, or subgroup conclusions. Moreover, the graph,
 cross-modal, and feature choices define only one physiological comparator.
 Conclusions about source dominance are therefore specific to this dataset,
 these repeated stimuli, and the evaluated modelling pipeline. The appropriate
-next experiment is not another aggregate fusion score, but a crossed
-participant--stimulus study with source-matched ablations and retained
-sample-level residuals.
+next experiment is a crossed participant--stimulus study with source-matched
+ablations, nested model selection, and cluster-aware uncertainty.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -397,14 +429,15 @@ sample-level residuals.
 We separated stimulus-locked group structure from EEG--fNIRS evidence in
 continuous emotion regression. Five-fold participant-held-out analysis reduced
 MAE from 47.3509 for physiology alone to 29.0633 for the video--time prior and
-29.0146 for fixed fusion. On four independent blind viewers, the global
+29.0146 for fixed fusion. In four external subject-disjoint viewers, the global
 constant, video identity, video--time prior, physiology, and fixed fusion
 obtained MAEs of 44.3296, 33.3627, 28.0410, 42.7486, and 27.7246,
-respectively. The staged ablation shows that both stimulus identity and its
-time-resolved trajectory drive subject-held-out accuracy; physiology provides a
-smaller but consistently favourable residual. This finding does not negate
-physiological affect information. It identifies the limit of what
-subject-held-out evaluation can establish when stimuli repeat. Source-explicit
-baselines and crossed participant-by-stimulus splits are necessary to determine
+respectively. The staged decomposition shows that stimulus identity and its
+time-resolved trajectory drive the main aggregate gain. Physiology provides a
+smaller residual increment that is favourable overall but heterogeneous across
+viewers and videos. This finding does not negate physiological affect
+information; it defines the limit of what subject-held-out evaluation can
+establish when stimuli repeat. Source-explicit baselines, paired hierarchical
+residuals, and crossed participant-by-stimulus splits are required to determine
 whether future gains arise from individual physiology, shared stimulus
 dynamics, or their interaction.
