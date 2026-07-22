@@ -1,0 +1,329 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Continuous emotion regression estimates moment-to-moment valence and arousal
+from behavioural or physiological observations. Such estimates support
+affective human--computer interaction, adaptive media, and the study of emotion
+during naturalistic experience \cite{picard1997affective,russell1980circumplex}.
+EEG provides millisecond-scale electrophysiological measurements, whereas
+functional near-infrared spectroscopy (fNIRS) captures slower haemodynamic
+changes. Their complementary temporal and physiological properties make
+EEG--fNIRS fusion a promising route to continuous affect modelling
+\cite{bandara2018fnirs,sun2020multimodal,chen2024eegfnirs}.
+
+A central difficulty is that affective physiology varies substantially across
+people. Differences in anatomy, sensor contact, baseline state, and response
+style produce cross-subject shifts that can be larger than the within-subject
+emotion signal \cite{li2022eegreview,li2018crosssubject}. Existing work
+therefore concentrates on invariant features, graph representations,
+multimodal fusion, or subject adaptation. These approaches address
+physiological variability, but they do not by themselves determine which
+information source is responsible for prediction accuracy.
+
+This attribution problem becomes acute when all participants view the same
+time-aligned stimuli. Naturalistic films induce temporally reliable neural and
+haemodynamic responses across viewers
+\cite{hasson2004intersubject,kauppi2010isc,nummenmaa2012synchrony,
+dmochowski2012correlated,dmochowski2014audience,ki2016attention}. Their affect
+labels can likewise contain a shared trajectory indexed by video and time.
+Holding out participants while retaining the same videos therefore tests a new
+viewer on familiar stimuli, not a wholly new affective situation. Without an
+explicit stimulus-only comparator, stimulus-locked group structure can be
+mistaken for information decoded from individual physiology.
+
+We address this source ambiguity rather than treating overall error as a
+self-explanatory measure of physiological decoding. Our analysis separates a
+training-derived video--time prior from an EEG--fNIRS predictor and rebuilds the
+prior inside every subject-held-out fold. This design asks how much error is
+explained by the repeated stimulus coordinates, how much remains in the
+physiological branch, and whether their fusion provides measurable incremental
+value. The contributions are threefold:
+
+\begin{itemize}
+  \item We formulate source ambiguity in repeated-stimulus continuous emotion
+  regression and introduce a fold-wise, source-explicit decomposition that
+  prevents held-out participant labels from entering the stimulus prior.
+  \item We quantify the relative contributions of shared stimulus structure and
+  multimodal physiology in a 24-participant EEG--fNIRS dataset, showing that the
+  former accounts for nearly all of the observed improvement over physiology
+  alone under the evaluated protocol.
+  \item We derive evaluation requirements for physiological claims: a
+  stimulus-only baseline, crossed participant-by-stimulus splits, paired
+  component residuals, and uncertainty estimates that respect participant and
+  video clustering.
+\end{itemize}
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Physiological emotion regression}
+
+Physiological emotion recognition commonly represents affect in categorical or
+valence--arousal spaces \cite{russell1980circumplex,koelstra2012deap}. EEG work
+has identified informative frequency bands and spatial patterns
+\cite{zheng2015critical}, while fNIRS studies use oxygenation-related statistics
+to model affective state \cite{bandara2018fnirs}. Multimodal systems combine the
+two signals through graph convolution, attention, or alignment mechanisms
+\cite{sun2020multimodal,chen2024eegfnirs,fang2026asac}. These methods motivate
+our physiological comparator, but our main question is not whether a more
+complex fusion architecture can reduce error. It is whether error reduction can
+be attributed to physiology once shared stimulus structure is measured
+explicitly.
+
+Cross-subject variation remains a persistent limitation
+\cite{li2022eegreview,li2018crosssubject}. Resting recordings and transfer
+learning have been used to align subjects or personalise affective decoders
+\cite{morioka2015resting,zheng2016personalizing}. Such adaptation is useful, but
+it addresses a different source from stimulus-locked agreement. A model may
+simultaneously face participant shift and benefit from knowing where a viewer is
+within a familiar video; the two effects should not be conflated.
+
+\subsection{Shared-stimulus structure and evaluation}
+
+Naturalistic stimuli generate inter-subject synchrony in both electrical and
+haemodynamic measurements
+\cite{hasson2004intersubject,kauppi2010isc,dmochowski2012correlated,
+dmochowski2014audience}. This synchrony is scientifically meaningful, yet it
+also means that repeated-stimulus datasets contain structure shared across
+participants. In continuous affect annotation, video identity and timestamp
+can index a population-level response trajectory even when no physiological
+sample is observed.
+
+Evaluation must therefore match the intended generalisation unit. Grouped
+cross-validation can prevent direct participant overlap, but it does not
+estimate transfer to unseen stimuli when videos recur across folds
+\cite{saeb2017usecase,roberts2017crossvalidation}. Model selection within the
+same folds can also produce optimistic estimates
+\cite{varma2006bias,varoquaux2017decoders}. Our analysis treats
+subject-held-out performance as evidence for new-viewer prediction on familiar
+videos and reserves unseen-stimulus claims for a crossed evaluation that the
+current data record does not provide.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Task and source decomposition}
+
+For participant \(s\), video \(v\), and second \(t\), the target is
+\(y_{s,v,t}\in[1,255]^2\), containing valence and arousal. The dataset comprises
+24 participants, 15 videos shared by all participants, 360 trials, and 36,864
+one-hertz targets; each trial also includes a five-second resting baseline
+\cite{merpsdataset}. EEG contains 64 channels, and fNIRS contains six signal
+types over 51 channels.
+
+We compare three information sources on identical held-out samples:
+
+\begin{enumerate}
+  \item a physiological prediction \(m_{s,v,t}\) obtained from EEG and fNIRS;
+  \item a video--time prior \(\bar p_{v,t}\) constructed from training labels;
+  \item a fixed convex fusion of the two.
+\end{enumerate}
+
+The prior never uses labels from the held-out participants. Consequently, the
+comparison does not test leakage from those participants; it measures how much
+of their affect trajectory is predictable from other viewers at the same
+stimulus coordinate.
+
+\subsection{Fold-wise video--time prior}
+
+Within each training fold, we aggregate labels at every video--time coordinate
+using the cross-participant median:
+\begin{equation}
+ p^d_{v,t} =
+ \operatorname{median}_{s\in\mathcal S_{\mathrm{tr}}} y^d_{s,v,t},
+ \qquad d\in\{V,A\}.
+\end{equation}
+We then smooth each trajectory with a radius-three moving average,
+\begin{equation}
+ \bar p^d_{v,t} =
+ \frac{1}{|\mathcal I_{v,t}|}
+ \sum_{u\in\mathcal I_{v,t}} p^d_{v,u},
+ \quad
+ \mathcal I_{v,t}=\{u:|u-t|\leq3,\ 0\leq u<T_v\}.
+\end{equation}
+Smoothing never crosses video boundaries. The median limits the influence of
+individual trajectories, and rebuilding the prior in every fold ensures that
+the labels of a held-out participant cannot determine its prediction.
+
+\subsection{EEG--fNIRS physiological branch}
+
+Signals are centred using the corresponding trial baseline. EEG is resampled
+to 200 Hz. For each channel and one-second segment, we compute relative log
+power and differential entropy in six bands from 1 to 45 Hz, together with
+Hjorth activity, mobility, and complexity \cite{hjorth1970eeg}. These 15
+features are concatenated over \(t-1,t,t+1\), yielding a \(64\times45\) EEG
+tensor. For each fNIRS channel and each of six signal types, we compute mean,
+standard deviation, slope, skewness, and kurtosis. Temporal concatenation yields
+a \(51\times90\) fNIRS tensor. Edge padding is used at trial boundaries.
+
+Each modality is encoded with a learned-adjacency, multi-order graph network
+using identity, first-order, and second-order propagation supports, producing
+32-dimensional channel embeddings. Four-head attention exchanges information
+in both EEG-to-fNIRS and fNIRS-to-EEG directions
+\cite{vaswani2017attention,tsai2019multimodal}. Mean and maximum pooling over
+the modality-specific and cross-modal tokens feed a multilayer regressor.
+Training minimises normalised-target mean squared error plus \(0.01\) times a
+symmetric contrastive alignment loss \cite{chen2020simclr}. Models use
+participant-grouped folds, AdamW optimisation, strong dropout, and early
+stopping on fold validation MSE.
+
+\subsection{Fixed fusion}
+
+For the retained source-decomposition analysis, the fused estimate is
+\begin{equation}
+ \hat y_{s,v,t}
+ =
+ w\odot \bar p_{v,t} + (1-w)\odot m_{s,v,t},
+ \qquad w=[0.99,0.92].
+\end{equation}
+These fixed weights strongly favour the prior. Our central evidence is therefore
+the direct comparison between the prior and physiological branches; the small
+fusion difference is reported as a descriptive incremental result rather than
+as evidence for an optimally selected hybrid. All three outputs are evaluated
+on the same held-out samples.
+
+\section{Experiments and Results}
+\label{sec:experiments}
+
+\subsection{Subject-held-out protocol}
+
+Participants are partitioned into five folds. For every fold, the video--time
+prior is reconstructed using only training participants, and the matching
+physiological checkpoint predicts the held-out participants. The full-data
+checkpoint is excluded. Predictions and targets from the five folds are
+concatenated before computing sample-pooled MAE for valence, arousal, and their
+arithmetic mean.
+
+This protocol isolates participants but not videos. It therefore evaluates the
+specific setting of an unseen viewer responding to the same 15 stimuli. It does
+not evaluate new-video transfer, and the time-aligned seconds are not treated
+as independent observations for inferential claims.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{source_dominance.pdf}
+  \caption{Source decomposition under five-fold participant-held-out
+  evaluation. (a) The video--time prior substantially reduces MAE relative to
+  the physiological branch. (b) Fusion provides only a small additional
+  reduction beyond the prior. (c) The stacked bars decompose the total
+  model-to-fusion reduction into the contribution already achieved by the prior
+  and the remaining fusion increment. The analysis uses \(w=[.99,.92]\) and no
+  resting-output calibration.}
+  \Description{A three-panel quantitative figure compares physiological,
+  video--time-prior, and fused MAE for overall affect, valence, and arousal,
+  then decomposes the total reduction into the prior contribution and the
+  incremental fusion contribution.}
+  \label{fig:source-dominance}
+\end{figure}
+
+\subsection{Shared stimulus structure dominates prediction}
+
+The physiological branch obtained an overall MAE of 47.3509, with valence MAE
+51.3475 and arousal MAE 43.3543. The fold-wise video--time prior reduced these
+errors to 29.0633 overall, 26.6681 for valence, and 31.4585 for arousal
+(Figure~\ref{fig:source-dominance}). Thus the prior improved overall MAE by
+18.2876 relative to physiology alone.
+
+Fixed fusion reached 29.0146 overall, 26.6642 for valence, and 31.3651 for
+arousal. Relative to the prior, this corresponds to improvements of 0.0487
+overall, 0.0039 for valence, and 0.0934 for arousal. Of the total 18.3363-point
+reduction from physiology alone to fusion, 99.7\% was already achieved by the
+stimulus prior. Under the evaluated repeated-video setting, shared stimulus
+structure therefore accounts for nearly all of the observed predictive gain,
+whereas the measured physiological increment is small.
+
+This is a source-attribution result, not evidence that physiology is
+uninformative in general. The aggregate record does not retain paired
+sample-level residuals or uncertainty estimates, so the small fusion gain
+cannot be localised to particular participants, videos, or time intervals and
+should be interpreted descriptively.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What the decomposition reveals}
+
+The central finding is that subject-held-out emotion regression can remain
+dominated by information shared across participants. Rebuilding the prior
+without held-out labels rules out direct label leakage from those participants,
+yet the prior still substantially outperforms the EEG--fNIRS branch. The most
+plausible interpretation is that the aligned videos induce a reproducible
+population-level affect trajectory that is available through video identity and
+time alone.
+
+This interpretation changes what the reported error means. Low error in a
+repeated-stimulus protocol need not imply that a model has recovered an
+individual's affect primarily from physiology. It may instead indicate that
+the stimulus coordinate predicts the group response well. A source-explicit
+prior makes this information visible and allows the physiological branch to be
+judged by its incremental contribution rather than by the fused score alone.
+
+The small increment should not be read as a general absence of affective
+information in EEG or fNIRS. It may reflect the limited number of participants,
+sensor noise, handcrafted one-second features, imperfect haemodynamic timing,
+cross-subject shift, or an architecture that does not isolate residual
+person-specific variation. The current aggregate errors cannot distinguish
+among these explanations. A stronger physiological model could increase the
+increment, but it would not remove the need for a stimulus-only comparator.
+
+\subsection{Implications for emotion-regression evaluation}
+
+Claims about physiological decoding require evaluation axes that match the
+intended use. Subject-held-out, stimulus-retained evaluation supports
+new-viewer prediction for familiar content. Stimulus-held-out evaluation asks
+whether a model transfers affective relations to new content. Holding out both
+participants and stimuli tests the most demanding form of generalisation. These
+settings answer different scientific questions and should not be collapsed
+into one score.
+
+Future studies should therefore use a crossed participant-by-stimulus design
+with four clearly labelled cells: familiar participant/familiar stimulus,
+unseen participant/familiar stimulus, familiar participant/unseen stimulus,
+and unseen participant/unseen stimulus. Every outer split should rebuild the
+stimulus prior, feature standardisation, checkpoint selection, and fusion
+weights using training data only \cite{varma2006bias,varoquaux2017decoders}.
+Within each cell, physiology alone, stimulus prior alone, and fusion should be
+evaluated on identical keys.
+
+Reporting should also preserve the hierarchy of the data. In addition to
+sample-pooled MAE, participant-macro and video-macro MAE would prevent long
+trials or difficult videos from dominating silently. Paired residuals should
+be retained for each participant--video--time coordinate, with uncertainty
+estimated by resampling participants and videos rather than treating all
+36,864 temporally adjacent seconds as independent observations.
+
+\subsection{Limitations}
+
+The present evidence is bounded in four ways. First, all participants viewed
+the same 15 videos, so no result measures transfer to unseen stimuli. Second,
+only aggregate component scores were retained; paired uncertainty and
+participant- or video-specific failure patterns cannot be reconstructed.
+Third, checkpoint selection and the fixed fusion weights were not evaluated
+within a documented nested procedure. The absolute errors and the 0.0487
+fusion increment should therefore be treated as descriptive. Fourth, the
+physiological pipeline uses future one-second context and no explicit fNIRS
+haemodynamic shift, making it an offline estimator rather than a causal
+real-time decoder.
+
+The dataset uses anonymous participant identifiers and does not support
+demographic, clinical, or subgroup conclusions. Moreover, the graph,
+cross-modal, and feature choices define only one physiological comparator.
+Conclusions about source dominance are therefore specific to this dataset,
+these repeated stimuli, and the evaluated modelling pipeline. The appropriate
+next experiment is not another aggregate fusion score, but a crossed
+participant--stimulus study with source-matched ablations and retained
+sample-level residuals.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We separated stimulus-locked group structure from EEG--fNIRS evidence in
+continuous emotion regression. In five-fold participant-held-out evaluation,
+the video--time prior reduced MAE from 47.3509 for physiology alone to 29.0633,
+while fixed fusion reached 29.0146. Shared stimulus structure thus explained
+nearly all of the observed improvement under the repeated-video protocol. This
+finding does not negate physiological affect information; it identifies the
+limit of what subject-held-out evaluation can establish when stimuli repeat.
+Source-explicit baselines and crossed participant-by-stimulus splits are
+necessary to determine whether future gains arise from individual physiology,
+shared stimulus dynamics, or their interaction.

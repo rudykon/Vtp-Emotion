@@ -1,0 +1,98 @@
+\documentclass[sigconf,screen,review,anonymous]{acmart}
+
+% Anonymous ACM double-column review manuscript.
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{xcolor}
+
+\definecolor{priorblue}{HTML}{2C7FB8}
+\definecolor{modelorange}{HTML}{D95F0E}
+\definecolor{calgreen}{HTML}{238B45}
+\graphicspath{{figures/}}
+
+% Compact float spacing without changing the ACM margins or type size.
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.80}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+\setcopyright{none}
+\settopmatter{printacmref=true,printfolios=true}
+\acmConference[ACM MM '26]{Proceedings of the 34th ACM International Conference on Multimedia}{November 10--14, 2026}{Rio de Janeiro, Brazil}
+\acmBooktitle{Proceedings of the 34th ACM International Conference on Multimedia (ACM MM '26), November 10--14, 2026, Rio de Janeiro, Brazil}
+\acmYear{2026}
+\acmDOI{}
+\acmISBN{}
+\hypersetup{pdfauthor={Anonymous Author(s)},pdftitle={Shared-Stimulus Structure Dominates Subject-Held-Out EEG--fNIRS Emotion Regression}}
+
+\begin{document}
+
+\title{Shared-Stimulus Structure Dominates Subject-Held-Out EEG--fNIRS Emotion Regression}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \country{}
+}
+\email{}
+
+\begin{abstract}
+Continuous emotion regression seeks to estimate moment-to-moment valence and
+arousal from physiological recordings. When every participant views the same
+time-aligned videos, however, subject-held-out evaluation leaves stimulus
+identity and time unchanged. This creates a source ambiguity: apparent
+prediction accuracy may reflect a stimulus-locked group trajectory rather than
+information decoded from an individual's physiology. We introduce a
+source-explicit analysis that separates a fold-wise video--time prior from an
+EEG--fNIRS predictor. The prior is constructed only from training participants,
+whereas the physiological branch uses baseline-centred spectral, statistical,
+graph, and cross-modal representations. Across 24 participants viewing 15
+shared videos, the physiological branch obtained a mean absolute error (MAE) of
+47.3509, the prior 29.0633, and their fixed fusion 29.0146. Thus, under this
+repeated-stimulus protocol, most predictive performance is attributable to
+shared stimulus structure and the measured physiological increment is small.
+This result does not imply that EEG or fNIRS lacks affective information; it
+shows that subject-held-out evaluation alone cannot identify its contribution
+when stimuli repeat. Source-explicit baselines and crossed subject-by-stimulus
+splits are therefore necessary for interpretable emotion regression.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+  <concept>
+    <concept_id>10002951.10003260.10003277</concept_id>
+    <concept_desc>Information systems~Multimedia information systems</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10010147.10010257.10010293.10010294</concept_id>
+    <concept_desc>Computing methodologies~Neural networks</concept_desc>
+    <concept_significance>300</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10010405.10010444.10010450</concept_id>
+    <concept_desc>Applied computing~Psychology</concept_desc>
+    <concept_significance>300</concept_significance>
+  </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Multimedia information systems}
+\ccsdesc[300]{Computing methodologies~Neural networks}
+\ccsdesc[300]{Applied computing~Psychology}
+
+\keywords{EEG--fNIRS, continuous emotion regression, shared-stimulus structure, video--time prior, subject-held-out evaluation}
+
+\maketitle
+
+\input{body}
+
+\clearpage
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

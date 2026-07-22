@@ -1,0 +1,5 @@
+numpy>=1.26
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1+cu121
+matplotlib>=3.8
+Pillow>=10.0

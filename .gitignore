@@ -1,0 +1,47 @@
+# Secrets
+github_token.json
+token.json
+*.pem
+*.key
+*.token
+.env
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+
+# Local datasets and generated features
+data/MER_PS_trainval/
+data/feature_cache/
+data/download/
+*.npy
+
+# Local model checkpoints and generated run artifacts
+checkpoints/
+artifacts/
+
+# LaTeX build artifacts (keep review PDFs explicitly tracked only if desired)
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.synctex.gz
+paper/*.xdv
+results/training_log*.txt
+paper/missfont.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

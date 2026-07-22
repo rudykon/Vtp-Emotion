@@ -1,0 +1,90 @@
+\documentclass[sigconf,screen,review,anonymous]{acmart}
+
+% 匿名 ACM 双栏中文对照稿。请使用 XeLaTeX 编译。
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{xeCJK}
+\setCJKmainfont[
+  BoldFont={Noto Serif CJK SC Bold},
+  ItalicFont={Noto Serif CJK SC},
+  BoldItalicFont={Noto Serif CJK SC Bold}
+]{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans Mono CJK SC}
+\XeTeXlinebreaklocale "zh"
+
+\definecolor{priorblue}{HTML}{2C7FB8}
+\definecolor{modelorange}{HTML}{D95F0E}
+\definecolor{calgreen}{HTML}{238B45}
+\graphicspath{{figures/}}
+
+% 与英文稿一致的紧凑浮动体间距，不改变 ACM 页边距或字号。
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.80}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+\setcopyright{none}
+\settopmatter{printacmref=true,printfolios=true}
+\acmConference[ACM MM '26]{第34届 ACM 国际多媒体会议论文集}{2026年11月10--14日}{巴西里约热内卢}
+\acmBooktitle{第34届 ACM 国际多媒体会议论文集（ACM MM '26），2026年11月10--14日，巴西里约热内卢}
+\acmYear{2026}
+\acmDOI{}
+\acmISBN{}
+\hypersetup{pdfauthor={匿名作者},pdftitle={共享刺激结构主导被试留出的 EEG--fNIRS 情感回归}}
+
+\begin{document}
+
+\title{共享刺激结构主导被试留出的 EEG--fNIRS 情感回归}
+
+\author{匿名作者}
+\affiliation{%
+  \institution{匿名单位}
+  \country{}
+}
+\email{}
+
+\begin{abstract}
+连续情感回归旨在从生理记录中估计随时间变化的效价与唤醒度。然而，当所有被试观看相同且时间对齐的视频时，被试留出评测并未留出刺激标识及其时间坐标。这导致一种来源混淆：表面上的预测准确性可能来自刺激锁定的群体情感轨迹，而非从个体生理中解码出的信息。我们提出来源显式分析，将折内构建的视频—时间先验与 EEG--fNIRS 预测器分离。先验仅由训练被试构建，生理分支则结合基线中心化的频谱、统计、图结构和跨模态表示。在 24 名被试观看 15 个共享视频的数据上，生理分支的平均绝对误差（MAE）为 47.3509，先验为 29.0633，固定融合为 29.0146。因此，在该重复刺激协议下，大部分预测性能可归因于共享刺激结构，已测得的生理增量较小。这一结果并不意味着 EEG 或 fNIRS 缺乏情感信息；它表明，当刺激重复时，仅靠被试留出评测无法识别生理信息的独立贡献。为了得到可解释的情感回归结论，需要来源显式基线以及被试×刺激交叉留出设计。
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+  <concept>
+    <concept_id>10002951.10003260.10003277</concept_id>
+    <concept_desc>Information systems~Multimedia information systems</concept_desc>
+    <concept_significance>500</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10010147.10010257.10010293.10010294</concept_id>
+    <concept_desc>Computing methodologies~Neural networks</concept_desc>
+    <concept_significance>300</concept_significance>
+  </concept>
+  <concept>
+    <concept_id>10010405.10010444.10010450</concept_id>
+    <concept_desc>Applied computing~Psychology</concept_desc>
+    <concept_significance>300</concept_significance>
+  </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{信息系统~多媒体信息系统}
+\ccsdesc[300]{计算方法~神经网络}
+\ccsdesc[300]{应用计算~心理学}
+
+\keywords{EEG--fNIRS，连续情感回归，共享刺激结构，视频—时间先验，被试留出评测}
+
+\maketitle
+
+\input{body_zh}
+
+\clearpage
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

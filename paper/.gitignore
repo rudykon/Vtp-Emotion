@@ -1,0 +1,14 @@
+# Generated LaTeX artifacts; source files remain versioned.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+main.pdf
+main_zh.pdf
+*.orig
+*.rej
+*.synctex.gz
+
