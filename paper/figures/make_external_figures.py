@@ -329,7 +329,14 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_d.set_title("Error varies across video time", loc="left")
     ax_d.grid(color="#E5E5E5", linewidth=0.45)
     ax_d.set_axisbelow(True)
-    ax_d.legend(loc="center", bbox_to_anchor=(0.58, 0.60), ncol=2, columnspacing=0.8, handletextpad=0.4)
+    ax_d.legend(
+        loc="lower right",
+        bbox_to_anchor=(0.98, 0.03),
+        ncol=1,
+        borderaxespad=0.0,
+        labelspacing=0.35,
+        handletextpad=0.4,
+    )
     add_panel_label(ax_d, "d", x=-0.16)
 
     save_publication_figure(fig, output_dir / "external_source_decomposition")
