@@ -75,6 +75,16 @@ EEG 提供毫秒级电生理测量，功能性近红外光谱（fNIRS）则捕�
 
 该流程在融合前产生两个互补估计。视频—时间先验 \(\bar p_{v,t}\) 检索与熟悉视频及秒级时刻对应的群体轨迹。EEG--fNIRS 分支 \(m_{s,v,t}\) 提取一秒通道特征，使用图网络分别编码两种模态，通过注意力交换跨模态信息，并从池化 token 回归效价与唤醒度。偏重先验的固定融合输出最终预测 \(\hat y_{s,v,t}\)。该设计使低成本共享反应与参与者特异性生理修正能够被分别测量。
 
+图~\ref{fig:method-overview} 概括了这一防泄漏、来源显式的完整流程。
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{method_overview.png}
+  \caption{方法概览。（A）新观众在熟悉视频的秒级时刻 \(t\) 提供 EEG--fNIRS 信号。（B）视频—时间先验分支（蓝色）通过折内跨参与者中位数和半径为三的视频内平滑聚合训练参与者标签，得到 \(\bar p_{v,t}\)，其中不包含留出标签；EEG--fNIRS 分支（橙色）提取 \(t-1\)、\(t\) 和 \(t+1\) 的一秒特征，经图编码器和双向跨模态注意力回归 \(m_{s,v,t}\)。（C）偏重先验的固定融合使用效价和唤醒度的先验权重 \(w=[0.99,0.92]\)，生成 \(\hat y_{s,v,t}\)。}
+  \Description{三面板方法概览图依次展示新观众观看熟悉视频的场景、防泄漏的视频—时间先验与参与者特异性 EEG--fNIRS 分支，以及二者固定融合为预测效价—唤醒度轨迹的过程。}
+  \label{fig:method-overview}
+\end{figure*}
+
 \subsection{折内视频—时间先验}
 
 在每个训练折内，我们对每个视频—时间坐标的标签计算跨参与者中位数：
@@ -180,7 +190,7 @@ MER-PS 2026 训练与验证数据包含 24 名参与者、所有参与者共同�
 
 表~\ref{tab:main-mae} 汇总了内部和外部结果。固定融合在两组评估中均取得最低总体 MAE，内部为 29.01，外部为 27.72。视频—时间先验与其分别仅相差 0.05 和 0.32 MAE，而 EEG--fNIRS 分支的误差明显更高。效价和唤醒度也呈现相同排序。
 
-\begin{figure}[H]
+\begin{figure}[!t]
   \centering
   \includegraphics[width=\columnwidth]{source_dominance.pdf}
   \caption{内部参与者留出 MAE。（a）EEG--fNIRS 分支、视频—时间先验和固定融合的总体 MAE。（b）按目标划分的从先验到融合的额外 MAE 降幅。}

@@ -142,6 +142,28 @@ arousal from pooled tokens. A fixed convex combination returns the final
 prediction \(\hat y_{s,v,t}\). This design makes the low-cost shared response and
 the participant-specific physiological correction separately measurable.
 
+Figure~\ref{fig:method-overview} summarizes this leakage-controlled,
+source-explicit pipeline.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{method_overview.png}
+  \caption{Method overview. (A) A new viewer contributes EEG--fNIRS at second
+  \(t\) of a familiar video. (B) The video--time prior branch (blue) aggregates
+  training-participant labels via a fold-wise cross-participant median and
+  radius-three within-video smoothing to yield \(\bar p_{v,t}\); held-out labels
+  are excluded. The EEG--fNIRS branch (orange) extracts one-second features from
+  \(t-1\), \(t\), and \(t+1\), applies graph encoders and bidirectional cross-modal
+  attention, and regresses \(m_{s,v,t}\). (C) Prior-dominating fixed fusion with
+  valence and arousal prior weights \(w=[0.99,0.92]\) produces
+  \(\hat y_{s,v,t}\).}
+  \Description{A three-panel overview shows a new viewer watching a familiar
+  video, the leakage-controlled video--time prior and participant-specific
+  EEG--fNIRS branches, and their fixed fusion into a predicted valence--arousal
+  trajectory.}
+  \label{fig:method-overview}
+\end{figure*}
+
 \subsection{Fold-wise video--time prior}
 
 Within each training fold, we aggregate labels at every video--time coordinate

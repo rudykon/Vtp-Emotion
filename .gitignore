@@ -48,5 +48,6 @@ Thumbs.db
 
 # Locally generated raster previews; vector paper figures remain versioned
 paper/figures/*.png
+!paper/figures/method_overview.png
 paper/figures/*.tif
 paper/figures/*.tiff

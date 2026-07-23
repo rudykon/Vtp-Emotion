@@ -22,18 +22,20 @@
 
 ## 图件论证结构
 
-`external_data_landscape` 是正文 Figure 1，展示外部效价—唤醒度标签覆盖，以及各视频在归一化时间区间中的样本加权平均效价和唤醒度。该图用于交代外部评估域及其描述性差异；其中的重复观测不参与预测器构建，也不承担因果、统计显著性或未见视频泛化结论。
+`method_overview` 是正文 Figure 1，以三个面板概括熟悉视频情感回归场景、折内视频—时间先验与 EEG--fNIRS 分支，以及偏重先验的固定融合。该图明确区分训练标签衍生的共享轨迹和新观众提供的生理信号，并强调留出标签不参与先验构建。
 
-`source_dominance` 是正文 Figure 2（2×1 单栏内部 MAE 对比图）：沿用 Figure 1 的蓝—红发散配色，以及 Figure 3 的横向柱图和增量棒棒糖图结构，展示固定融合取得最低 MAE，并说明视频—时间先验几乎解释了从 EEG--fNIRS 分支到融合的全部误差降幅。
+`external_data_landscape` 是正文 Figure 2，展示外部效价—唤醒度标签覆盖，以及各视频在归一化时间区间中的样本加权平均效价和唤醒度。该图用于交代外部评估域及其描述性差异；其中的重复观测不参与预测器构建，也不承担因果、统计显著性或未见视频泛化结论。
 
-`external_source_decomposition` 是正文 Figure 3（双栏外部 MAE 与残差分析主图），采用与 Figure 1 一致的蓝—红发散配色，其四个面板依次展示：
+`source_dominance` 是正文 Figure 3（2×1 单栏内部 MAE 对比图）：沿用 Figure 2 的蓝—红发散配色，以及 Figure 4 的横向柱图和增量棒棒糖图结构，展示固定融合取得最低 MAE，并说明视频—时间先验几乎解释了从 EEG--fNIRS 分支到融合的全部误差降幅。
+
+`external_source_decomposition` 是正文 Figure 4（双栏外部 MAE 与残差分析主图），采用与 Figure 2 一致的蓝—红发散配色，其四个面板依次展示：
 
 1. 五种来源变体的总体 MAE；
 2. 4 名参与者上按幅度排序的配对融合增量；
 3. 15 个视频上按幅度排序的融合增益与损失；
 4. 十个归一化视频时间区间上的误差曲线。
 
-全部图件均由 Python/matplotlib 生成。SVG 和 PDF 保留可编辑文字；本地还导出 PNG 预览与 600 dpi、LZW 压缩 TIFF。秒级样本仅用于描述性汇总，不进行伪重复显著性检验。
+三张定量图件均由 Python/matplotlib 生成，其 SVG 和 PDF 保留可编辑文字；本地还导出 PNG 预览与 600 dpi、LZW 压缩 TIFF。方法概览图以正文实际引用的 PNG 文件保存。秒级样本仅用于描述性汇总，不进行伪重复显著性检验。
 
 ## 论文行文结构
 
@@ -76,6 +78,7 @@ pdfinfo main_zh.pdf
 - `figures/source_data_external_time.csv`：归一化时间分层指标。
 - `figures/source_data_external_trials.csv`：试验级标签摘要。
 - `figures/source_data_external_samples.csv`：数据景观图所需的逐样本标签与元数据。
+- `figures/method_overview.png`：熟悉视频情感回归方法概览图。
 - `figures/source_dominance.{pdf,svg}`：五折来源分解图。
 - `figures/external_source_decomposition.{pdf,svg}`：外部来源分解主图。
 - `figures/external_data_landscape.{pdf,svg}`：外部标签覆盖与视频—时间数据景观图。
