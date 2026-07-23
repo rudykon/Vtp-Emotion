@@ -237,16 +237,17 @@ as independent observations for inferential claims.
   \centering
   \includegraphics[width=\columnwidth]{source_dominance.pdf}
   \caption{MAE performance and post-hoc source analysis under five-fold
-  participant-held-out evaluation. (a) The video--time prior substantially reduces MAE relative to
-  the physiological branch. (b) Fusion provides only a small additional
-  reduction beyond the prior. (c) The stacked bars decompose the total
-  model-to-fusion reduction into the contribution already achieved by the prior
-  and the remaining fusion increment. The analysis uses \(w=[.99,.92]\) and no
-  resting-output calibration.}
-  \Description{A three-panel quantitative figure compares physiological,
-  video--time-prior, and fused MAE for overall affect, valence, and arousal,
-  then decomposes the total reduction into the prior contribution and the
-  incremental fusion contribution.}
+  participant-held-out evaluation. (a) Overall MAE for the physiological
+  branch, fold-wise video--time prior, and fixed fusion. The prior accounts for
+  99.7\% of the observed physiology-to-fusion reduction, while fixed fusion
+  achieves the lowest MAE. (b) The additional reduction from the prior to fixed
+  fusion for overall affect, valence, and arousal. These aggregate differences
+  are descriptive. The analysis uses \(w=[.99,.92]\) and no resting-output
+  calibration.}
+  \Description{A two-panel quantitative figure. The first panel shows that the
+  video--time prior produces nearly all of the overall MAE reduction and fixed
+  fusion has the lowest error. The second panel shows the small additional
+  fusion reductions for overall affect, valence, and arousal.}
   \label{fig:source-dominance}
 \end{figure}
 

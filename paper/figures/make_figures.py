@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the paper's three-panel MAE and post-hoc analysis figure."""
+"""Regenerate the paper's two-panel MAE and post-hoc analysis figure."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 SOURCE_CSV = HERE / "source_data_components.csv"
@@ -23,9 +24,12 @@ COMPONENT_LABELS = {
     "Fused prediction": "Fixed fusion",
 }
 METRICS = ("Overall", "Valence", "Arousal")
-METRIC_COLORS = ("#4C78A8", "#F58518", "#54A24B")
-PRIOR_COLOR = "#2C7FB8"
-FUSION_COLOR = "#238B45"
+PHYSIOLOGY_COLOR = "#B8BEC8"
+PRIOR_COLOR = "#7B9FC6"
+FUSION_COLOR = "#174F7A"
+GAIN_COLOR = "#238B45"
+TEXT_COLOR = "#272727"
+GUIDE_COLOR = "#D8DCE2"
 
 
 def normalize_svg(path: Path) -> None:
@@ -51,8 +55,8 @@ def load_components(path: Path) -> dict[str, dict[str, float]]:
 
 def add_panel_label(ax: plt.Axes, label: str) -> None:
     ax.text(
-        -0.17,
-        1.08,
+        -0.37,
+        1.10,
         label,
         transform=ax.transAxes,
         fontsize=8.5,
@@ -77,13 +81,18 @@ def main() -> None:
     output_pdf.parent.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update(
         {
-            "font.family": "DejaVu Sans",
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
             "font.size": 7.2,
             "axes.labelsize": 7.2,
-            "axes.titlesize": 7.4,
+            "axes.titlesize": 7.6,
             "xtick.labelsize": 6.8,
-            "ytick.labelsize": 6.8,
-            "legend.fontsize": 6.4,
+            "ytick.labelsize": 6.9,
+            "text.color": TEXT_COLOR,
+            "axes.labelcolor": TEXT_COLOR,
+            "axes.titlecolor": TEXT_COLOR,
+            "xtick.color": TEXT_COLOR,
+            "ytick.color": TEXT_COLOR,
             "axes.spines.top": False,
             "axes.spines.right": False,
             "axes.linewidth": 0.6,
@@ -99,72 +108,86 @@ def main() -> None:
     physiology = data["Physiological branch"]
     prior = data["Video--time prior"]
     fusion = data["Fused prediction"]
+    overall_prior_share = 100.0 * (
+        physiology["Overall"] - prior["Overall"]
+    ) / (physiology["Overall"] - fusion["Overall"])
 
     fig, axes = plt.subplots(
-        3,
+        2,
         1,
-        figsize=(3.30, 4.65),
-        gridspec_kw={"height_ratios": [1.65, 1.0, 1.05]},
-        layout="constrained",
+        figsize=(3.35, 3.35),
+        gridspec_kw={"height_ratios": [1.35, 1.0], "hspace": 0.72},
     )
 
-    # (a) Component MAE on the same held-out samples.
+    # (a) Hero panel: the primary overall-MAE result.
     ax = axes[0]
     components = tuple(COMPONENT_LABELS)
+    values = np.asarray([data[component]["Overall"] for component in components])
     y = np.arange(len(components), dtype=float)
-    height = 0.22
-    for metric_index, (metric, color) in enumerate(zip(METRICS, METRIC_COLORS)):
-        values = [data[component][metric] for component in components]
-        offset = (metric_index - 1) * height
-        bars = ax.barh(y + offset, values, height=height, color=color, label=metric)
-        ax.bar_label(bars, fmt="%.2f", padding=1.5, fontsize=5.8)
+    colors = [PHYSIOLOGY_COLOR, PRIOR_COLOR, FUSION_COLOR]
+    bars = ax.barh(y, values, height=0.58, color=colors, edgecolor="none")
     ax.set_yticks(y, [COMPONENT_LABELS[item] for item in components])
     ax.invert_yaxis()
-    component_max = max(data[component][metric] for component in components for metric in METRICS)
-    ax.set_xlim(0, component_max * 1.14)
-    ax.set_xlabel("Mean absolute error")
-    ax.set_title("Held-out MAE comparison", loc="left", pad=12)
-    ax.grid(axis="x", color="#D9D9D9", linewidth=0.5, zorder=0)
+    ax.set_xlim(0, 55)
+    ax.set_xticks([0, 20, 40])
+    ax.set_xlabel("Overall mean absolute error (lower is better)")
+    ax.set_title("Held-out viewers", loc="left", pad=5, fontweight="bold")
+    ax.grid(axis="x", color=GUIDE_COLOR, linewidth=0.5, zorder=0)
     ax.set_axisbelow(True)
-    ax.legend(ncol=3, frameon=False, loc="lower left", bbox_to_anchor=(0.0, 1.0))
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0, pad=5)
+    for index, (bar, value) in enumerate(zip(bars, values)):
+        ax.text(
+            value + 0.75,
+            bar.get_y() + bar.get_height() / 2,
+            f"{value:.2f}",
+            ha="left",
+            va="center",
+            fontsize=7.0,
+            fontweight="bold" if index == 2 else "normal",
+            color=FUSION_COLOR if index == 2 else TEXT_COLOR,
+        )
+    ax.text(
+        0.0,
+        -0.34,
+        f"Prior captures {overall_prior_share:.1f}% of the overall reduction",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=6.6,
+        color=FUSION_COLOR,
+        bbox={"boxstyle": "round,pad=0.28", "facecolor": "#EEF4FA", "edgecolor": "none"},
+    )
     add_panel_label(ax, "a")
 
-    # (b) The incremental reduction added by fusion beyond the prior.
+    # (b) Supporting panel: the small dimension-specific fusion increment.
     ax = axes[1]
     increments = np.asarray([prior[metric] - fusion[metric] for metric in METRICS])
-    x = np.arange(len(METRICS))
-    increment_colors = [FUSION_COLOR if value >= 0 else "#B23A48" for value in increments]
-    bars = ax.bar(x, increments, width=0.58, color=increment_colors)
-    ax.bar_label(bars, fmt="%.3f", padding=2, fontsize=6.4)
-    ax.set_xticks(x, METRICS)
-    increment_scale = max(float(np.max(np.abs(increments))), 1e-6)
-    ax.set_ylim(min(0.0, float(increments.min()) - 0.25 * increment_scale), max(0.0, float(increments.max()) + 0.35 * increment_scale))
-    ax.axhline(0.0, color="#555555", linewidth=0.6)
-    ax.set_ylabel("MAE reduction")
-    ax.set_title("Fusion increment beyond the prior", loc="left")
-    ax.grid(axis="y", color="#D9D9D9", linewidth=0.5, zorder=0)
-    ax.set_axisbelow(True)
-    add_panel_label(ax, "b")
-
-    # (c) Share of the observed physiology-to-fusion reduction.
-    ax = axes[2]
-    prior_gains = np.asarray([physiology[m] - prior[m] for m in METRICS])
-    fusion_gains = np.asarray([prior[m] - fusion[m] for m in METRICS])
-    total_gains = prior_gains + fusion_gains
-    prior_shares = 100.0 * prior_gains / total_gains
-    fusion_shares = 100.0 * fusion_gains / total_gains
-    y = np.arange(len(METRICS))
-    ax.barh(y, prior_shares, color=PRIOR_COLOR, label="Prior gain")
-    ax.barh(y, fusion_shares, left=prior_shares, color=FUSION_COLOR, label="Fusion increment")
-    for index, share in enumerate(prior_shares):
-        ax.text(share / 2.0, index, f"{share:.1f}%", ha="center", va="center", color="white", fontsize=6.6)
+    y = np.arange(len(METRICS), dtype=float)
+    ax.hlines(y, 0.0, increments, color="#AEB6C0", linewidth=2.0, zorder=1)
+    ax.scatter(increments, y, s=30, color=GAIN_COLOR, edgecolor="white", linewidth=0.7, zorder=2)
+    ax.axvline(0.0, color=TEXT_COLOR, linewidth=0.7)
     ax.set_yticks(y, METRICS)
     ax.invert_yaxis()
-    ax.set_xlim(0, 100)
-    ax.set_xlabel("Share of total observed MAE reduction (%)")
-    ax.set_title("Composition of MAE reduction", loc="left", pad=12)
-    ax.legend(ncol=2, frameon=False, loc="lower left", bbox_to_anchor=(0.0, 1.0))
-    add_panel_label(ax, "c")
+    ax.set_xlim(-0.004, 0.112)
+    ax.set_xticks([0.00, 0.05, 0.10])
+    ax.set_xlabel("MAE reduction: prior − fusion")
+    ax.set_title("Small fusion increment", loc="left", pad=5, fontweight="bold")
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0, pad=5)
+    for row, value in zip(y, increments):
+        ax.text(
+            value + 0.004,
+            row,
+            f"{value:.3f}",
+            ha="left",
+            va="center",
+            fontsize=6.8,
+            color=TEXT_COLOR,
+        )
+    add_panel_label(ax, "b")
+
+    fig.subplots_adjust(left=0.31, right=0.98, top=0.96, bottom=0.14)
 
     fig.savefig(output_pdf, bbox_inches="tight")
     fig.savefig(output_svg, bbox_inches="tight")
@@ -176,6 +199,11 @@ def main() -> None:
         bbox_inches="tight",
         pil_kwargs={"compression": "tiff_lzw"},
     )
+    with Image.open(output_tiff) as tiff_image:
+        rgba = tiff_image.convert("RGBA")
+    rgb = Image.new("RGB", rgba.size, "white")
+    rgb.paste(rgba, mask=rgba.getchannel("A"))
+    rgb.save(output_tiff, dpi=(600, 600), compression="tiff_lzw")
     plt.close(fig)
     print(f"Wrote {output_pdf}")
     print(f"Wrote {output_svg}")
