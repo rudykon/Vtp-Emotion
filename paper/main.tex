@@ -27,11 +27,11 @@
 \acmYear{2026}
 \acmDOI{}
 \acmISBN{}
-\hypersetup{pdfauthor={Anonymous Author(s)},pdftitle={Low-Cost Video--Time Priors Improve EEG--fNIRS Emotion Regression for New Viewers of Familiar Videos}}
+\hypersetup{pdfauthor={Anonymous Author(s)},pdftitle={Low-Cost Video--Time Priors as a Strong Baseline for EEG--fNIRS Emotion Regression on Familiar Videos}}
 
 \begin{document}
 
-\title{Low-Cost Video--Time Priors Improve EEG--fNIRS Emotion Regression for New Viewers of Familiar Videos}
+\title{Low-Cost Video--Time Priors as a Strong Baseline for EEG--fNIRS Emotion Regression on Familiar Videos}
 
 \author{Anonymous Author(s)}
 \affiliation{%
@@ -41,28 +41,23 @@
 \email{}
 
 \begin{abstract}
-Continuous emotion regression can estimate how viewers' valence and arousal
-change while they watch a known video. Low-error trajectories may provide a
-group-response baseline for video editing, advertising placement, content
-recommendation, or coarse initialization for a new viewer. We therefore study
-the practical objective of reducing mean absolute error (MAE) for new viewers
-of familiar, time-aligned videos. Our predictor constructs a fold-wise
-video--time prior from training viewers and combines it with an EEG--fNIRS
-branch through fixed fusion. Across 24 participants viewing 15 shared videos,
-fixed fusion achieved the lowest MAE of 29.0146; the low-cost prior and
-physiological branch reached 29.0633 and 47.3509, respectively. In an external
-subject-disjoint evaluation on four viewers and 6,143 one-second samples, fixed
-fusion again achieved the lowest MAE of 27.7246. Post-hoc comparisons yielded
-44.3296, 33.3627, 28.0410, and 42.7486 for a global constant, video identity,
-video--time prior, and physiology, respectively. Thus, the video--time prior is itself a
-simple and effective predictor in this deployment scope, while physiology
-provides a smaller additional reduction. After establishing the MAE result, we
-use source-explicit ablations and paired residuals to show that the gain is
-mainly associated with video identity and within-video time, and that the
-fusion increment occurs in 3 of 4 viewers and 9 of 15 videos. The method targets
-new-viewer prediction for familiar videos and does not establish transfer to
-unseen content. Optimizing MAE first and analysing its sources afterwards
-provides both a useful prediction strategy and an interpretable scope of use.
+Continuous emotion regression estimates moment-to-moment valence and arousal
+while a viewer watches a video. In familiar-video deployment, responses from
+training participants can form a group trajectory without collecting physiology
+from each new viewer. We use mean absolute error (MAE) as the primary objective
+for new-viewer prediction on familiar, time-aligned videos and construct a
+leakage-controlled, fold-wise video--time prior from training participants. An
+EEG--fNIRS branch provides a participant-specific estimate, and
+prior-dominating fixed fusion tests whether physiology adds residual correction.
+In five-fold subject-held-out evaluation on 24 participants and 15 videos,
+fusion achieved 29.01 MAE and remained best in an external subject-disjoint
+evaluation on four participants, where it reached 27.72. The prior stayed
+within 0.32 MAE of fusion in both evaluations.
+Source-explicit ablations showed that video identity and within-video time
+accounted for most of the reduction, while EEG--fNIRS gains were smaller and
+varied across participants and videos. These results identify the video--time
+prior as a strong, low-cost baseline and position EEG--fNIRS as an optional
+residual signal for familiar-video emotion regression.
 \end{abstract}
 
 \begin{CCSXML}
@@ -95,7 +90,8 @@ provides both a useful prediction strategy and an interpretable scope of use.
 
 \input{body}
 
-\clearpage
+\newpage
+\balance
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 

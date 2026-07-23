@@ -24,7 +24,7 @@ DEFAULT_MODEL_DIR = PROJECT_ROOT / "checkpoints"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate fixed-fusion MAE and post-hoc source contributions under participant-held-out folds.")
+    parser = argparse.ArgumentParser(description="Evaluate fixed-fusion MAE and source contributions under subject-held-out folds.")
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR)

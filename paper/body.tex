@@ -2,54 +2,63 @@
 \label{sec:introduction}
 
 Continuous emotion regression estimates moment-to-moment valence and arousal
-curves while a viewer watches a video. For content already observed in a
-training cohort, sufficiently accurate curves may provide a group-response
-baseline for video editing, advertising placement, and content recommendation,
-or a coarse initialization for predicting a new viewer's response. These are
-potential downstream uses rather than outcomes evaluated in this study. Our
-primary objective is therefore concrete and measurable: reduce mean absolute
-error (MAE) for new viewers watching familiar, time-aligned videos.
+while a viewer watches a video. Accurate group-level affect trajectories can
+support video understanding and provide baselines for video editing,
+advertising placement, content recommendation, or coarse initialization of a
+new viewer's expected response. This paper focuses on the predictive
+prerequisite for these uses: lowering mean absolute error (MAE) for new viewers
+watching familiar, time-aligned videos.
 
 EEG provides millisecond-scale electrophysiological measurements, whereas
 functional near-infrared spectroscopy (fNIRS) captures slower haemodynamic
 changes. Their complementary properties motivate EEG--fNIRS affect models
-\cite{bandara2018fnirs,sun2020multimodal,chen2024eegfnirs}. However, affective
-physiology varies substantially across people. Anatomy, sensor contact,
-baseline state, and response style produce cross-subject shifts that can exceed
-within-subject emotion changes \cite{li2022eegreview,li2018crosssubject}, making
-physiology-only prediction for a new viewer difficult and comparatively costly.
+\cite{bandara2018fnirs,sun2020multimodal,chen2024eegfnirs}. Cross-participant
+prediction nevertheless remains difficult because anatomy, sensor contact,
+baseline state, and response style can produce shifts larger than the affective
+variation of interest \cite{li2022eegreview,li2018crosssubject}. Collecting both
+modalities from every new viewer also carries substantially greater sensing and
+processing cost than using information already associated with the video.
 
-The familiar-video setting also provides a useful source of low-cost
-information. Naturalistic films induce temporally reliable neural,
-haemodynamic, and behavioural responses across viewers
-\cite{hasson2004intersubject,kauppi2010isc,nummenmaa2012synchrony,
-dmochowski2012correlated,dmochowski2014audience,ki2016attention}. When videos
-are shared and time aligned, training viewers' labels can define a group affect
-trajectory indexed only by video identity and within-video time. Such a prior
-requires no new physiological measurement at inference and may therefore be a
-simple, inexpensive way to lower MAE. It must nevertheless be constructed
-inside each participant-held-out fold so that labels from the evaluated viewer
-cannot enter the prediction.
+The familiar-video setting changes what information is available. Naturalistic
+movies can elicit time-locked inter-subject similarity in BOLD and EEG
+responses
+\cite{hasson2004intersubject,kauppi2010isc,dmochowski2012correlated}.
+The reliability of these neural responses has been examined in relation to
+emotion, attention, and audience preference
+\cite{nummenmaa2012synchrony,ki2016attention,dmochowski2014audience}.
+When training participants and a new viewer watch the same aligned video,
+their matched labels permit a group affect trajectory indexed by video
+identity and within-video time. A valid predictor must reconstruct this
+trajectory inside each training split so that held-out labels cannot enter the
+estimate.
 
-We build this fold-wise video--time prior and combine it with an EEG--fNIRS
-branch through fixed fusion. We first evaluate whether the resulting predictor
-reduces MAE for a new viewer watching familiar videos. Only after
-establishing that result do we compare physiology alone, video and time alone,
-and their fusion to explain where the reduction comes from and where it fails.
-The contributions are threefold:
+We operationalize the shared response as a fold-wise video--time prior, pair it
+with an EEG--fNIRS branch, and combine the two through prior-dominating fixed
+fusion. The study is organized around three research questions:
+
+\begin{description}
+  \item[RQ1.] What MAE do the video--time prior and fixed fusion achieve when
+  predicting new viewers' affect on familiar videos?
+  \item[RQ2.] Which information source, global level, video identity,
+  within-video time, or EEG--fNIRS, accounts for the MAE reduction?
+  \item[RQ3.] How do the remaining gains vary across participants, videos, and
+  within-video time?
+\end{description}
+
+Our contributions are threefold:
 
 \begin{itemize}
-  \item We formulate MAE-oriented continuous emotion prediction for a new
-  viewer of familiar videos and construct a leakage-controlled, fold-wise
-  video--time prior that is inexpensive to use at inference.
-  \item We combine the prior with an EEG--fNIRS branch using fixed fusion. The
-  fused predictor achieves the lowest evaluated MAE in both five-fold and
-  external subject-disjoint evaluations, while the prior alone remains a strong
-  low-cost predictor.
-  \item After reporting the MAE result, we use source-explicit ablations and
-  paired residuals to separate global level, video identity, within-video time,
-  and physiological correction. This analysis identifies heterogeneous gains
-  and defines the boundary to familiar rather than unseen videos.
+  \item We formulate MAE-oriented continuous emotion prediction for new
+  viewers of familiar videos and construct a fold-wise video--time prior that
+  excludes labels from evaluated participants and has low marginal inference
+  cost.
+  \item We show empirically that the video--time prior is a strong predictor,
+  while prior-dominating fusion with an EEG--fNIRS branch achieves the lowest
+  evaluated MAE in both the internal subject-held-out and external
+  subject-disjoint evaluations.
+  \item We separate global level, video identity, within-video time, and
+  EEG--fNIRS correction through source-explicit ablations and paired residual
+  analysis, revealing a small and heterogeneous physiological contribution.
 \end{itemize}
 
 \section{Related Work}
@@ -59,77 +68,78 @@ The contributions are threefold:
 
 Physiological emotion recognition commonly represents affect in categorical or
 valence--arousal spaces \cite{russell1980circumplex,koelstra2012deap}. EEG work
-has identified informative frequency bands and spatial patterns
+has identified informative spectral and spatial patterns
 \cite{zheng2015critical}, while fNIRS studies use oxygenation-related statistics
 to model affective state \cite{bandara2018fnirs}. Multimodal systems combine the
-two signals through graph convolution, attention, or alignment mechanisms
-\cite{sun2020multimodal,chen2024eegfnirs,fang2026asac}. These methods motivate
-our physiological branch. In the familiar-video deployment setting, however,
-video identity and time are also available at negligible inference cost. We
-therefore evaluate the final fused predictor by MAE and use the physiology-only
-comparison afterwards to analyse how much correction is added beyond the
-low-cost prior.
+two signals through graph convolution, attention, or representation alignment
+\cite{sun2020multimodal,chen2024eegfnirs,fang2026asac}. These mechanisms motivate
+our EEG--fNIRS branch.
 
-Cross-subject variation remains a persistent limitation
+Cross-participant variation remains a persistent obstacle
 \cite{li2022eegreview,li2018crosssubject}. Resting recordings and transfer
-learning have been used to align subjects or personalise affective decoders
-\cite{morioka2015resting,zheng2016personalizing}. Such adaptation is useful, but
-it addresses a different source from stimulus-locked agreement. A model may
-simultaneously face participant shift and benefit from knowing where a viewer is
-within a familiar video; the two effects should not be conflated.
+learning can align participants or personalize affective decoders
+\cite{morioka2015resting,zheng2016personalizing}. Such methods address
+participant shift, but they do not quantify the low-cost information already
+contained in a familiar video's identity and playback time. A fair analysis of
+this setting therefore requires an explicit video--time baseline beside the
+physiological model.
 
-\subsection{Shared-stimulus structure and evaluation}
+\subsection{Naturalistic stimuli and shared responses}
 
-Naturalistic stimuli generate inter-subject synchrony in both electrical and
-haemodynamic measurements
-\cite{hasson2004intersubject,kauppi2010isc,dmochowski2012correlated,
-dmochowski2014audience}. This synchrony is scientifically meaningful, yet it
-also means that repeated-stimulus datasets contain structure shared across
-participants. In continuous affect annotation, video identity and timestamp
-can index a population-level response trajectory even when no physiological
-sample is observed.
+Naturalistic movies can elicit time-locked inter-subject similarity in BOLD
+and EEG responses
+\cite{hasson2004intersubject,kauppi2010isc,dmochowski2012correlated}.
+The reliability of these neural responses has been examined in relation to
+emotion, attention, and audience preference
+\cite{nummenmaa2012synchrony,ki2016attention,dmochowski2014audience}.
+These studies establish shared stimulus-locked neural structure, but they do
+not directly establish a continuous affect-label predictor.
 
-Evaluation must therefore match the intended generalisation unit. Grouped
-cross-validation can prevent direct participant overlap, but it does not
-estimate transfer to unseen stimuli when videos recur across folds
-\cite{saeb2017usecase,roberts2017crossvalidation}. Model selection within the
-same folds can also produce optimistic estimates
-\cite{varma2006bias,varoquaux2017decoders}. Our analysis treats
-subject-held-out performance as evidence for new-viewer prediction on familiar
-videos and reserves unseen-stimulus claims for a crossed evaluation that the
-current data record does not provide.
+In our repeated-stimulus setting, matched labels from training participants
+permit a different operationalization: a fold-wise group trajectory indexed
+by video identity and within-video time. The video--time prior turns this
+trajectory into a low-cost regression baseline and directly compares it with
+an EEG--fNIRS branch.
+
+\subsection{Evaluation, priors, and leakage control}
+
+Evaluation protocols determine which form of generalization a reported score
+supports. Grouped cross-validation prevents direct participant overlap, but
+repeated videos across folds still evaluate new participants on familiar
+content \cite{saeb2017usecase,roberts2017crossvalidation}. Video-held-out and
+crossed participant-by-video designs answer different questions. Model
+selection within evaluation folds can further bias estimates
+\cite{varma2006bias,varoquaux2017decoders}.
+
+For familiar-video prediction, a video--time prior is legitimate only when it
+is built from training participants and applied to identical held-out sample
+keys. We therefore reconstruct the prior within every internal fold and keep
+all external targets outside training and prior construction. Source-explicit
+variants then separate the information supplied by global affect level, video
+identity, within-video time, and EEG--fNIRS measurements.
 
 \section{Method}
 \label{sec:method}
 
-\subsection{MAE objective and prediction strategies}
+\subsection{Problem formulation and pipeline}
 
-For participant \(s\), video \(v\), and second \(t\), the target is
-\(y_{s,v,t}\in[1,255]^2\), containing valence and arousal. The dataset comprises
-24 participants, 15 videos shared by all participants, 360 trials, and 36,864
-one-hertz targets; each trial also includes a five-second resting baseline
-\cite{merpsdataset}. EEG contains 64 channels, and fNIRS contains six signal
-types over 51 channels.
-
-Our primary endpoint is sample-pooled MAE over both affect dimensions,
+For participant \(s\), familiar video \(v\), and second \(t\), the target is
+\(y_{s,v,t}\in[1,255]^2\), containing valence and arousal. Our primary endpoint
+is sample-pooled MAE over both affect dimensions,
 \begin{equation}
  \operatorname{MAE} =
  \frac{1}{2N}\sum_{i=1}^{N}\sum_{d\in\{V,A\}}
  \left|y_i^d-\hat y_i^d\right|.
 \end{equation}
-We evaluate three prediction strategies on identical held-out samples:
 
-\begin{enumerate}
-  \item a physiological prediction \(m_{s,v,t}\) obtained from EEG and fNIRS;
-  \item a video--time prior \(\bar p_{v,t}\) constructed from training labels;
-  \item a fixed convex fusion of the two, used as the final predictor.
-\end{enumerate}
-
-The first two strategies serve both as usable predictors and as post-hoc
-analysis baselines for the final fusion. The prior never uses labels from the
-held-out participants. Consequently, its MAE measures how well other viewers at
-the same stimulus coordinate predict a new viewer without collecting that
-viewer's physiology.
+The pipeline produces two complementary estimates before fusion. The
+video--time prior \(\bar p_{v,t}\) retrieves the group trajectory associated with
+the familiar video and second. The EEG--fNIRS branch \(m_{s,v,t}\) extracts
+one-second channel features, encodes each modality with a graph network,
+exchanges cross-modal information through attention, and regresses valence and
+arousal from pooled tokens. A fixed convex combination returns the final
+prediction \(\hat y_{s,v,t}\). This design makes the low-cost shared response and
+the participant-specific physiological correction separately measurable.
 
 \subsection{Fold-wise video--time prior}
 
@@ -149,338 +159,308 @@ We then smooth each trajectory with a radius-three moving average,
  \mathcal I_{v,t}=\{u:|u-t|\leq3,\ 0\leq u<T_v\}.
 \end{equation}
 Smoothing never crosses video boundaries. The median limits the influence of
-individual trajectories, and rebuilding the prior in every fold ensures that
-the labels of a held-out participant cannot determine its prediction. At
-inference, the prior is a lookup by video identity and second, so its marginal
-input and computation costs are low once the training trajectories are built.
+individual trajectories, and fold-wise reconstruction prevents held-out labels
+from determining their own predictions. At inference, the prior is a lookup by
+video identity and second, giving it low marginal input and computation cost
+once the training trajectories have been built.
 
-\subsection{EEG--fNIRS physiological branch}
+\subsection{EEG--fNIRS branch}
 
-Signals are centred using the corresponding trial baseline. EEG is resampled
-to 200 Hz. For each channel and one-second segment, we compute relative log
-power and differential entropy in six bands from 1 to 45 Hz, together with
-Hjorth activity, mobility, and complexity \cite{hjorth1970eeg}. These 15
-features are concatenated over \(t-1,t,t+1\), yielding a \(64\times45\) EEG
-tensor. For each fNIRS channel and each of six signal types, we compute mean,
-standard deviation, slope, skewness, and kurtosis. Temporal concatenation yields
-a \(51\times90\) fNIRS tensor. Edge padding is used at trial boundaries.
+The EEG--fNIRS branch proceeds through channel-level feature extraction, graph
+encoding within each modality, cross-modal attention in both directions, and
+pooled regression. Signals are centred using the corresponding trial baseline, and
+EEG is resampled to 200 Hz. For each EEG channel and one-second segment, we
+compute relative log power and differential entropy in six bands from 1 to
+45 Hz, together with Hjorth activity, mobility, and complexity
+\cite{hjorth1970eeg}. Concatenating the features from \(t-1\), \(t\), and
+\(t+1\) yields a \(64\times45\) EEG tensor.
+
+For each fNIRS channel and each of six signal types, we compute mean, standard
+deviation, slope, skewness, and kurtosis. The same three-segment concatenation
+yields a \(51\times90\) fNIRS tensor. Edge padding is used at trial boundaries.
+Because both tensors include the \(t+1\) segment, the branch is an offline
+estimator rather than a strictly causal real-time decoder.
 
 Each modality is encoded with a learned-adjacency, multi-order graph network
-using identity, first-order, and second-order propagation supports, producing
-32-dimensional channel embeddings. Four-head attention exchanges information
-in both EEG-to-fNIRS and fNIRS-to-EEG directions
+using identity, first-order, and second-order propagation supports. The encoder
+produces 32-dimensional channel embeddings. Four-head attention exchanges
+information in the EEG-to-fNIRS and fNIRS-to-EEG directions
 \cite{vaswani2017attention,tsai2019multimodal}. Mean and maximum pooling over
-the modality-specific and cross-modal tokens feed a multilayer regressor.
-Training minimises normalised-target mean squared error plus \(0.01\) times a
-symmetric contrastive alignment loss \cite{chen2020simclr}. Models use
-participant-grouped folds, AdamW optimisation, strong dropout, and early
-stopping on fold validation MSE.
+modality-specific and cross-modal tokens feed a multilayer regressor. Training
+minimizes normalized-target mean squared error plus \(0.01\) times a symmetric
+contrastive alignment loss \cite{chen2020simclr}. The alignment term regularizes
+paired EEG and fNIRS representations from the same sample without dominating
+the regression objective. Models use participant-grouped folds, AdamW
+optimization, strong dropout, and early stopping on fold validation MSE.
 
-\subsection{Fixed fusion}
+\subsection{Prior-dominating fixed fusion}
 
-The final predictor uses the fixed fused estimate
+The final estimate is
 \begin{equation}
  \hat y_{s,v,t}
- =
- w\odot \bar p_{v,t} + (1-w)\odot m_{s,v,t},
+ = w\odot \bar p_{v,t} + (1-w)\odot m_{s,v,t},
  \qquad w=[0.99,0.92].
 \end{equation}
-These weights strongly favour the prior. We report fusion as the lowest-MAE
-predictor evaluated in this study. Because the fixed weights were not selected
-within a documented nested validation procedure, the small fusion advantage is
-interpreted descriptively rather than as evidence for an optimally tuned
-hybrid. The separate prior and physiological outputs are retained for the
-subsequent source analysis, and all three outputs are evaluated on the same
-held-out samples.
+The fixed weights intentionally keep the video--time prior dominant for valence
+and arousal. Our objective is to test whether EEG--fNIRS can provide residual
+correction to an already strong low-cost estimate, rather than to optimize a
+complex adaptive gating model. The same weights are used for every split and
+both evaluations, which makes the incremental correction directly
+interpretable.
+
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Dataset and participants}
+
+The development dataset contains 24 participants, 15 familiar videos viewed by
+all participants, 360 trials, and 36,864 one-hertz valence--arousal targets
+\cite{merpsdataset}. Each trial includes a five-second resting baseline. EEG
+contains 64 channels, and fNIRS contains six signal types over 51 channels.
+Targets and predictions remain on the original \([1,255]\) scale.
+
+\subsection{Internal subject-held-out evaluation}
+
+Participants are partitioned into five folds. For each fold, the video--time
+prior is reconstructed only from training participants, and the matching
+EEG--fNIRS checkpoint predicts the held-out participants. The full-data
+checkpoint is excluded. Predictions and targets from all folds are concatenated
+before computing sample-pooled overall, valence, and arousal MAE. This protocol
+evaluates new viewers responding to the same 15 familiar videos.
 
 \subsection{External subject-disjoint evaluation}
 
-We additionally evaluate five source variants on four viewers who are disjoint
-from the 24 development participants. The external cohort contains 60 trials
-and 6,143 one-hertz targets. Targets are excluded from prior construction,
-checkpoint training, and inference, and are joined to the integer predictions
-only for local evaluation. The global-constant variant uses the
-two-dimensional median over all development labels. The video-identity variant
-uses the temporal median of each development video trajectory and keeps it
-constant within the video. The video--time variant uses the full
-development-set median trajectory with radius-three within-video smoothing.
-The physiological variant averages one fixed-split checkpoint and five
-participant-grouped fold checkpoints. Fixed fusion combines this six-checkpoint
-ensemble with the video--time prior using \(w=[0.99,0.92]\).
+The external cohort contains four participants, 60 trials, and 6,143 one-hertz
+targets. These participants are disjoint from the development set. Their targets
+are excluded from prior construction, checkpoint training, and inference, and
+are joined to predictions only for local evaluation. The external EEG--fNIRS
+estimate averages one fixed-split checkpoint and five participant-grouped fold
+checkpoints. Fixed fusion combines this ensemble with a video--time prior built
+from all 24 development participants.
 
-All variants receive the same raw EEG, fNIRS, resting baselines, and sample
-keys. Predictions remain on the original \([1,255]\) scale. We compute
-overall, valence, and arousal MAE and overall MSE on the same 6,143 keys. To
-examine heterogeneity without treating adjacent seconds as independent
-replicates, we also aggregate MAE by viewer, by video, and by ten equal bins of
-normalized within-video time. These stratified analyses are descriptive; no
-per-second inferential test is applied.
+\subsection{Source variants}
 
-\section{Experiments and Results}
-\label{sec:experiments}
+Table~\ref{tab:source-variants} summarizes the information used by each
+variant at inference. The label-aggregate column denotes direct lookup of a
+cached statistic computed from development-participant labels; evaluated
+participants are excluded from these aggregates.
 
-\subsection{Subject-held-out protocol}
-
-Participants are partitioned into five folds. For every fold, the video--time
-prior is reconstructed using only training participants, and the matching
-physiological checkpoint predicts the held-out participants. The full-data
-checkpoint is excluded. Predictions and targets from the five folds are
-concatenated before computing sample-pooled MAE for valence, arousal, and their
-arithmetic mean.
-
-This protocol isolates participants but not videos. It therefore evaluates the
-specific setting of an unseen viewer responding to the same 15 stimuli. It does
-not evaluate new-video transfer, and the time-aligned seconds are not treated
-as independent observations for inferential claims.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{source_dominance.pdf}
-  \caption{MAE performance and post-hoc source analysis under five-fold
-  participant-held-out evaluation. (a) Overall MAE for the physiological
-  branch, fold-wise video--time prior, and fixed fusion. The prior accounts for
-  99.7\% of the observed physiology-to-fusion reduction, while fixed fusion
-  achieves the lowest MAE. (b) The additional reduction from the prior to fixed
-  fusion for overall affect, valence, and arousal. These aggregate differences
-  are descriptive. The analysis uses \(w=[.99,.92]\) and no resting-output
-  calibration.}
-  \Description{A two-panel quantitative figure. The first panel shows that the
-  video--time prior produces nearly all of the overall MAE reduction and fixed
-  fusion has the lowest error. The second panel shows the small additional
-  fusion reductions for overall affect, valence, and arousal.}
-  \label{fig:source-dominance}
-\end{figure}
-
-\subsection{Fixed fusion achieves the lowest internal MAE}
-
-Fixed fusion achieved the lowest internal overall MAE of 29.0146, with valence
-MAE 26.6642 and arousal MAE 31.3651
-(Figure~\ref{fig:source-dominance}). It reduced overall MAE by 18.3363 relative
-to physiology alone and by 0.0487 relative to the video--time prior. The
-dimension-specific reductions over the prior were 0.0039 for valence and
-0.0934 for arousal.
-
-After establishing the lowest-MAE result, we analysed its information sources.
-The physiological branch obtained an overall MAE of 47.3509, with valence MAE
-51.3475 and arousal MAE 43.3543. The low-cost fold-wise video--time prior alone
-reached 29.0633 overall, 26.6681 for valence, and 31.4585 for arousal. It
-therefore reduced overall MAE by 18.2876 relative to physiology alone and came
-within 0.0487 of the fused predictor. Of the total reduction from physiology to
-fusion, 99.7\% was already achieved by the prior.
-
-This post-hoc comparison shows why the simple prior is practically important:
-most of the observed MAE reduction is available without new physiological
-measurement, while the evaluated physiology branch provides a smaller final
-correction. It is not evidence that physiology is uninformative in general.
-The retained five-fold archive contains aggregate component metrics rather than
-paired sample-level residuals, so the small fusion advantage remains
-descriptive. The external analysis below supplies viewer-, video-, and
-time-stratified residual evidence.
-
-\subsection{External evaluation confirms the lowest MAE and analyses its sources}
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{external_source_decomposition.pdf}
-  \caption{External MAE comparison and post-hoc residual analysis in the
-  subject-disjoint evaluation. The analysis contains 6,143 one-second samples
-  from four viewers and 15 familiar videos. (a) Sample-pooled overall MAE for
-  all five source variants. (b) Ranked paired viewer-level fusion increments,
-  defined as video--time-prior MAE minus fixed-fusion MAE. (c) Ranked
-  video-level fusion increments using the same scale. In both panels, positive
-  rightward circles indicate lower fusion error and negative leftward crosses
-  indicate higher fusion error. (d) Sample-pooled MAE across ten equal bins of
-  normalized within-video time. The stratified panels are descriptive; no
-  inferential test treats adjacent seconds as independent replicates.}
-  \Description{A four-panel quantitative figure shows the overall error of
-  five source variants, ranked paired fusion increments for four viewers,
-  ranked fusion gains and losses across 15 videos, and error curves across
-  normalized video time.}
-  \label{fig:external-decomposition}
-\end{figure*}
-
-\begin{table}[t]
-  \caption{MAE comparison and post-hoc source ablation on four external
-  subject-disjoint viewers. Metrics use the original label scale and lower
-  values are better.}
-  \label{tab:external-ablation}
+\begin{table}[H]
+  \caption{Information used by each source variant at inference. The label
+  aggregate is computed from development-participant labels; all physiological
+  models are nevertheless trained on development targets.}
+  \label{tab:source-variants}
   \centering
   \scriptsize
-  \setlength{\tabcolsep}{2.7pt}
-  \begin{tabular}{@{}lrrrr@{}}
+  \setlength{\tabcolsep}{3.1pt}
+  \begin{tabular}{@{}lcccc@{}}
     \toprule
-    Variant & Overall MAE & Val. MAE & Aro. MAE & Overall MSE \\
+    Variant &
+    \shortstack{Participant\\phys.} &
+    \shortstack{Video\\key} &
+    \shortstack{Time\\key} &
+    \shortstack{Label\\agg.} \\
     \midrule
-    Global constant & 44.33 & 47.46 & 41.20 & 2861.11 \\
-    Video identity & 33.36 & 32.56 & 34.17 & 1933.01 \\
-    Video--time prior & 28.04 & 25.34 & 30.74 & 1484.69 \\
-    Physiology only & 42.75 & 45.29 & 40.21 & 2729.37 \\
-    \textbf{Fixed fusion} & \textbf{27.72} & \textbf{25.20} &
-    \textbf{30.25} & \textbf{1440.56} \\
+    Global constant & N & N & N & Y \\
+    Video identity & N & Y & N & Y \\
+    Video--time prior & N & Y & Y & Y \\
+    EEG--fNIRS branch & Y & N & N & N \\
+    Fixed fusion & Y & Y & Y & Y \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Fixed fusion again achieved the lowest evaluated error in the external cohort:
-27.7246 overall MAE, 25.1970 valence MAE, 30.2522 arousal MAE, and 1440.5642
-overall MSE (Table~\ref{tab:external-ablation};
-Figure~\ref{fig:external-decomposition}a). The independent new-viewer result is
-consistent with the internal evaluation and supports fixed fusion as the final
-predictor for familiar videos.
+The global constant is the two-dimensional median over all development labels.
+The video-identity variant uses the temporal median of each development video
+trajectory and remains constant within that video. The video--time prior uses
+the full median trajectory with radius-three within-video smoothing. The
+EEG--fNIRS and fixed-fusion variants follow Section~\ref{sec:method} and the
+external ensemble definition above. The internal archive contains the final
+three variants; the external evaluation contains all five.
 
-We then used the staged variants to analyse the source of this performance.
-Replacing the global constant with
-video identity reduced overall MAE from 44.3296 to 33.3627, a 10.9670-point or
-24.74\% reduction. Adding within-video time reduced it by another 5.3217 points
-to 28.0410. This temporal refinement lowered valence and arousal MAE by 7.2131
-and 3.4302, respectively. Shared structure is therefore not limited to a
-video-level offset; its time-resolved trajectory carries substantial additional
-predictive information.
+\subsection{Metrics and reporting}
 
-Physiology alone reached 42.7486 MAE. Relative to the video--time prior, fixed
-fusion improved overall MAE by 0.3165, valence MAE by 0.1467, arousal MAE by
-0.4862, and overall MSE by 44.1240. All four aggregate metrics moved in the
-same direction, but paired residuals showed that the gain was not uniform:
-fusion lowered MAE for 3 of 4 viewers and 9 of 15 videos
-(Figure~\ref{fig:external-decomposition}b,c). Viewer-level changes ranged from
-a 0.0622-point worsening to a 0.6938-point improvement; video-level changes
-ranged from a 0.2971-point worsening to a 1.3105-point improvement. The
-aggregate result therefore supports a small complementary physiological
-residual, not a universal per-viewer or per-video benefit.
+We report sample-pooled MAE overall and separately for valence and arousal on
+identical prediction keys. Overall MSE is retained as a secondary external
+diagnostic, while MAE remains the primary endpoint. For external heterogeneity
+analysis, paired errors are also aggregated by participant, by familiar video,
+and by ten equal bins of normalized within-video time. These grouped summaries
+are descriptive because the external cohort is small and adjacent one-second
+targets are temporally correlated. The internal archive contains aggregate
+component metrics rather than paired sample-level residuals.
 
-The temporal stratification further qualified the video--time advantage
+\section{Results and Analysis}
+\label{sec:results}
+
+\subsection{RQ1: Main MAE performance}
+
+Table~\ref{tab:main-mae} combines the internal and external results. Fixed
+fusion achieved the lowest overall MAE in both evaluations, reaching 29.01
+internally and 27.72 externally. The video--time prior stayed within 0.05 and
+0.32 MAE, respectively, whereas the EEG--fNIRS branch was substantially less
+accurate. Valence and arousal followed the same ordering.
+
+\begin{table*}[t]
+  \caption{Internal and external MAE on the original label scale. Lower is
+  better; dashes mark source variants unavailable in the internal archive.}
+  \label{tab:main-mae}
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabular}{@{}llrrrrr@{}}
+    \toprule
+    Evaluation & Target & Global & Video ID & Video--time prior & EEG--fNIRS & Fusion \\
+    \midrule
+    Internal & Overall & -- & -- & 29.06 & 47.35 & \textbf{29.01} \\
+             & Valence & -- & -- & 26.67 & 51.35 & \textbf{26.66} \\
+             & Arousal & -- & -- & 31.46 & 43.35 & \textbf{31.37} \\
+    \midrule
+    External & Overall & 44.33 & 33.36 & 28.04 & 42.75 & \textbf{27.72} \\
+             & Valence & 47.46 & 32.56 & 25.34 & 45.29 & \textbf{25.20} \\
+             & Arousal & 41.20 & 34.17 & 30.74 & 40.21 & \textbf{30.25} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{source_dominance.pdf}
+  \caption{Internal subject-held-out MAE. (a) Overall MAE for the EEG--fNIRS
+  branch, video--time prior, and fixed fusion. (b) Additional MAE reduction
+  from the prior to fusion by target.}
+  \Description{A two-panel figure compares overall internal MAE and the small
+  additional reduction from the video--time prior to fixed fusion.}
+  \label{fig:source-dominance}
+\end{figure}
+
+Figure~\ref{fig:source-dominance} shows the same internal pattern visually. The
+large reduction from the EEG--fNIRS branch to the final predictor was almost
+entirely recovered by the video--time prior, while fusion supplied the smallest
+final step.
+
+\subsection{RQ2: Source decomposition}
+
+The staged external variants identify the source of the reduction. Replacing
+the global constant with video identity lowered overall MAE by 10.97 points;
+adding within-video time lowered it by a further 5.32 points. The shared
+response therefore contains both a video-specific affect level and a
+substantial time-resolved trajectory.
+
+Across the full path from the EEG--fNIRS branch to fixed fusion, the video--time
+prior accounted for 99.73\% of the internal reduction and 97.89\% of the external
+reduction. The fixed fusion remained best, but most of its advantage over the
+EEG--fNIRS branch was already available from video identity and within-video
+time. Figure~\ref{fig:external-decomposition}a shows the complete external
+ordering of the five variants.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{external_source_decomposition.pdf}
+  \caption{External MAE and residual analysis. (a) Overall MAE for five source
+  variants. (b,c) Participant- and video-level prior-minus-fusion increments;
+  positive values favour fusion. (d) MAE over normalized video-time bins.}
+  \Description{A four-panel figure shows external overall error, paired
+  participant- and video-level fusion increments, and error over normalized
+  video time.}
+  \label{fig:external-decomposition}
+\end{figure*}
+
+\subsection{RQ3: Heterogeneity across participants, videos, and time}
+
+The external residuals show that the EEG--fNIRS correction was not uniform.
+Fusion lowered MAE for 3 of 4 participants and 9 of 15 familiar videos
+(Figure~\ref{fig:external-decomposition}b,c). Participant-level changes ranged
+from a 0.06-point worsening to a 0.69-point improvement. Video-level changes
+ranged from a 0.30-point worsening to a 1.31-point improvement. The lower
+aggregate fusion MAE therefore coexisted with localized gains and losses.
+
+The contribution of within-video time also varied across a video
 (Figure~\ref{fig:external-decomposition}d). In the first normalized time bin,
-video identity produced an MAE of 45.53, whereas the video--time prior reached
-13.40. The temporal advantage then narrowed, and video identity was slightly
-better in each of the final five bins. Thus, the 5.3217-point aggregate gain
-from adding time was concentrated in specific phases rather than distributed
-uniformly over a video. Of the 15.0240-point reduction from physiology alone to
-fixed fusion, the video--time prior still accounted for 14.7076 points, or
-97.89\%.
+video identity reached 45.53 MAE and the video--time prior reached 13.40. This
+advantage narrowed over time, and video identity was slightly better in each of
+the final five bins. The aggregate temporal gain was therefore concentrated in
+specific phases rather than distributed uniformly.
 
-\section{Discussion}
+\section{Discussion and Limitations}
 \label{sec:discussion}
 
-\subsection{Practical value of reducing MAE for familiar videos}
+\subsection{Why the video--time prior is effective}
 
-The central practical result is that fixed fusion achieved the lowest MAE for
-new viewers of familiar, time-aligned videos in both evaluations. More
-importantly, the video--time prior alone approached the fused result while
-requiring only video identity and playback time at inference. Once a group
-trajectory has been estimated from previous viewers, it can provide an
-inexpensive approximate emotion curve without collecting EEG or fNIRS from
-every new viewer; physiology can then be reserved for applications where the
-smaller additional correction justifies the sensing cost.
+The video--time prior is effective because the deployment setting preserves two
+strong coordinates: familiar video identity and playback time. Participants
+respond differently, but a shared audiovisual sequence still induces a
+population-level trajectory. Median aggregation limits individual extremes,
+and within-video smoothing reduces local variation without crossing video
+boundaries. The resulting predictor gains its strength from the data structure
+rather than from model complexity.
 
-Such curves may serve as a group-response baseline when deciding where to edit
-a video, place an advertisement, rank or recommend content, or initialize a
-new viewer's expected response. The present experiments evaluate affect
-regression error rather than these downstream decisions. They therefore
-establish a predictive resource for those applications, not evidence that the
-applications themselves improve.
+This property gives the prior practical value. Once previous viewers have
+established a trajectory, a new viewer can receive a low-cost approximate curve
+without EEG or fNIRS acquisition. Such curves may serve as group-response
+baselines for video editing, advertising placement, content recommendation, or
+initialization of a new viewer's expected response.
 
-\subsection{What the post-hoc source analysis reveals}
+\subsection{When EEG--fNIRS adds value}
 
-Following the main MAE result, the component analysis shows that
-subject-held-out emotion regression can be dominated by information shared
-across participants. Rebuilding the prior without held-out labels rules out
-direct label leakage from those participants, yet the prior still substantially
-outperforms the EEG--fNIRS branch. The bounded interpretation is that aligned
-familiar videos provide a reproducible population-level affect trajectory
-indexed by video identity and time.
+EEG--fNIRS is most useful when participant-specific deviations from the group
+trajectory are both measurable and stable. The external residuals indicate
+that this condition held for some participants and videos but not for all of
+them. This heterogeneity makes sensing cost part of the design decision:
+fusion offers the lowest aggregate MAE, whereas the prior supplies most of the
+benefit without new physiological measurement.
 
-The external stratification shows that this temporal contribution is
-phase-specific. Video identity captured the average affective level of each
-stimulus, whereas the time-resolved prior was especially advantageous early in
-the video and was slightly worse in the final half of the normalized timeline.
-The source ambiguity is therefore not simply that models can identify the
-current video. It is that the stimulus coordinate supplies a structured group
-trajectory whose usefulness changes over time.
+Several mechanisms could limit the correction, including sensor noise,
+handcrafted one-second features, imperfect haemodynamic timing,
+cross-participant shift, and a model that does not explicitly isolate residuals
+from the prior. The present analysis locates gains and losses but does not
+distinguish among these explanations. Future work should test stronger residual
+modelling and explicit haemodynamic alignment.
 
-The physiological increment was also heterogeneous. Fusion improved every
-aggregate metric, but it did not improve every viewer or video. This distinction
-matters: an aggregate reduction of 0.3165 is compatible with complementary
-physiology on some recordings, yet it does not establish a generally reliable
-person-specific correction. The paired residuals argue for hierarchical
-reporting rather than a single fused score.
+\subsection{Implications for practice and evaluation}
 
-The small increment should not be read as a general absence of affective
-information in EEG or fNIRS. It may reflect limited participant diversity,
-sensor noise, handcrafted one-second features, imperfect haemodynamic timing,
-cross-subject shift, or a model that does not isolate person-specific residuals.
-The present residual analysis identifies where gains and losses occur, but it
-cannot distinguish among these mechanisms. A stronger physiological model
-could increase the increment, but it would not remove the need for a
-stimulus-only comparator.
+The results also clarify the evaluation question. Subject-held-out evaluation
+with familiar videos measures generalization to new participants, whereas
+video-held-out evaluation measures transfer to new content. Future studies
+should separate these axes through crossed participant-by-video splits and
+rebuild the prior, feature standardization, checkpoint selection, and fusion
+weights within each outer training split
+\cite{varma2006bias,varoquaux2017decoders}. Participant-macro, video-macro, and
+paired residual summaries would further preserve the hierarchy hidden by a
+single sample-pooled score.
 
-\subsection{Implications for emotion-regression evaluation}
+For deployment, the choice between the prior and fusion depends on the value of
+the residual improvement relative to acquisition cost. The prior provides a
+simple group baseline for familiar content, while EEG--fNIRS can be reserved
+for settings in which participant-specific correction is worth the additional
+instrumentation.
 
-Claims about physiological decoding require evaluation axes that match the
-intended use. Subject-held-out, stimulus-retained evaluation supports
-new-viewer prediction for familiar content. Stimulus-held-out evaluation asks
-whether affective relations transfer to new content. Holding out both
-participants and stimuli tests the most demanding form of generalisation.
-These settings answer different scientific questions and should not be
-collapsed into one score.
+\subsection{Limitations and future work}
 
-Future studies should therefore use a crossed participant-by-stimulus design
-with four clearly labelled cells: familiar participant/familiar stimulus,
-unseen participant/familiar stimulus, familiar participant/unseen stimulus,
-and unseen participant/unseen stimulus. Every outer split should rebuild the
-stimulus prior, feature standardisation, checkpoint selection, and fusion
-weights using training data only \cite{varma2006bias,varoquaux2017decoders}.
-Within each cell, physiology alone, stimulus prior alone, and fusion should be
-evaluated on identical keys.
-
-Reporting should preserve the hierarchy of the data. In addition to
-sample-pooled MAE, participant-macro and video-macro results should be reported,
-and paired residuals should remain available for each
-participant--video--time coordinate. Uncertainty should be estimated by
-resampling participants and videos rather than treating temporally adjacent
-seconds as independent observations. The external stratification demonstrates
-why this matters: a favourable aggregate increment coexisted with losses for
-one viewer and six videos.
-
-\subsection{Limitations}
-
-The present evidence is bounded in five ways. First, all participants viewed
-the same 15 videos, so no result measures transfer to unseen stimuli. Second,
-the external cohort contains only four viewers. Sample-level targets permit
-descriptive viewer-, video-, and time-stratified analyses, but four participant
-clusters are insufficient for a stable significance claim, and adjacent
-seconds remain correlated. Third, checkpoint selection and the fixed fusion
-weights were not evaluated within a documented nested procedure. The internal
-0.0487 and external 0.3165 fusion increments are descriptive and are not
-directly comparable because the physiological ensembles and held-out groups
-differ. Fourth, the physiological pipeline uses future one-second context and
-no explicit fNIRS haemodynamic shift, making it an offline estimator rather
-than a causal real-time decoder. Fifth, we did not test whether the predicted
-curves improve video editing, advertising placement, recommendation, or other
-downstream outcomes; these remain plausible uses rather than validated effects.
-
-The dataset uses anonymous participant identifiers and does not support
-demographic, clinical, or subgroup conclusions. Moreover, the graph,
-cross-modal, and feature choices define only one physiological comparator.
-Conclusions about MAE reduction and its sources are therefore specific to this
-dataset, these familiar repeated stimuli, and the evaluated modelling pipeline.
-The appropriate next experiment is a crossed participant--stimulus study with
-source-matched ablations, nested model selection, cluster-aware uncertainty,
-and task-specific downstream validation where practical use is claimed.
+The conclusions are bounded by the familiar-video setting: all participants
+viewed the same 15 videos, so transfer to unseen content was not measured. The
+external cohort contains only four participants, and adjacent one-second
+targets are correlated; its heterogeneity analysis is therefore descriptive
+rather than stable participant-level inference. Fusion weights and checkpoint
+choices were not selected through a fully nested procedure, and the internal
+and external fusion increments are not directly comparable because their
+physiological ensembles and held-out groups differ. The EEG--fNIRS branch uses
+one-second future context and no explicit fNIRS haemodynamic shift, so it is an
+offline estimator. The study evaluates prediction error rather than downstream
+application utility. Anonymous identifiers prevent demographic or subgroup
+analysis, and the physiological architecture represents one comparator.
+Crossed participant-by-video evaluation, nested selection, and stronger
+residual modelling are the main priorities for broader validation.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-We targeted lower MAE for new viewers watching familiar, time-aligned videos.
-Fixed fusion achieved the lowest internal and external MAEs, 29.0146 and
-27.7246, respectively; the low-cost video--time prior alone reached 29.0633 and
-28.0410. These results show that a simple group trajectory indexed by video and
-time is already an effective predictor in this setting, while EEG--fNIRS adds a
-smaller final correction. Such trajectories may support group-response
-baselines for editing, advertising, recommendation, or new-viewer
-initialization, although no downstream benefit was evaluated here. Post-hoc
-source analysis located the main reduction in video identity and within-video
-time and showed that the physiological increment varies across viewers and
-videos. The conclusion is limited to familiar videos and does not establish
-transfer to unseen content. Crossed participant-by-stimulus evaluation, nested
-model selection, and paired hierarchical residuals are needed to test broader
-generalisation and future MAE improvements.
+This work establishes a fold-wise video--time prior that excludes evaluated
+participants' labels as a strong, low-cost baseline for continuous emotion
+regression on familiar videos. Fixed
+fusion with an EEG--fNIRS branch achieved the lowest MAE in both internal and
+external evaluations, but source decomposition showed that video identity and
+within-video time supplied most of the reduction. EEG--fNIRS provided a smaller
+and heterogeneous residual correction. The approach can support group-response
+curves when familiar content is available, while broader claims require crossed
+participant-by-video evaluation and nested residual-model selection.

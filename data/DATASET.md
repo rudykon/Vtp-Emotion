@@ -6,14 +6,14 @@
 
 ```text
 data/
-├── MER_PS_trainval/                         # 24 名开发集被试
+├── MER_PS_trainval/                         # 24 名开发集参与者
 ├── feature_cache/                           # 训练特征缓存
 └── download/
     ├── MER_PS_trainval.zip                  # 训练/验证压缩包
-    └── MER_PS_public_evaluation/            # 4 名外部评估被试
+    └── MER_PS_public_evaluation/            # 4 名外部评估参与者
 ```
 
-训练、五折 MAE 评估和特征提取默认使用 `data/MER_PS_trainval/`。外部独立评估与事后来源分析默认使用 `data/download/MER_PS_public_evaluation/`。
+训练、五折 MAE 评估和特征提取默认使用 `data/MER_PS_trainval/`。外部独立评估与来源分解默认使用 `data/download/MER_PS_public_evaluation/`。
 
 ## 下载训练/验证数据
 
@@ -65,7 +65,7 @@ MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
 
 | 属性 | 数值 |
 | --- | ---: |
-| 被试数量 | 4 |
+| 参与者数量 | 4 |
 | 视频数量 | 15 |
 | 试验数量 | 60 |
 | 1 Hz 样本数量 | 6,143 |
@@ -95,7 +95,7 @@ Targeted_emotions.txt
 - CSV 目标与 MAT 标注逐值一致性校验；
 - 6,143 个样本键的唯一性、顺序和时间连续性校验。
 
-重新运行数据审计、外部 MAE 评估与事后来源分析：
+重新运行数据审计、外部 MAE 评估与来源分解：
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
@@ -103,7 +103,7 @@ PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   --source-data-dir paper/figures
 ```
 
-脚本把数据审计、总体指标、被试/视频/时间分层指标和逐样本成对预测写入 `artifacts/external_evaluation/`。该目录可由代码重新生成，因此不上传仓库。
+脚本把数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测写入 `artifacts/external_evaluation/`。该目录可由代码重新生成，因此不上传仓库。
 
 ## 数据使用边界
 

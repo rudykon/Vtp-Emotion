@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the paper's two-panel MAE and post-hoc analysis figure."""
+"""Regenerate the paper's two-panel MAE source-decomposition figure."""
 
 from __future__ import annotations
 

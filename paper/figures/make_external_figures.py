@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create figures for external MAE evaluation and post-hoc analysis."""
+"""Create figures for external MAE evaluation and residual analysis."""
 
 from __future__ import annotations
 

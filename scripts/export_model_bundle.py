@@ -3,7 +3,7 @@
 
 The default bundle uses the paper's fixed video--time prior weights and disables
 resting-output calibration. It is a full-data reproducibility artifact; the
-paper's MAE estimates are obtained from participant-held-out folds.
+paper's MAE estimates are obtained from subject-held-out folds.
 """
 
 from __future__ import annotations

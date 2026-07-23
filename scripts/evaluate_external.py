@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate fixed-fusion MAE and post-hoc sources on a local external cohort.
+"""Evaluate fixed-fusion MAE and source contributions on a local external cohort.
 
 The script keeps external labels outside model inference, evaluates the final
 fixed-fusion predictor, and then reports paired results for five prediction

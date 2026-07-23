@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train participant-held-out MER-PS physiological folds."""
+"""Train subject-held-out MER-PS physiological folds."""
 
 from __future__ import annotations
 
