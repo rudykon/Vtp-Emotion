@@ -240,6 +240,24 @@ interpretable.
 \section{Experimental Setup}
 \label{sec:setup}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{external_data_landscape.pdf}
+  \caption{External label coverage and video--time variation. (a) Joint
+  distribution of 6,143 one-second target observations from 60 trials involving
+  four external participants and 15 familiar videos. Hexagon colour gives the
+  observation count on a logarithmic scale; dashed lines mark the neutral score
+  of 128. (b,c) Sample-weighted mean valence and arousal, respectively, for each
+  video across ten equal bins of normalized playback time, with bin midpoints
+  from 5\% to 95\%. The heatmaps share a diverging scale centred at 128; blue
+  and red denote values below and above neutral. These repeated observations
+  were examined only after prediction generation and are used descriptively.}
+  \Description{A hexbin plot shows the external valence--arousal distribution,
+  and two heatmaps show mean valence and arousal for 15 videos over ten
+  normalized playback-time bins.}
+  \label{fig:external-data-landscape}
+\end{figure*}
+
 \subsection{Dataset and participants}
 
 The MER-PS 2026 training and validation data contain 24 participants, 15
@@ -276,24 +294,6 @@ Figure~\ref{fig:external-data-landscape} summarizes the external label
 distribution and its variation across videos and normalized playback time. This
 descriptive analysis was performed after prediction generation and does not
 enter any predictor.
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{external_data_landscape.pdf}
-  \caption{External label coverage and video--time variation. (a) Joint
-  distribution of 6,143 one-second target observations from 60 trials involving
-  four external participants and 15 familiar videos. Hexagon colour gives the
-  observation count on a logarithmic scale; dashed lines mark the neutral score
-  of 128. (b,c) Sample-weighted mean valence and arousal, respectively, for each
-  video across ten equal bins of normalized playback time, with bin midpoints
-  from 5\% to 95\%. The heatmaps share a diverging scale centred at 128; blue
-  and red denote values below and above neutral. These repeated observations
-  were examined only after prediction generation and are used descriptively.}
-  \Description{A hexbin plot shows the external valence--arousal distribution,
-  and two heatmaps show mean valence and arousal for 15 videos over ten
-  normalized playback-time bins.}
-  \label{fig:external-data-landscape}
-\end{figure*}
 
 \subsection{Source variants}
 
