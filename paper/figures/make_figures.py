@@ -24,13 +24,16 @@ COMPONENT_LABELS = {
     "Fused prediction": "Fixed fusion",
 }
 METRICS = ("Overall", "Valence", "Arousal")
+# Discrete colors sampled from the Blues and RdBu_r maps used in Figure 1.
 PHYSIOLOGY_COLOR = "#CFCFCF"
-PRIOR_COLOR = "#484878"
-FUSION_COLOR = "#D79AAF"
-GAIN_COLOR = "#2E9E44"
-LOSS_COLOR = "#D85852"
+PRIOR_COLOR = "#2070B4"
+FUSION_COLOR = "#E48066"
+GAIN_COLOR = "#E48066"
+GAIN_TEXT_COLOR = "#C43B3C"
+LOSS_COLOR = "#327CB7"
 NEUTRAL_COLOR = "#666666"
 EDGE_COLOR = "#444444"
+REFERENCE_COLOR = "#777777"
 GUIDE_COLOR = "#E2E2E2"
 
 
@@ -163,7 +166,7 @@ def main() -> None:
         va="bottom",
         fontsize=6.1,
         fontweight="bold",
-        color=GAIN_COLOR,
+        color=PRIOR_COLOR,
     )
     add_panel_label(ax, "a", x=-0.37)
 
@@ -204,7 +207,7 @@ def main() -> None:
             fontsize=6.1,
             color=NEUTRAL_COLOR,
         )
-    ax.axvline(0.0, color=EDGE_COLOR, linewidth=0.75)
+    ax.axvline(0.0, color=REFERENCE_COLOR, linewidth=0.75)
     ax.set_yticks(y, METRICS)
     ax.invert_yaxis()
     ax.set_xlim(-0.004, 0.112)
@@ -220,9 +223,9 @@ def main() -> None:
         va="bottom",
         fontsize=6.1,
         fontweight="bold",
-        color=GAIN_COLOR,
+        color=GAIN_TEXT_COLOR,
     )
-    ax.grid(axis="x", color="#E5E5E5", linewidth=0.45)
+    ax.grid(axis="x", color=GUIDE_COLOR, linewidth=0.45)
     ax.set_axisbelow(True)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0, pad=3)

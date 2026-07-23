@@ -39,15 +39,20 @@ VARIANT_LABELS = {
     "fixed_fusion": "Fixed fusion",
 }
 COLORS = {
-    "global_constant": "#B4C0E4",
-    "video_identity": "#7884B4",
-    "video_time": "#484878",
+    # Discrete colors sampled from the Blues and RdBu_r maps used in Figure 1.
+    "global_constant": "#A6CEE4",
+    "video_identity": "#6AAED6",
+    "video_time": "#2070B4",
     "physiology": "#CFCFCF",
-    "fixed_fusion": "#D79AAF",
-    "gain": "#2E9E44",
-    "loss": "#D85852",
+    "fixed_fusion": "#E48066",
+    "gain": "#E48066",
+    "gain_text": "#C43B3C",
+    "loss": "#327CB7",
     "neutral": "#666666",
+    "reference": "#777777",
 }
+EDGE_COLOR = "#444444"
+GUIDE_COLOR = "#E2E2E2"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -177,7 +182,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
         y,
         values,
         color=[COLORS[variant] for variant in VARIANT_ORDER],
-        edgecolor="#444444",
+        edgecolor=EDGE_COLOR,
         linewidth=0.45,
         height=0.67,
     )
@@ -186,7 +191,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_a.set_xlim(0.0, 50.5)
     ax_a.set_xlabel("Mean absolute error")
     ax_a.set_title("External MAE comparison", loc="left")
-    ax_a.grid(axis="x", color="#E2E2E2", linewidth=0.5, zorder=0)
+    ax_a.grid(axis="x", color=GUIDE_COLOR, linewidth=0.5, zorder=0)
     ax_a.set_axisbelow(True)
     for bar, value in zip(bars, values):
         ax_a.text(
@@ -266,7 +271,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
                     fontsize=6.1,
                     color=COLORS["neutral"],
                 )
-        ax.axvline(0.0, color="#444444", linewidth=0.75)
+        ax.axvline(0.0, color=COLORS["reference"], linewidth=0.75)
         ax.set_yticks(y_positions, [label for label, _ in rows])
         ax.invert_yaxis()
         ax.set_xlim(*delta_xlim)
@@ -282,9 +287,9 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
             va="bottom",
             fontsize=6.1,
             fontweight="bold",
-            color=COLORS["gain"],
+            color=COLORS["gain_text"],
         )
-        ax.grid(axis="x", color="#E5E5E5", linewidth=0.45)
+        ax.grid(axis="x", color=GUIDE_COLOR, linewidth=0.45)
         ax.set_axisbelow(True)
         ax.spines["left"].set_visible(False)
         ax.tick_params(axis="y", length=0, pad=3)
@@ -329,7 +334,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_d.set_xlabel("Normalized video time (%)")
     ax_d.set_ylabel("Mean absolute error")
     ax_d.set_title("Error varies across video time", loc="left")
-    ax_d.grid(color="#E5E5E5", linewidth=0.45)
+    ax_d.grid(color=GUIDE_COLOR, linewidth=0.45)
     ax_d.set_axisbelow(True)
     fig.legend(
         line_handles,

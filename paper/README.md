@@ -24,9 +24,9 @@
 
 `external_data_landscape` 是正文 Figure 1，展示外部效价—唤醒度标签覆盖，以及各视频在归一化时间区间中的样本加权平均效价和唤醒度。该图用于交代外部评估域及其描述性差异；其中的重复观测不参与预测器构建，也不承担因果、统计显著性或未见视频泛化结论。
 
-`source_dominance` 是正文 Figure 2（2×1 单栏内部 MAE 对比图）：沿用 Figure 3 的配色、横向柱图和增量棒棒糖图风格，展示固定融合取得最低 MAE，并说明视频—时间先验几乎解释了从 EEG--fNIRS 分支到融合的全部误差降幅。
+`source_dominance` 是正文 Figure 2（2×1 单栏内部 MAE 对比图）：沿用 Figure 1 的蓝—红发散配色，以及 Figure 3 的横向柱图和增量棒棒糖图结构，展示固定融合取得最低 MAE，并说明视频—时间先验几乎解释了从 EEG--fNIRS 分支到融合的全部误差降幅。
 
-`external_source_decomposition` 是正文 Figure 3（双栏外部 MAE 与残差分析主图），其四个面板依次展示：
+`external_source_decomposition` 是正文 Figure 3（双栏外部 MAE 与残差分析主图），采用与 Figure 1 一致的蓝—红发散配色，其四个面板依次展示：
 
 1. 五种来源变体的总体 MAE；
 2. 4 名参与者上按幅度排序的配对融合增量；
