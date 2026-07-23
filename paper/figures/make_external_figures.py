@@ -14,6 +14,7 @@ matplotlib.use("Agg")
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
@@ -114,12 +115,18 @@ def save_publication_figure(fig: plt.Figure, prefix: Path) -> None:
     normalize_svg(svg_path)
     fig.savefig(prefix.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(prefix.with_suffix(".png"), dpi=300, bbox_inches="tight")
+    tiff_path = prefix.with_suffix(".tiff")
     fig.savefig(
-        prefix.with_suffix(".tiff"),
+        tiff_path,
         dpi=600,
         bbox_inches="tight",
         pil_kwargs={"compression": "tiff_lzw"},
     )
+    with Image.open(tiff_path) as tiff_image:
+        rgba = tiff_image.convert("RGBA")
+    rgb = Image.new("RGB", rgba.size, "white")
+    rgb.paste(rgba, mask=rgba.getchannel("A"))
+    rgb.save(tiff_path, dpi=(600, 600), compression="tiff_lzw")
     plt.close(fig)
 
 
@@ -151,12 +158,12 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
         for row in time_rows
     }
 
-    fig = plt.figure(figsize=(7.2, 5.15), layout="constrained")
+    fig = plt.figure(figsize=(7.2, 5.3), layout="constrained")
     grid = fig.add_gridspec(
         2,
         3,
-        width_ratios=[1.15, 1.15, 1.45],
-        height_ratios=[1.12, 1.0],
+        width_ratios=[1.0, 1.28, 1.45],
+        height_ratios=[1.05, 1.15],
     )
     ax_a = fig.add_subplot(grid[0, :2])
     ax_b = fig.add_subplot(grid[1, 0])
@@ -192,36 +199,113 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
         )
     add_panel_label(ax_a, "a", x=-0.08)
 
-    # b, paired subject-level fusion increment.
-    for index, subject in enumerate(subjects):
-        prior = subject_metrics[(subject, "video_time")]
-        fusion = subject_metrics[(subject, "fixed_fusion")]
-        delta = prior - fusion
-        color = COLORS["gain"] if delta >= 0 else COLORS["loss"]
-        ax_b.plot([0, 1], [prior, fusion], color=color, linewidth=1.0, alpha=0.8)
-        ax_b.scatter([0, 1], [prior, fusion], color=color, s=19, zorder=3)
-        ax_b.text(1.05, fusion, f"S{index + 1}", color=color, va="center", fontsize=6.2)
-    ax_b.set_xlim(-0.18, 1.32)
-    ax_b.set_xticks([0, 1], ["Video–time\nprior", "Fixed\nfusion"])
-    ax_b.set_ylabel("Mean absolute error")
-    ax_b.set_title("Paired subject effects", loc="left")
-    ax_b.grid(axis="y", color="#E5E5E5", linewidth=0.45)
-    add_panel_label(ax_b, "b", x=-0.24)
+    # b, paired viewer-level fusion increments, ranked by magnitude.
+    subject_deltas = [
+        (
+            f"S{index + 1}",
+            subject_metrics[(subject, "video_time")]
+            - subject_metrics[(subject, "fixed_fusion")],
+        )
+        for index, subject in enumerate(subjects)
+    ]
+    subject_deltas.sort(key=lambda item: item[1], reverse=True)
 
-    # c, video-level heterogeneity of the fusion increment.
-    deltas = np.asarray(
-        [video_metrics[(video, "video_time")] - video_metrics[(video, "fixed_fusion")] for video in videos]
+    # c, video-level heterogeneity using the same signed encoding.
+    video_deltas = [
+        (
+            f"V{video}",
+            video_metrics[(video, "video_time")]
+            - video_metrics[(video, "fixed_fusion")],
+        )
+        for video in videos
+    ]
+    video_deltas.sort(key=lambda item: item[1], reverse=True)
+
+    delta_xlim = (-0.36, 1.40)
+    delta_ticks = [0.0, 0.5, 1.0]
+
+    def draw_ranked_increments(
+        ax: plt.Axes,
+        rows: list[tuple[str, float]],
+        title: str,
+        summary: str,
+        annotate_values: bool,
+    ) -> None:
+        y_positions = np.arange(len(rows), dtype=float)
+        for y_position, (_, delta) in zip(y_positions, rows):
+            color = COLORS["gain"] if delta >= 0 else COLORS["loss"]
+            marker = "o" if delta >= 0 else "X"
+            ax.hlines(
+                y_position,
+                min(0.0, delta),
+                max(0.0, delta),
+                color=color,
+                linewidth=1.45,
+                alpha=0.55,
+                zorder=1,
+            )
+            ax.scatter(
+                delta,
+                y_position,
+                color=color,
+                marker=marker,
+                s=25,
+                edgecolor="white" if delta >= 0 else color,
+                linewidth=0.6,
+                zorder=2,
+            )
+            if annotate_values:
+                label_x = delta + 0.045 if delta >= 0 else 0.045
+                label = f"+{delta:.3f}" if delta >= 0 else f"−{abs(delta):.3f}"
+                ax.text(
+                    label_x,
+                    y_position,
+                    label,
+                    ha="left",
+                    va="center",
+                    fontsize=6.1,
+                    color=COLORS["neutral"],
+                )
+        ax.axvline(0.0, color="#444444", linewidth=0.75)
+        ax.set_yticks(y_positions, [label for label, _ in rows])
+        ax.invert_yaxis()
+        ax.set_xlim(*delta_xlim)
+        ax.set_xticks(delta_ticks)
+        ax.set_xlabel("Prior MAE − fusion MAE")
+        ax.set_title(title, loc="left", pad=13)
+        ax.text(
+            1.0,
+            1.005,
+            summary,
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=6.1,
+            fontweight="bold",
+            color=COLORS["gain"],
+        )
+        ax.grid(axis="x", color="#E5E5E5", linewidth=0.45)
+        ax.set_axisbelow(True)
+        ax.spines["left"].set_visible(False)
+        ax.tick_params(axis="y", length=0, pad=3)
+
+    draw_ranked_increments(
+        ax_b,
+        subject_deltas,
+        "Viewer-level increment",
+        f"{sum(delta > 0 for _, delta in subject_deltas)}/{len(subject_deltas)} improve",
+        annotate_values=True,
     )
-    colors = [COLORS["gain"] if value >= 0 else COLORS["loss"] for value in deltas]
-    ax_c.bar(videos, deltas, color=colors, width=0.74)
-    ax_c.axhline(0.0, color="#555555", linewidth=0.6)
-    ax_c.set_xticks([1, 3, 5, 7, 9, 11, 13, 15])
-    ax_c.set_xlabel("Video")
-    ax_c.set_ylabel("Prior MAE − fusion MAE")
-    ax_c.set_title("Video-level fusion increment", loc="left")
-    ax_c.grid(axis="y", color="#E5E5E5", linewidth=0.45)
-    ax_c.set_axisbelow(True)
-    add_panel_label(ax_c, "c", x=-0.24)
+    add_panel_label(ax_b, "b", x=-0.31)
+
+    draw_ranked_increments(
+        ax_c,
+        video_deltas,
+        "Video-level increment",
+        f"{sum(delta > 0 for _, delta in video_deltas)}/{len(video_deltas)} improve",
+        annotate_values=False,
+    )
+    add_panel_label(ax_c, "c", x=-0.22)
 
     # d, error across normalized within-video time.
     x = (np.asarray(bins, dtype=float) + 0.5) * (100.0 / len(bins))
