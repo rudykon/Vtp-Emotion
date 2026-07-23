@@ -19,17 +19,19 @@ SOURCE_CSV = HERE / "source_data_components.csv"
 DEFAULT_OUTPUT_PREFIX = HERE / "source_dominance"
 
 COMPONENT_LABELS = {
-    "Physiological branch": "Physiology",
+    "Physiological branch": "EEG–fNIRS branch",
     "Video--time prior": "Video–time prior",
     "Fused prediction": "Fixed fusion",
 }
 METRICS = ("Overall", "Valence", "Arousal")
-PHYSIOLOGY_COLOR = "#B8BEC8"
-PRIOR_COLOR = "#7B9FC6"
-FUSION_COLOR = "#174F7A"
-GAIN_COLOR = "#238B45"
-TEXT_COLOR = "#272727"
-GUIDE_COLOR = "#D8DCE2"
+PHYSIOLOGY_COLOR = "#CFCFCF"
+PRIOR_COLOR = "#484878"
+FUSION_COLOR = "#D79AAF"
+GAIN_COLOR = "#2E9E44"
+LOSS_COLOR = "#D85852"
+NEUTRAL_COLOR = "#666666"
+EDGE_COLOR = "#444444"
+GUIDE_COLOR = "#E2E2E2"
 
 
 def normalize_svg(path: Path) -> None:
@@ -53,15 +55,21 @@ def load_components(path: Path) -> dict[str, dict[str, float]]:
     return data
 
 
-def add_panel_label(ax: plt.Axes, label: str) -> None:
+def add_panel_label(
+    ax: plt.Axes,
+    label: str,
+    x: float = -0.13,
+    y: float = 1.04,
+) -> None:
     ax.text(
-        -0.37,
-        1.10,
+        x,
+        y,
         label,
         transform=ax.transAxes,
         fontsize=8.5,
         fontweight="bold",
-        va="top",
+        ha="left",
+        va="bottom",
     )
 
 
@@ -82,25 +90,22 @@ def main() -> None:
     plt.rcParams.update(
         {
             "font.family": "sans-serif",
-            "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
-            "font.size": 7.2,
-            "axes.labelsize": 7.2,
-            "axes.titlesize": 7.6,
-            "xtick.labelsize": 6.8,
-            "ytick.labelsize": 6.9,
-            "text.color": TEXT_COLOR,
-            "axes.labelcolor": TEXT_COLOR,
-            "axes.titlecolor": TEXT_COLOR,
-            "xtick.color": TEXT_COLOR,
-            "ytick.color": TEXT_COLOR,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.linewidth": 0.6,
-            "xtick.major.width": 0.6,
-            "ytick.major.width": 0.6,
+            "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+            "svg.fonttype": "none",
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
-            "svg.fonttype": "none",
+            "font.size": 7.2,
+            "axes.labelsize": 7.2,
+            "axes.titlesize": 7.5,
+            "xtick.labelsize": 6.7,
+            "ytick.labelsize": 6.7,
+            "legend.fontsize": 6.4,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "axes.linewidth": 0.65,
+            "xtick.major.width": 0.65,
+            "ytick.major.width": 0.65,
+            "legend.frameon": False,
         }
     )
 
@@ -115,8 +120,8 @@ def main() -> None:
     fig, axes = plt.subplots(
         2,
         1,
-        figsize=(3.35, 3.35),
-        gridspec_kw={"height_ratios": [1.35, 1.0], "hspace": 0.72},
+        figsize=(3.35, 3.5),
+        layout="constrained",
     )
 
     # (a) Hero panel: the primary overall-MAE result.
@@ -125,69 +130,103 @@ def main() -> None:
     values = np.asarray([data[component]["Overall"] for component in components])
     y = np.arange(len(components), dtype=float)
     colors = [PHYSIOLOGY_COLOR, PRIOR_COLOR, FUSION_COLOR]
-    bars = ax.barh(y, values, height=0.58, color=colors, edgecolor="none")
+    bars = ax.barh(
+        y,
+        values,
+        height=0.67,
+        color=colors,
+        edgecolor=EDGE_COLOR,
+        linewidth=0.45,
+    )
     ax.set_yticks(y, [COMPONENT_LABELS[item] for item in components])
     ax.invert_yaxis()
-    ax.set_xlim(0, 55)
-    ax.set_xticks([0, 20, 40])
-    ax.set_xlabel("Overall mean absolute error (lower is better)")
-    ax.set_title("Held-out viewers", loc="left", pad=5, fontweight="bold")
+    ax.set_xlim(0.0, 50.5)
+    ax.set_xlabel("Mean absolute error")
+    ax.set_title("Internal MAE comparison", loc="left")
     ax.grid(axis="x", color=GUIDE_COLOR, linewidth=0.5, zorder=0)
     ax.set_axisbelow(True)
-    ax.spines["left"].set_visible(False)
-    ax.tick_params(axis="y", length=0, pad=5)
-    for index, (bar, value) in enumerate(zip(bars, values)):
+    for bar, value in zip(bars, values):
         ax.text(
-            value + 0.75,
+            value + 0.65,
             bar.get_y() + bar.get_height() / 2,
             f"{value:.2f}",
             ha="left",
             va="center",
-            fontsize=7.0,
-            fontweight="bold" if index == 2 else "normal",
-            color=FUSION_COLOR if index == 2 else TEXT_COLOR,
+            fontsize=6.7,
         )
     ax.text(
-        0.0,
-        -0.34,
-        f"Prior captures {overall_prior_share:.1f}% of the overall reduction",
+        1.0,
+        1.005,
+        f"Prior: {overall_prior_share:.1f}%",
         transform=ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=6.6,
-        color=FUSION_COLOR,
-        bbox={"boxstyle": "round,pad=0.28", "facecolor": "#EEF4FA", "edgecolor": "none"},
+        ha="right",
+        va="bottom",
+        fontsize=6.1,
+        fontweight="bold",
+        color=GAIN_COLOR,
     )
-    add_panel_label(ax, "a")
+    add_panel_label(ax, "a", x=-0.37)
 
     # (b) Supporting panel: the small dimension-specific fusion increment.
     ax = axes[1]
     increments = np.asarray([prior[metric] - fusion[metric] for metric in METRICS])
     y = np.arange(len(METRICS), dtype=float)
-    ax.hlines(y, 0.0, increments, color="#AEB6C0", linewidth=2.0, zorder=1)
-    ax.scatter(increments, y, s=30, color=GAIN_COLOR, edgecolor="white", linewidth=0.7, zorder=2)
-    ax.axvline(0.0, color=TEXT_COLOR, linewidth=0.7)
+    for y_position, increment in zip(y, increments):
+        color = GAIN_COLOR if increment >= 0 else LOSS_COLOR
+        marker = "o" if increment >= 0 else "X"
+        ax.hlines(
+            y_position,
+            min(0.0, increment),
+            max(0.0, increment),
+            color=color,
+            linewidth=1.45,
+            alpha=0.55,
+            zorder=1,
+        )
+        ax.scatter(
+            increment,
+            y_position,
+            s=25,
+            color=color,
+            marker=marker,
+            edgecolor="white" if increment >= 0 else color,
+            linewidth=0.6,
+            zorder=2,
+        )
+        label_x = increment + 0.004 if increment >= 0 else 0.004
+        label = f"+{increment:.3f}" if increment >= 0 else f"−{abs(increment):.3f}"
+        ax.text(
+            label_x,
+            y_position,
+            label,
+            ha="left",
+            va="center",
+            fontsize=6.1,
+            color=NEUTRAL_COLOR,
+        )
+    ax.axvline(0.0, color=EDGE_COLOR, linewidth=0.75)
     ax.set_yticks(y, METRICS)
     ax.invert_yaxis()
     ax.set_xlim(-0.004, 0.112)
     ax.set_xticks([0.00, 0.05, 0.10])
-    ax.set_xlabel("MAE reduction: prior − fusion")
-    ax.set_title("Small fusion increment", loc="left", pad=5, fontweight="bold")
+    ax.set_xlabel("Prior MAE − fusion MAE")
+    ax.set_title("Target-level increment", loc="left", pad=13)
+    ax.text(
+        1.0,
+        1.005,
+        f"{sum(increment > 0 for increment in increments)}/{len(increments)} improve",
+        transform=ax.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=6.1,
+        fontweight="bold",
+        color=GAIN_COLOR,
+    )
+    ax.grid(axis="x", color="#E5E5E5", linewidth=0.45)
+    ax.set_axisbelow(True)
     ax.spines["left"].set_visible(False)
-    ax.tick_params(axis="y", length=0, pad=5)
-    for row, value in zip(y, increments):
-        ax.text(
-            value + 0.004,
-            row,
-            f"{value:.3f}",
-            ha="left",
-            va="center",
-            fontsize=6.8,
-            color=TEXT_COLOR,
-        )
-    add_panel_label(ax, "b")
-
-    fig.subplots_adjust(left=0.31, right=0.98, top=0.96, bottom=0.14)
+    ax.tick_params(axis="y", length=0, pad=3)
+    add_panel_label(ax, "b", x=-0.37)
 
     fig.savefig(output_pdf, bbox_inches="tight")
     fig.savefig(output_svg, bbox_inches="tight")
