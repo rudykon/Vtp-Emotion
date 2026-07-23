@@ -398,6 +398,10 @@ def make_data_landscape_figure(
     valence = np.asarray([float(row["target_valence"]) for row in rows])
     arousal = np.asarray([float(row["target_arousal"]) for row in rows])
     valence_matrix, arousal_matrix = aggregate_video_time_targets(rows)
+    video_positions = np.arange(valence_matrix.shape[0])
+    video_labels = np.arange(1, valence_matrix.shape[0] + 1)
+    time_positions = np.arange(valence_matrix.shape[1])
+    time_midpoints = (time_positions + 0.5) * 100.0 / valence_matrix.shape[1]
     deviation = max(
         float(np.quantile(np.abs(valence - 128.0), 0.98)),
         float(np.quantile(np.abs(arousal - 128.0), 0.98)),
@@ -429,7 +433,7 @@ def make_data_landscape_figure(
     ax_a.set_aspect("equal", adjustable="box")
     ax_a.set_xlabel("Valence")
     ax_a.set_ylabel("Arousal")
-    ax_a.set_title(f"External affective coverage (n = {len(rows):,})", loc="left")
+    ax_a.set_title(f"External labels ({len(rows):,} one-second observations)", loc="left")
     colorbar = fig.colorbar(density, ax=ax_a, fraction=0.047, pad=0.03)
     colorbar.set_label("Samples per hexagon (log scale)")
     add_panel_label(ax_a, "a", x=-0.2)
@@ -437,15 +441,15 @@ def make_data_landscape_figure(
     image_b = ax_b.imshow(valence_matrix, aspect="auto", cmap="RdBu_r", norm=norm)
     ax_b.set_title("Mean valence across video and normalized time", loc="left")
     ax_b.set_ylabel("Video")
-    ax_b.set_yticks(np.arange(15), np.arange(1, 16))
+    ax_b.set_yticks(video_positions, video_labels)
     ax_b.set_xticks([])
     add_panel_label(ax_b, "b", x=-0.08)
 
     ax_c.imshow(arousal_matrix, aspect="auto", cmap="RdBu_r", norm=norm)
     ax_c.set_title("Mean arousal across video and normalized time", loc="left")
     ax_c.set_ylabel("Video")
-    ax_c.set_yticks(np.arange(15), np.arange(1, 16))
-    ax_c.set_xticks(np.arange(10), [f"{5 + 10 * index}" for index in range(10)])
+    ax_c.set_yticks(video_positions, video_labels)
+    ax_c.set_xticks(time_positions, [f"{midpoint:g}" for midpoint in time_midpoints])
     ax_c.set_xlabel("Normalized video-time bin midpoint (%)")
     add_panel_label(ax_c, "c", x=-0.08)
 

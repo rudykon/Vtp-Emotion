@@ -239,10 +239,35 @@ evaluates new viewers responding to the same 15 familiar videos.
 The external cohort contains four participants, 60 trials, and 6,143 one-hertz
 targets. These participants are disjoint from the development set. Their targets
 are excluded from prior construction, checkpoint training, and inference, and
-are matched to predictions only for offline evaluation. The external EEG--fNIRS estimate averages predictions from one final
-checkpoint standardized with statistics from all 24 development participants
-and from five participant-grouped fold checkpoints. Fixed fusion combines this ensemble with a video--time prior built
-from all 24 development participants.
+are matched to predictions only for offline evaluation. The external EEG--fNIRS
+estimate averages predictions from one final checkpoint standardized with
+statistics from all 24 development participants and from five
+participant-grouped fold checkpoints. Fixed fusion combines this ensemble with
+a video--time prior built from all 24 development participants.
+
+After all predictions had been generated, we examined the external labels to
+characterize the held-out evaluation domain. Figure~\ref{fig:external-data-landscape}
+shows a broad but nonuniform valence--arousal distribution and visible variation
+in sample-weighted mean labels across videos and normalized-time bins. This
+descriptive analysis does not enter any predictor.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{external_data_landscape.pdf}
+  \caption{External label coverage and video--time variation. (a) Joint
+  distribution of 6,143 one-second target observations from 60 trials involving
+  four external participants and 15 familiar videos. Hexagon colour gives the
+  observation count on a logarithmic scale; dashed lines mark the neutral score
+  of 128. (b,c) Sample-weighted mean valence and arousal, respectively, for each
+  video across ten equal bins of normalized playback time, with bin midpoints
+  from 5\% to 95\%. The heatmaps share a diverging scale centred at 128; blue
+  and red denote values below and above neutral. These repeated observations
+  were examined only after prediction generation and are used descriptively.}
+  \Description{A hexbin plot shows the external valence--arousal distribution,
+  and two heatmaps show mean valence and arousal for 15 videos over ten
+  normalized playback-time bins.}
+  \label{fig:external-data-landscape}
+\end{figure*}
 
 \subsection{Source variants}
 
