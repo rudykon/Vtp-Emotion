@@ -35,7 +35,7 @@ VARIANT_LABELS = {
     "global_constant": "Global constant",
     "video_identity": "Video identity",
     "video_time": "Video–time prior",
-    "physiology": "Physiological branch",
+    "physiology": "EEG–fNIRS branch",
     "fixed_fusion": "Fixed fusion",
 }
 COLORS = {
@@ -158,17 +158,17 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
         for row in time_rows
     }
 
-    fig = plt.figure(figsize=(7.2, 5.3), layout="constrained")
+    fig = plt.figure(figsize=(7.2, 5.6), layout="constrained")
     grid = fig.add_gridspec(
         2,
-        3,
-        width_ratios=[1.0, 1.28, 1.45],
-        height_ratios=[1.05, 1.15],
+        2,
+        width_ratios=[1.0, 1.0],
+        height_ratios=[0.95, 1.22],
     )
-    ax_a = fig.add_subplot(grid[0, :2])
-    ax_b = fig.add_subplot(grid[1, 0])
-    ax_c = fig.add_subplot(grid[1, 1])
-    ax_d = fig.add_subplot(grid[:, 2])
+    ax_a = fig.add_subplot(grid[0, 0])
+    ax_b = fig.add_subplot(grid[0, 1])
+    ax_c = fig.add_subplot(grid[1, 0])
+    ax_d = fig.add_subplot(grid[1, 1])
 
     # a, overall five-way MAE comparison.
     values = np.asarray([overall[variant] for variant in VARIANT_ORDER])
@@ -197,9 +197,9 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
             ha="left",
             fontsize=6.7,
         )
-    add_panel_label(ax_a, "a", x=-0.08)
+    add_panel_label(ax_a, "a", x=-0.25)
 
-    # b, paired viewer-level fusion increments, ranked by magnitude.
+    # b, paired participant-level fusion increments, ranked by magnitude.
     subject_deltas = [
         (
             f"S{index + 1}",
@@ -292,11 +292,11 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     draw_ranked_increments(
         ax_b,
         subject_deltas,
-        "Viewer-level increment",
+        "Participant-level increment",
         f"{sum(delta > 0 for _, delta in subject_deltas)}/{len(subject_deltas)} improve",
         annotate_values=True,
     )
-    add_panel_label(ax_b, "b", x=-0.31)
+    add_panel_label(ax_b, "b", x=-0.18)
 
     draw_ranked_increments(
         ax_c,
@@ -305,15 +305,16 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
         f"{sum(delta > 0 for _, delta in video_deltas)}/{len(video_deltas)} improve",
         annotate_values=False,
     )
-    add_panel_label(ax_c, "c", x=-0.22)
+    add_panel_label(ax_c, "c", x=-0.18)
 
     # d, error across normalized within-video time.
     x = (np.asarray(bins, dtype=float) + 0.5) * (100.0 / len(bins))
     time_variants = ("global_constant", "video_identity", "video_time", "fixed_fusion")
     markers = ("o", "s", "^", "D")
+    line_handles = []
     for variant, marker in zip(time_variants, markers):
         series = [time_metrics[(time_bin, variant)] for time_bin in bins]
-        ax_d.plot(
+        line, = ax_d.plot(
             x,
             series,
             color=COLORS[variant],
@@ -322,6 +323,7 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
             linewidth=1.45,
             label=VARIANT_LABELS[variant],
         )
+        line_handles.append(line)
     ax_d.set_xlim(0, 100)
     ax_d.set_xticks([0, 20, 40, 60, 80, 100])
     ax_d.set_xlabel("Normalized video time (%)")
@@ -329,15 +331,17 @@ def make_source_decomposition_figure(source_dir: Path, output_dir: Path) -> None
     ax_d.set_title("Error varies across video time", loc="left")
     ax_d.grid(color="#E5E5E5", linewidth=0.45)
     ax_d.set_axisbelow(True)
-    ax_d.legend(
-        loc="lower right",
-        bbox_to_anchor=(0.98, 0.03),
-        ncol=1,
-        borderaxespad=0.0,
+    fig.legend(
+        line_handles,
+        [VARIANT_LABELS[variant] for variant in time_variants],
+        loc="outside lower center",
+        ncol=4,
+        borderaxespad=0.2,
         labelspacing=0.35,
-        handletextpad=0.4,
+        handletextpad=0.45,
+        columnspacing=1.2,
     )
-    add_panel_label(ax_d, "d", x=-0.16)
+    add_panel_label(ax_d, "d", x=-0.18)
 
     save_publication_figure(fig, output_dir / "external_source_decomposition")
 
