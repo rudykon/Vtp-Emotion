@@ -20,14 +20,14 @@ modalities from every new viewer also carries substantially greater sensing and
 processing cost than using information already associated with the video.
 
 The familiar-video setting changes what information is available. Naturalistic
-videos can induce reliable, time-locked responses across viewers, suggesting
-that repeated, aligned content contains shared response structure
+videos can induce reliable, time-locked responses across participants, suggesting
+that familiar videos contain shared response structure aligned to playback time
 \cite{hasson2004intersubject,kauppi2010isc,dmochowski2012correlated}.
-When training participants and a new viewer watch the same aligned video,
-their matched labels permit a group affect trajectory indexed by video
-identity and within-video time. A valid predictor must reconstruct this
-trajectory inside each training split so that held-out labels cannot enter the
-estimate.
+When training participants and a new viewer watch the same familiar video on
+an aligned playback timeline, their matched labels permit a group affect
+trajectory indexed by video identity and within-video time. A valid predictor
+must reconstruct this trajectory inside each training split so that held-out
+labels cannot enter the estimate.
 
 We operationalize the shared response as a fold-wise video--time prior, pair it
 with an EEG--fNIRS branch, and combine the two through prior-dominating fixed
@@ -129,7 +129,9 @@ is sample-pooled MAE over both affect dimensions,
  \frac{1}{2N}\sum_{i=1}^{N}\sum_{d\in\{V,A\}}
  \left|y_i^d-\hat y_i^d\right|.
 \end{equation}
-Here, \(N\) denotes the number of evaluated one-second participant--video--time samples.
+Here, \(N\) denotes the number of evaluated one-second
+participant--video--time samples, and \(i\) indexes each sample tuple
+\((s,v,t)\).
 
 The pipeline produces two complementary estimates before fusion. The
 video--time prior \(\bar p_{v,t}\) retrieves the group trajectory associated with
@@ -188,14 +190,15 @@ information in the EEG-to-fNIRS and fNIRS-to-EEG directions
 modality-specific and cross-modal tokens feed a multilayer regressor. Targets
 are min--max scaled from \([1,255]\) to \([0,1]\) as
 \(\tilde y=(y-1)/254\), and a sigmoid produces predictions on the same interval.
-The participant-grouped folds minimize mean squared error on these scaled
-targets plus \(0.01\) times a symmetric contrastive alignment loss
+Models trained on participant-grouped folds minimize mean squared error on
+these scaled targets plus \(0.01\) times a symmetric contrastive alignment loss
 \cite{chen2020simclr}. Predictions are transformed back using
-\(254\hat{\tilde y}+1\) and clipped to \([1,255]\) before MAE evaluation. The
-alignment term regularizes paired EEG and fNIRS representations from the same
-sample without dominating the regression objective. All evaluated checkpoint
-configurations use dropout at rate \(0.7\); the participant-grouped folds use
-AdamW optimization and early stopping on fold validation MSE.
+\(254\hat{\tilde y}+1\) and clipped to \([1,255]\) before MAE evaluation. Hereafter, \(m_{s,v,t}\) denotes this transformed and clipped prediction on
+the original \([1,255]\) scale. The alignment term regularizes paired EEG and
+fNIRS representations from the same sample without dominating the regression
+objective. All evaluated EEG--fNIRS checkpoints use a dropout rate of \(0.7\).
+Models trained on participant-grouped folds use AdamW optimization and early
+stopping on fold validation MSE.
 
 \subsection{Prior-dominating fixed fusion}
 
@@ -240,16 +243,17 @@ The external cohort contains four participants, 60 trials, and 6,143 one-hertz
 targets. These participants are disjoint from the development set. Their targets
 are excluded from prior construction, checkpoint training, and inference, and
 are matched to predictions only for offline evaluation. The external EEG--fNIRS
-estimate averages predictions from one final checkpoint standardized with
-statistics from all 24 development participants and from five
-participant-grouped fold checkpoints. Fixed fusion combines this ensemble with
-a video--time prior built from all 24 development participants.
+estimate averages predictions from six checkpoints. For the final checkpoint,
+EEG and fNIRS features are standardized using statistics computed from all 24
+development participants. Each of the five participant-grouped fold checkpoints uses
+feature-standardization statistics computed from its training participants.
+Fixed fusion combines this ensemble with a video--time prior built from all 24
+development participants.
 
-After all predictions had been generated, we examined the external labels to
-characterize the held-out evaluation domain. Figure~\ref{fig:external-data-landscape}
-shows a broad but nonuniform valence--arousal distribution and visible variation
-in sample-weighted mean labels across videos and normalized-time bins. This
-descriptive analysis does not enter any predictor.
+Figure~\ref{fig:external-data-landscape} summarizes the external label
+distribution and its variation across videos and normalized playback time. This
+descriptive analysis was performed after prediction generation and does not
+enter any predictor.
 
 \begin{figure*}[t]
   \centering
@@ -313,10 +317,10 @@ and fixed fusion; the external evaluation reports all five variants.
 \subsection{Metrics and reporting}
 
 We report sample-pooled MAE overall and separately for valence and arousal on
-identical participant--video--time samples. Overall MSE is retained as a
-secondary external
-diagnostic, while MAE remains the primary endpoint. For external heterogeneity
-analysis, paired errors are also aggregated by participant, by familiar video,
+identical participant--video--time samples. We also computed overall MSE as a
+secondary external diagnostic; MAE remains the primary endpoint. For external
+heterogeneity analysis, paired errors are also aggregated by participant, by
+familiar video,
 and by ten equal bins of normalized within-video time. These grouped summaries
 are descriptive because the external cohort is small and adjacent one-second
 targets are temporally correlated. For the internal evaluation, only aggregate
@@ -381,10 +385,11 @@ adding within-video time lowered it by a further 5.32 points. The shared
 response therefore contains both a video-specific affect level and a
 substantial time-resolved trajectory.
 
-Using unrounded overall MAE, the video--time prior represented 99.73\% of the
-internal and 97.89\% of the external total reduction from EEG--fNIRS to fixed
-fusion, calculated as the MAE improvement from EEG--fNIRS to the prior divided
-by the improvement from EEG--fNIRS to fusion. The fixed fusion remained best,
+Using unrounded overall MAE, the video--time prior accounted for 99.73\% and
+97.89\% of the total internal and external reductions from EEG--fNIRS to fixed
+fusion, respectively. Each percentage was calculated as the MAE improvement
+from EEG--fNIRS to the prior divided by the corresponding improvement from
+EEG--fNIRS to fusion. The fixed fusion remained best,
 but most of its advantage over the EEG--fNIRS branch was already available from
 video identity and within-video time. Figure~\ref{fig:external-decomposition}a
 shows the complete external

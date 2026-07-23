@@ -145,7 +145,7 @@ def main() -> None:
     ax.invert_yaxis()
     ax.set_xlim(0.0, 50.5)
     ax.set_xlabel("Mean absolute error")
-    ax.set_title("Internal MAE comparison", loc="left")
+    ax.set_title("Internal MAE comparison", loc="left", pad=10)
     ax.grid(axis="x", color=GUIDE_COLOR, linewidth=0.5, zorder=0)
     ax.set_axisbelow(True)
     for bar, value in zip(bars, values):
@@ -160,7 +160,7 @@ def main() -> None:
     ax.text(
         1.0,
         1.005,
-        f"Prior: {overall_prior_share:.1f}%",
+        f"Prior accounts for {overall_prior_share:.1f}%",
         transform=ax.transAxes,
         ha="right",
         va="bottom",
@@ -217,7 +217,7 @@ def main() -> None:
     ax.text(
         1.0,
         1.005,
-        f"{sum(increment > 0 for increment in increments)}/{len(increments)} improve",
+        f"{sum(increment > 0 for increment in increments)}/{len(increments)} targets improve",
         transform=ax.transAxes,
         ha="right",
         va="bottom",
