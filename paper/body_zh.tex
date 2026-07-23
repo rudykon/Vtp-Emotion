@@ -79,7 +79,7 @@ EEG 提供毫秒级电生理测量，功能性近红外光谱（fNIRS）则捕�
 
 \begin{figure*}[!t]
   \centering
-  \includegraphics[width=\textwidth]{method_overview.png}
+  \includegraphics[width=\textwidth]{method_overview.pdf}
   \caption{方法概览。（A）新观众在熟悉视频的秒级时刻 \(t\) 提供 EEG--fNIRS 信号。（B）视频—时间先验分支（蓝色）通过折内跨参与者中位数和半径为三的视频内平滑聚合训练参与者标签，得到 \(\bar p_{v,t}\)，其中不包含留出标签；EEG--fNIRS 分支（橙色）提取 \(t-1\)、\(t\) 和 \(t+1\) 的一秒特征，经图编码器和双向跨模态注意力回归 \(m_{s,v,t}\)。（C）偏重先验的固定融合使用效价和唤醒度的先验权重 \(w=[0.99,0.92]\)，生成 \(\hat y_{s,v,t}\)。}
   \Description{三面板方法概览图依次展示新观众观看熟悉视频的场景、防泄漏的视频—时间先验与参与者特异性 EEG--fNIRS 分支，以及二者固定融合为预测效价—唤醒度轨迹的过程。}
   \label{fig:method-overview}

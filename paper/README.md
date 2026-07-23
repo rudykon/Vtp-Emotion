@@ -35,7 +35,7 @@
 3. 15 个视频上按幅度排序的融合增益与损失；
 4. 十个归一化视频时间区间上的误差曲线。
 
-三张定量图件均由 Python/matplotlib 生成，其 SVG 和 PDF 保留可编辑文字；本地还导出 PNG 预览与 600 dpi、LZW 压缩 TIFF。方法概览图以正文实际引用的 PNG 文件保存。秒级样本仅用于描述性汇总，不进行伪重复显著性检验。
+三张定量图件均由 Python/matplotlib 生成，其 SVG 和 PDF 保留可编辑文字；本地还导出 PNG 预览与 600 dpi、LZW 压缩 TIFF。方法概览图使用带嵌入字体与矢量文字的 PDF 文件。秒级样本仅用于描述性汇总，不进行伪重复显著性检验。
 
 ## 论文行文结构
 
@@ -78,7 +78,7 @@ pdfinfo main_zh.pdf
 - `figures/source_data_external_time.csv`：归一化时间分层指标。
 - `figures/source_data_external_trials.csv`：试验级标签摘要。
 - `figures/source_data_external_samples.csv`：数据景观图所需的逐样本标签与元数据。
-- `figures/method_overview.png`：熟悉视频情感回归方法概览图。
+- `figures/method_overview.pdf`：熟悉视频情感回归方法概览图。
 - `figures/source_dominance.{pdf,svg}`：五折来源分解图。
 - `figures/external_source_decomposition.{pdf,svg}`：外部来源分解主图。
 - `figures/external_data_landscape.{pdf,svg}`：外部标签覆盖与视频—时间数据景观图。
