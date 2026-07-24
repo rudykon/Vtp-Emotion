@@ -11,7 +11,7 @@
 这些用途目前是应用动机，项目尚未验证具体剪辑、广告或推荐效果。视频身份和播放时间在推理时易于获得，因此折内视频—时间先验本身就是一种简单、低成本且有效的降 MAE 方法。项目使用固定融合把该先验与 EEG–fNIRS 分支结合，以取得最低总体 MAE。整体方法见图 1。
 
 <p align="center">
-  <a href="docs/figures/method_overview.png">
+  <a href="docs/figures/method_overview.pdf">
     <img src="docs/figures/method_overview.png" alt="视频—时间先验与 EEG–fNIRS 固定融合的方法概览" width="100%">
   </a>
 </p>

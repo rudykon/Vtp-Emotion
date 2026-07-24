@@ -11,7 +11,7 @@ This project studies continuous valence–arousal regression from synchronized E
 These uses are application motivations; the project has not yet validated downstream effects on editing, advertising, or recommendation. Video identity and playback time are readily available at inference, making a fold-wise video–time prior a simple, low-cost, and effective way to reduce MAE. Fixed fusion combines this prior with the EEG–fNIRS branch to obtain the lowest overall MAE. Figure 1 summarizes the framework.
 
 <p align="center">
-  <a href="docs/figures/method_overview.png">
+  <a href="docs/figures/method_overview.pdf">
     <img src="docs/figures/method_overview.png" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="100%">
   </a>
 </p>
