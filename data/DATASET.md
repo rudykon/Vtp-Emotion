@@ -1,78 +1,78 @@
-# 本地 MER-PS 研究数据
+# Local MER-PS Research Data
 
-本目录只保存本地数据说明。原始数据、下载缓存、特征数组和账户令牌均不纳入版本控制。
+This directory contains documentation for local data only. Raw data, download caches, feature arrays, and account tokens are excluded from version control.
 
-## 目录约定
+## Directory Conventions
 
 ```text
 data/
-├── MER_PS_trainval/                         # 24 名开发集参与者
-├── feature_cache/                           # 训练特征缓存
+├── MER_PS_trainval/                         # 24 participants in the development set
+├── feature_cache/                           # Cached training features
 └── download/
-    ├── MER_PS_trainval.zip                  # 训练/验证压缩包
-    └── MER_PS_public_evaluation/            # 4 名外部评估参与者
+    ├── MER_PS_trainval.zip                  # Training/validation archive
+    └── MER_PS_public_evaluation/            # 4 participants in the participant-disjoint held-out cohort
 ```
 
-训练、五折 MAE 评估和特征提取默认使用 `data/MER_PS_trainval/`。外部独立评估与来源分解默认使用 `data/download/MER_PS_public_evaluation/`。
+Training, five-fold mean absolute error (MAE) evaluation, and feature extraction use `data/MER_PS_trainval/` by default. Participant-disjoint held-out evaluation and source decomposition use `data/download/MER_PS_public_evaluation/` by default.
 
-## 下载训练/验证数据
+## Downloading the Training/Validation Data
 
-训练/验证数据仓库：<https://huggingface.co/datasets/MER-PS/MER-PS-trainval>
+Training/validation data repository: <https://huggingface.co/datasets/MER-PS/MER-PS-trainval>
 
-该数据需要申请访问权限。账户获准访问后运行：
+Access approval is required for this dataset. After access has been granted to your account, run:
 
 ```bash
 bash scripts/download_data.sh
 ```
 
-压缩包保存为：
+The archive is saved as:
 
 ```text
 data/download/MER_PS_trainval.zip
 ```
 
-解压前可检查：
+Before extraction, the archive can be checked with:
 
 ```bash
 unzip -tq data/download/MER_PS_trainval.zip
 ```
 
-解压后应确保数据根目录命名为 `data/MER_PS_trainval/`。
+After extraction, ensure that the data root is named `data/MER_PS_trainval/`.
 
-## 下载外部评估数据
+## Downloading the Participant-Disjoint Held-Out Cohort Data
 
-项目根目录中的 `huggingface_token.json` 由下载脚本读取，其 JSON 字段为 `huggingface_token`。令牌文件已被忽略，不得写入代码、日志或版本控制。
+The download script reads `huggingface_token.json` from the project root. Its JSON field is `huggingface_token`. The token file is ignored by Git and must not be written to source code, logs, or version control.
 
-将数据提供方给出的仓库标识作为环境变量传入：
+Pass the repository identifier supplied by the data provider as an environment variable:
 
 ```bash
-MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
+MERPS_EXTERNAL_REPO_ID='<external-data-repository-id>' \
   bash scripts/download_external_data.sh
 ```
 
-也可显式指定目标目录：
+The destination directory can also be specified explicitly:
 
 ```bash
-MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
+MERPS_EXTERNAL_REPO_ID='<external-data-repository-id>' \
   bash scripts/download_external_data.sh \
-  '<外部数据仓库标识>' \
+  '<external-data-repository-id>' \
   data/download/MER_PS_public_evaluation
 ```
 
-下载脚本使用 Hugging Face CLI 与并行传输扩展。相关 Python 依赖已列入 `requirements.txt`。
+The download script uses the Hugging Face CLI and its parallel-transfer extension. The relevant Python dependencies are listed in `requirements.txt`.
 
-## 外部数据规模与结构
+## Scale and Structure of the Participant-Disjoint Held-Out Cohort Data
 
-| 属性 | 数值 |
+| Property | Value |
 | --- | ---: |
-| 参与者数量 | 4 |
-| 视频数量 | 15 |
-| 试验数量 | 60 |
-| 1 Hz 样本数量 | 6,143 |
-| EEG/fNIRS 大型文件 | 16 |
-| 标注 MAT 文件 | 4 |
+| Participants | 4 |
+| Videos | 15 |
+| Trials | 60 |
+| 1 Hz samples | 6,143 |
+| Large EEG/fNIRS files | 16 |
+| Annotation MAT files | 4 |
 
-外部数据根目录包含：
+The participant-disjoint held-out cohort data root contains:
 
 ```text
 sample_ids.csv
@@ -84,18 +84,18 @@ fNIRS_reservations.csv
 Targeted_emotions.txt
 ```
 
-每个 `data/<subject>/` 目录包含 EEG、fNIRS 试验记录和对应静息基线。
+Each `data/<subject>/` directory contains EEG and fNIRS trial recordings with their corresponding resting-state baselines.
 
-## 完整性与本地评分
+## Integrity Checks and Local Evaluation
 
-当前本地副本已通过：
+The current local copy has passed the following checks:
 
-- 27/27 个文件字节数校验；
-- 16/16 个大型生理文件 SHA-256 校验；
-- CSV 目标与 MAT 标注逐值一致性校验；
-- 6,143 个样本键的唯一性、顺序和时间连续性校验。
+- byte-count verification for 27/27 files;
+- SHA-256 verification for 16/16 large physiological-signal files;
+- element-wise consistency between the CSV targets and MAT annotations;
+- uniqueness, ordering, and temporal-continuity checks for 6,143 sample keys.
 
-重新运行数据审计、外部 MAE 评估与来源分解：
+Rerun the data audit, participant-disjoint held-out MAE evaluation, and source decomposition with:
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
@@ -103,8 +103,10 @@ PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   --source-data-dir artifacts/external_source_data
 ```
 
-脚本把数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测写入 `artifacts/external_evaluation/`。该目录可由代码重新生成，因此不上传仓库。
+The script writes the data audit, overall metrics, metrics stratified by participant, video, and time, and paired sample-level predictions to `artifacts/external_evaluation/`. This directory can be regenerated from the code and is therefore not uploaded to the repository.
 
-## 数据使用边界
+The protocol establishes participant disjointness only. It is not independent cross-site or cross-condition external validation, and it does not evaluate unseen videos.
 
-两部分数据的本地说明均记录为 CC BY-NC-SA 4.0，仅用于非商业科学研究。使用或重新分发前，应再次核对数据提供方的访问条件。详细任务结构、信号定义和项目中的评估作用见 [`../docs/dataset.md`](../docs/dataset.md)。
+## Data-Use Boundaries
+
+The local documentation records both data components as licensed under CC BY-NC-SA 4.0 and restricted to non-commercial scientific research. Before using or redistributing the data, verify the access conditions specified by the data provider. See [`../docs/dataset.md`](../docs/dataset.md) for the detailed task structure, signal definitions, and role of each data component in the evaluation.

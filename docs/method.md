@@ -1,106 +1,107 @@
-# 面向熟悉视频新观众的低 MAE 连续情感回归方法
+# Low-MAE Continuous Affect Regression for New Viewers of Familiar Videos
 
-## 研究目标
+## Research Objective
 
-24 名开发集参与者观看了相同的 15 个时间对齐视频。本文首先解决一个预测问题：如何降低新观众观看这些熟悉视频时的总体平均绝对误差（MAE）。低误差群体情绪曲线可望用于预测熟悉视频的大致反应，为视频剪辑、广告投放或内容推荐提供群体基线，并为新观众预测提供粗略初始化；这些下游用途尚未在本项目中直接验证。
+The 24 development-set participants watched the same 15 temporally aligned videos. This work first addresses a prediction problem: how to reduce the overall mean absolute error (MAE) for new viewers watching these familiar videos. Low-error group affect trajectories could support approximate response prediction for familiar videos. They could also provide group baselines for video editing, advertising placement, or content recommendation, and offer a coarse initialization for new-viewer predictions. These downstream applications have not been directly validated in this project.
 
-研究的一句话论点是：在面向熟悉且时间对齐视频的新观众预测中，折内视频—时间先验是一种简单、低成本且有效的降 MAE 方法；固定融合在此基础上取得最低 MAE，而仅生理、仅视频和仅时间的对比用于主结果之后解释性能来源。
+The central claim is that a within-fold video–time prior provides a simple, low-cost, and effective way to reduce MAE. This claim concerns predictions for new viewers of familiar, temporally aligned videos. Fixed fusion achieves the lowest MAE on top of this prior. Comparisons among the EEG–fNIRS branch, video identity prior, video–time prior, and fixed fusion are presented after the main result to explain the sources of performance.
 
-## MAE 导向的预测器组成
+## Components of the MAE-Oriented Predictor
 
-### 折内视频—时间先验
+### Within-Fold Video–Time Prior
 
-在每个外层折中，首先按照视频和秒级时刻汇总训练参与者的标签，并取各坐标上的中位数，得到群体情感轨迹。随后仅在同一视频内部采用半径为 3 的时间窗口进行平滑。留出参与者的标签不会参与其对应先验的构建。
+Within each outer fold, labels from the training participants available at each video and second-level time point are aggregated by their median. This coordinate-wise median defines an unsmoothed group affect trajectory. The trajectory is then smoothed within the same video by taking the mean over an edge-truncated temporal window with a radius of 3, spanning up to seven time points. Labels from the held-out participants do not contribute to their corresponding priors.
 
 ```text
-prior(video, time) = median_training_participants(label)
+raw_prior(video, time) = median_available_training_participants(label)
+prior(video, time) = mean_edge_truncated_radius_3(raw_prior(video, *))
 ```
 
-这一设计在避免留出参与者标签泄漏的同时，直接利用推理时已知的视频标识和时间戳。先验构建完成后只需查表，不需要采集新观众的 EEG 或 fNIRS，因此新增输入与计算成本较低。
+This design directly uses the video identity and timestamp available at inference while preventing leakage from held-out participant labels. Once constructed, the prior requires only a table lookup. It does not require EEG or fNIRS acquisition from new viewers, so the additional input and computational costs are low.
 
-### EEG--fNIRS 分支
+### EEG–fNIRS Branch
 
-EEG 和 fNIRS 信号首先使用相应试验的五秒静息片段进行中心化。对于每个一秒 EEG 窗口，管线提取六个频带的相对对数功率和微分熵，以及 Hjorth 活动度、移动性和复杂度。拼接前一秒、当前秒和后一秒的上下文后，每个 EEG 通道包含 45 个特征。
+EEG and fNIRS signals are first centered using the five-second resting segment from the corresponding trial. For each one-second EEG window, the pipeline extracts relative log power and differential entropy in six frequency bands, together with Hjorth activity, mobility, and complexity. After concatenating the previous, current, and following one-second contexts, each EEG channel contains 45 features.
 
-对于每个 fNIRS 通道及其六类信号，管线计算均值、标准差、斜率、偏度和峰度。经过三秒上下文拼接后，每个通道包含 90 个特征。两种模态分别由图编码器建模，并通过双向跨模态注意力交换信息，最后输入回归头。五个按参与者分组训练的检查点用于生成折外生理预测。
+For each fNIRS channel and each of its six signal types, the pipeline computes the mean, standard deviation, slope, skewness, and kurtosis. After concatenating three seconds of context, each channel contains 90 features. Separate graph encoders model the two modalities, which exchange information through bidirectional cross-modal attention before entering the regression head. Five checkpoints trained with participant-grouped splits generate out-of-fold EEG–fNIRS branch predictions.
 
-### 固定融合
+### Fixed Fusion
 
-最终预测器采用以下固定融合：
+The final predictor uses the following fixed fusion:
 
 ```text
 prediction = [0.99, 0.92] * video_time_prior
-           + [0.01, 0.08] * physiological_prediction
+           + [0.01, 0.08] * eeg_fnirs_prediction
 ```
 
-两个维度依次对应效价和唤醒度。当前评估不使用静息输出校准，其收缩向量为 `[0.0, 0.0]`。固定融合作为本项目取得最低 MAE 的最终预测器；由于权重没有在有记录的嵌套验证中重新选择，其相对先验的较小增量只作描述性解释。
+The two dimensions correspond to valence and arousal, respectively. The current evaluation does not use resting-output calibration, and its shrinkage vector is `[0.0, 0.0]`. Fixed fusion is the final predictor with the lowest MAE in this project. Because the weights were not reselected through documented nested validation, the small incremental gain over the prior is interpreted descriptively only.
 
-## 五折参与者留出协议
+## Five-Fold Participant-Held-Out Protocol
 
-全部开发集参与者被划分为五折。每个外层折依次执行以下步骤：
+All development-set participants are partitioned into five folds. Each outer fold executes the following steps:
 
-1. 仅使用训练参与者重新构建视频—时间先验；
-2. 仅使用训练参与者估计生理特征的标准化参数；
-3. 使用与该折对应的生理检查点预测留出参与者；
-4. 在完全相同的样本键上比较 EEG--fNIRS 分支、视频—时间先验和固定融合。
+1. Reconstruct the video–time prior using only the training participants.
+2. Estimate the EEG–fNIRS feature normalization parameters using only the training participants.
+3. Predict the held-out participants using the EEG–fNIRS checkpoint associated with that fold.
+4. Compare the EEG–fNIRS branch, video–time prior, and fixed fusion on exactly the same sample keys.
 
-五折预测与真实标签在计算指标前拼接，并据此计算按样本汇总的平均绝对误差（MAE）。该协议衡量新观众对熟悉视频的情感预测，不衡量向未见刺激的迁移能力。
+Predictions and ground-truth labels from all five folds are concatenated before metric computation. Sample-aggregated mean absolute error (MAE) is then calculated. This protocol evaluates affect prediction for new viewers of familiar videos. It does not evaluate transfer to unseen stimuli.
 
-| 预测策略 | 总体 MAE | 效价 MAE | 唤醒度 MAE |
+| Prediction strategy | Overall MAE | Valence MAE | Arousal MAE |
 | --- | ---: | ---: | ---: |
-| EEG--fNIRS 分支 | 47.3509 | 51.3475 | 43.3543 |
-| 视频—时间先验 | 29.0633 | 26.6681 | 31.4585 |
-| 固定融合 | 29.0146 | 26.6642 | 31.3651 |
+| EEG–fNIRS branch | 47.3509 | 51.3475 | 43.3543 |
+| Video–time prior | 29.0633 | 26.6681 | 31.4585 |
+| Fixed fusion | 29.0146 | 26.6642 | 31.3651 |
 
-固定融合取得最低总体 MAE 29.0146，相对 EEG--fNIRS 分支降低 18.3363，相对视频—时间先验进一步降低 0.0487。低成本视频—时间先验单独达到 29.0633，相对 EEG--fNIRS 分支降低 18.2876。
+Fixed fusion achieves the lowest overall MAE of 29.0146. This represents a reduction of 18.3363 relative to the EEG–fNIRS branch and a further reduction of 0.0487 relative to the video–time prior. The low-cost video–time prior alone achieves an MAE of 29.0633, reducing the error by 18.2876 relative to the EEG–fNIRS branch.
 
-在确认最低 MAE 后，组件对比进一步表明：从 EEG--fNIRS 分支到固定融合的总误差降幅中，约 99.7% 已由视频—时间先验实现。因此，大部分精度可以在不采集新观众生理信号的情况下获得，EEG--fNIRS 分支提供的是较小的最终修正。
+After confirming the lowest MAE, the component comparison further shows that the video–time prior already accounts for approximately 99.7% of the total error reduction from the EEG–fNIRS branch to fixed fusion. In this protocol, the prior alone therefore realizes most of the observed MAE reduction without requiring physiological acquisition from new viewers at inference. Adding the current EEG–fNIRS branch prediction under fixed fusion is associated with a smaller descriptive adjustment.
 
-## 外部参与者独立评估
+## Participant-Disjoint Held-Out Cohort Evaluation
 
-外部数据包含 4 名与开发集不重叠的参与者、60 次试验和 6,143 个秒级目标。评估管线将预测与评分分离：先验构建、检查点训练和预测阶段不读取外部目标；预测完成后，评分阶段才依据 `sample_id` 将整数预测与本地目标连接。
+The separate evaluation data form a participant-disjoint held-out cohort containing 4 participants who do not overlap with the development set, 60 trials, and 6,143 second-level targets. The evaluation script loads targets for integrity checks and scoring, but target values are not passed to prior construction, checkpoint training, feature extraction, or prediction. After sample-order integrity checks, predictions are rounded to the nearest integer, clipped to `[1, 255]`, and scored with local targets on matching `sample_id` values. This setting evaluates transfer to non-overlapping participants within the familiar-video setting. It does not constitute independent cross-site or cross-condition external validation.
 
-取得最低 MAE 后用于分析的五种预测策略为：
+After establishing the lowest MAE, five prediction strategies are used for analysis:
 
-1. 全局常数：开发集全部标签的二维中位数；
-2. 视频身份先验：每个视频一个固定二维中位数，不使用时间坐标；
-3. 视频—时间先验：全部开发参与者构建的视频内秒级中位数轨迹；
-4. EEG--fNIRS 分支：一个固定划分检查点与五个参与者分组折检查点组成的六模型集成；
-5. 固定融合：使用 `[0.99, 0.92]` 融合视频—时间先验与 EEG--fNIRS 分支。
+1. Global constant: the two-dimensional median of all development-set labels.
+2. Video identity prior: the temporal median of each video's smoothed development-set video–time trajectory, repeated across timestamps.
+3. Video–time prior: a smoothed within-video trajectory of second-level medians constructed from all development-set participants.
+4. EEG–fNIRS branch: a six-model ensemble comprising one full-development-set checkpoint and five participant-fold checkpoints.
+5. Fixed fusion: the video–time prior and EEG–fNIRS branch fused using prior weights `[0.99, 0.92]`.
 
-| 预测策略 | 总体 MAE | 效价 MAE | 唤醒度 MAE | 总体 MSE |
+| Prediction strategy | Overall MAE | Valence MAE | Arousal MAE | Overall MSE |
 | --- | ---: | ---: | ---: | ---: |
-| 全局常数 | 44.3296 | 47.4622 | 41.1971 | 2861.1141 |
-| 视频身份先验 | 33.3627 | 32.5567 | 34.1686 | 1933.0132 |
-| 视频—时间先验 | 28.0410 | 25.3436 | 30.7384 | 1484.6883 |
-| EEG--fNIRS 分支 | 42.7486 | 45.2852 | 40.2119 | 2729.3677 |
-| 固定融合 | **27.7246** | **25.1970** | **30.2522** | **1440.5642** |
+| Global constant | 44.3296 | 47.4622 | 41.1971 | 2861.1141 |
+| Video identity prior | 33.3627 | 32.5567 | 34.1686 | 1933.0132 |
+| Video–time prior | 28.0410 | 25.3436 | 30.7384 | 1484.6883 |
+| EEG–fNIRS branch | 42.7486 | 45.2852 | 40.2119 | 2729.3677 |
+| Fixed fusion | **27.7246** | **25.1970** | **30.2522** | **1440.5642** |
 
-固定融合再次取得最低总体 MAE 27.7246；视频—时间先验单独达到 28.0410，仅高 0.3165。随后，外部评估使用逐样本成对预测，并按参与者、视频和十个归一化视频时间区间分析这一增量及其来源：
+Fixed fusion again achieves the lowest overall MAE at 27.7246. The video–time prior alone reaches 28.0410, only 0.3165 higher when the difference is computed from unrounded metric values. The held-out cohort evaluation then uses paired sample-level predictions to examine this increment and its sources by participant, video, and ten normalized video-time bins:
 
-- 固定融合在 4 名参与者中的 3 名上改善，变化范围为恶化 0.0622 至改善 0.6938；
-- 固定融合在 15 个视频中的 9 个上改善，变化范围为恶化 0.2971 至改善 1.3105；
-- 第一个归一化时间区间中，视频身份先验 MAE 为 45.53，视频—时间先验为 13.40；
-- 最后五个时间区间中，视频身份先验的 MAE 均略低于视频—时间先验。
+- Fixed fusion improves performance for 3 of the 4 participants, with changes ranging from a deterioration of 0.0622 to an improvement of 0.6938.
+- Fixed fusion improves performance for 9 of the 15 videos, with changes ranging from a deterioration of 0.2971 to an improvement of 1.3105.
+- In the first normalized time bin, the video identity prior has an MAE of 45.53, whereas the video–time prior has an MAE of 13.40.
+- In each of the final five time bins, the video identity prior has a slightly lower MAE than the video–time prior.
 
-这些分层结果说明，总体有利的融合增量和时间增量都不是均匀效应。由于只有 4 个参与者聚类，当前不进行秒级伪重复显著性检验。
+These stratified results show that neither the overall fusion increment nor the temporal increment is uniform. Because there are only 4 participant clusters, no significance test based on pseudoreplicated second-level samples is performed.
 
-## MAE 结论与来源分析边界
+## MAE Conclusions and Boundaries of Source Analysis
 
-主结果是固定融合在内部和外部评估中均取得最低 MAE，而视频—时间先验本身已经是一种强而低成本的预测器。随后开展的来源分析说明，大部分降幅来自由视频和时间索引的群体情感轨迹，当前 EEG--fNIRS 分支提供较小且不均匀的互补修正。
+The main result is that fixed fusion achieves the lowest MAE under both the five-fold participant-held-out protocol and the participant-disjoint held-out cohort evaluation. The video–time prior alone is already a strong, low-cost predictor. The subsequent source analysis shows that most of the reduction arises from the group affect trajectory indexed by video and time. The current EEG–fNIRS branch prediction is associated with a small and heterogeneous complementary correction in fixed fusion.
 
-该结果不能证明 EEG 或 fNIRS 缺乏情感信息，也不能外推到未见视频。项目也没有实际验证视频剪辑、广告投放或内容推荐的下游效果。若要讨论更广泛的泛化或生理信息的独立贡献，后续实验需要报告仅刺激基线，采用参与者×刺激交叉留出设计，保留各组件的成对残差，并使用尊重参与者和视频聚类结构的不确定性估计。
+This result does not demonstrate that EEG or fNIRS lacks affective information, nor can it be extrapolated to unseen videos. The project has also not directly validated downstream effects on video editing, advertising placement, or content recommendation. Broader claims about generalization or the independent contribution of physiological information require future experiments. These experiments should report stimulus-only baselines, adopt participant × stimulus crossed holdout designs, and retain paired residuals for every component. They should also estimate uncertainty while respecting the participant and video clustering structure.
 
-## 复现命令
+## Reproduction Commands
 
-运行五折 MAE 评估与来源分解：
+Run the five-fold MAE evaluation and source decomposition:
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate.py --blend-checkpoints
 ```
 
-运行外部参与者独立评估，并把紧凑分析源数据写入本地运行产物目录：
+Run the evaluation on the participant-disjoint held-out cohort and write compact analysis source data to the local run-artifact directory:
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
@@ -108,6 +109,6 @@ PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   --source-data-dir artifacts/external_source_data
 ```
 
-评估产物位于 `artifacts/external_evaluation/`，包括数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测；紧凑分析源数据位于 `artifacts/external_source_data/`。这些目录均可由代码重新生成，不纳入版本控制。
+Evaluation artifacts are written to `artifacts/external_evaluation/`. They include the data audit, overall metrics, participant-, video-, and time-stratified metrics, and paired sample-level predictions. Compact analysis source data are written to `artifacts/external_source_data/`. Both directories can be regenerated from code and are excluded from version control.
 
-模型包仅作为完整数据训练后的推理与复现产物。项目报告的最低 MAE 结论来自五折与外部参与者独立评估，来源与异质性结论来自随后开展的组件对比和本地外部成对评估。
+The model package is retained only as an inference and reproducibility artifact after training on the complete dataset. The project's lowest-MAE conclusion comes from the five-fold and participant-disjoint held-out cohort evaluations. Conclusions about sources and heterogeneity come from the subsequent component comparisons and local paired evaluation of the held-out cohort.

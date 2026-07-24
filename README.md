@@ -1,94 +1,98 @@
-# 面向熟悉视频新观众的低 MAE EEG--fNIRS 连续情感回归
+**English** | [中文](README_zh.md)
 
-本项目研究同步 EEG 与 fNIRS 条件下的连续效价—唤醒度回归，最终目的明确：降低新观众观看熟悉且时间对齐的视频时的平均绝对误差（MAE）。在这一场景中，训练参与者形成的群体情绪曲线具有直接用途：
+# Low-MAE EEG–fNIRS Continuous Affect Regression for New Viewers of Familiar Videos
 
-- 预测观众观看某部熟悉视频时的大致情绪曲线；
-- 为视频剪辑、广告投放或内容推荐提供群体反应基线；
-- 为新观众的情绪预测提供粗略初始化。
+This project studies continuous valence–arousal regression from synchronized EEG and fNIRS signals. Its primary objective is explicit: reduce the mean absolute error (MAE) when predicting the affective responses of new viewers watching familiar, temporally aligned videos. In this setting, population-level affect trajectories learned from training participants have several direct uses:
 
-这些用途目前是应用动机，项目尚未验证具体剪辑、广告或推荐效果。视频身份和播放时间在推理时易于获得，因此折内视频—时间先验本身就是一种简单、低成本且有效的降 MAE 方法。项目使用固定融合把该先验与 EEG--fNIRS 分支结合，以取得最低总体 MAE。整体方法见图 1。
+- estimating the approximate affect trajectory of viewers watching a known video;
+- providing a population-response baseline for video editing, advertising, or content recommendation;
+- providing a coarse initialization for affect prediction in a new viewer.
+
+These uses are application motivations; the project has not yet validated downstream effects on editing, advertising, or recommendation. Video identity and playback time are readily available at inference, making a fold-wise video–time prior a simple, low-cost, and effective way to reduce MAE. Fixed fusion combines this prior with the EEG–fNIRS branch to obtain the lowest overall MAE. Figure 1 summarizes the framework.
 
 <p align="center">
   <a href="docs/figures/method_overview.png">
-    <img src="docs/figures/method_overview.png" alt="视频—时间先验与 EEG--fNIRS 固定融合的方法概览" width="100%">
+    <img src="docs/figures/method_overview.png" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="100%">
   </a>
 </p>
-<p align="center"><em>图 1｜面向熟悉视频新观众的低 MAE 连续情感回归框架。</em></p>
+<p align="center"><em>Figure 1 | Low-MAE continuous affect regression for new viewers of familiar videos.</em></p>
 
-## MAE 主结果
+## Primary MAE results
 
-五折参与者留出评估覆盖 24 名参与者、15 个熟悉视频和 36,864 个秒级样本：
+Five-fold participant-held-out evaluation covered 24 participants, 15 familiar videos, and 36,864 one-second samples:
 
-| 预测策略 | 总体 MAE |
+| Prediction source | Overall MAE |
 | --- | ---: |
-| EEG--fNIRS 分支 | 47.35 |
-| 折内视频—时间先验 | 29.06 |
-| **固定融合** | **29.01** |
+| EEG–fNIRS branch | 47.35 |
+| Fold-wise video–time prior | 29.06 |
+| **Fixed fusion** | **29.01** |
 
-固定融合取得最低 MAE；低成本视频—时间先验单独使用时仅高 0.05，并相对 EEG--fNIRS 分支降低 18.29。内部来源分解见图 2。
+Fixed fusion achieved the lowest MAE. The low-cost video–time prior alone was only 0.05 points higher and reduced MAE by 18.29 points relative to the EEG–fNIRS branch. Figure 2 shows the internal source decomposition.
 
 <p align="center">
   <a href="docs/figures/source_dominance.png">
-    <img src="docs/figures/source_dominance.png" alt="内部参与者留出评估的 MAE 与来源分解" width="55%">
+    <img src="docs/figures/source_dominance.png" alt="Internal participant-held-out MAE and source decomposition" width="55%">
   </a>
 </p>
-<p align="center"><em>图 2｜内部参与者留出 MAE：视频—时间先验解释了主要误差降幅，固定融合取得最低值。</em></p>
+<p align="center"><em>Figure 2 | Internal participant-held-out MAE. The video–time prior accounts for most of the error reduction, while fixed fusion achieves the lowest value.</em></p>
 
-外部参与者独立评估包含 4 名新观众、60 次试验和 6,143 个秒级样本：
+The participant-disjoint held-out evaluation included 4 new viewers, 60 trials, and 6,143 one-second samples:
 
-| 预测策略 | 总体 MAE |
+| Prediction source | Overall MAE |
 | --- | ---: |
-| 全局常数 | 44.33 |
-| 视频身份先验 | 33.36 |
-| 视频—时间先验 | 28.04 |
-| EEG--fNIRS 分支 | 42.75 |
-| **固定融合** | **27.72** |
+| Global constant | 44.33 |
+| Video identity prior | 33.36 |
+| Video–time prior | 28.04 |
+| EEG–fNIRS branch | 42.75 |
+| **Fixed fusion** | **27.72** |
 
-固定融合再次取得最低 MAE，并在视频—时间先验基础上继续降低 0.32。由此，项目的主要结论是：对于熟悉视频的新观众，视频—时间先验提供强而低成本的群体预测基线，生理信号在此基础上提供较小的最终修正。外部预测质量见图 3。
+Fixed fusion again achieved the lowest MAE and improved on the video–time prior by a further 0.32 points. The central finding is therefore that, for new viewers of familiar videos, the video–time prior provides a strong and inexpensive population baseline. Under fixed fusion, the current EEG–fNIRS branch prediction is associated with a smaller descriptive adjustment. This protocol establishes participant disjointness only. It is not independent cross-site or cross-condition external validation, and it does not evaluate unseen videos.
+
+Figure 3 shows prediction quality in the participant-disjoint held-out cohort.
 
 <p align="center">
   <a href="docs/figures/external_prediction_quality.png">
-    <img src="docs/figures/external_prediction_quality.png" alt="外部固定融合预测值与真实值的六边形密度图" width="100%">
+    <img src="docs/figures/external_prediction_quality.png" alt="Hexbin densities of fixed-fusion predictions versus observed targets in the held-out cohort" width="100%">
   </a>
 </p>
-<p align="center"><em>图 3｜外部固定融合的预测值—真实值关系；两维预测均存在向量表中部收缩的现象。</em></p>
+<p align="center"><em>Figure 3 | Fixed-fusion predictions versus observed targets in the participant-disjoint held-out cohort. Predictions in both dimensions contract toward the middle of the scale.</em></p>
 
-## 取得低 MAE 后的分析
+## Analysis after achieving low MAE
 
-仅看生理信号、仅看视频身份、仅看视频与时间，以及固定融合之间的对比，被定位为主结果之后的解释性分析。该分析表明：
+Comparisons among the EEG–fNIRS branch, video identity prior, video–time prior, and fixed fusion are treated as explanatory analyses after establishing the primary MAE result. They show that:
 
-- 从 EEG--fNIRS 分支到固定融合的内部总降幅中，约 99.7% 已由折内视频—时间先验实现；
-- 外部评估中，视频身份先将总体 MAE 降低 10.97，加入时间坐标后又降低 5.32；
-- 融合增量并不均匀，只在 4 名参与者中的 3 名和 15 个视频中的 9 个上改善；
-- 时间先验的优势具有阶段性，第一个归一化时间区间中视频身份与视频—时间先验的 MAE 分别为 45.53 和 13.40，而最后五个区间中视频身份先验略优。
+- the fold-wise video–time prior accounts for approximately 99.7% of the internal MAE reduction from the EEG–fNIRS branch to fixed fusion;
+- in the held-out evaluation, video identity is associated with a 10.97-point reduction in overall MAE, and adding within-video time is associated with a further descriptive reduction of 5.32 points;
+- fusion gains are heterogeneous, improving performance for 3 of 4 participants and 9 of 15 videos;
+- the advantage of the temporal prior is phase dependent: in the first normalized time bin, the video identity and video–time priors achieve MAEs of 45.53 and 13.40, respectively, whereas the video identity prior is slightly better in each of the final five bins.
 
-这些对比用于解释最低 MAE 的来源与适用边界，不取代降低 MAE 这一首要目标。当前结论仅适用于新观众观看熟悉视频，不证明向未见视频迁移。外部来源分解与视频×时间误差结构分别见图 4 和图 5；详细方法与结果见 [`docs/method.md`](docs/method.md) 和 [`docs/ablation.md`](docs/ablation.md)。
+These comparisons explain the source and limits of the lowest MAE rather than replacing MAE reduction as the primary objective. The current conclusion applies only to new viewers watching familiar videos and does not establish transfer to unseen videos. Figures 4 and 5 show the held-out-cohort source decomposition and video-by-time error structure. Detailed methods and results are available in [`docs/method.md`](docs/method.md) and [`docs/ablation.md`](docs/ablation.md).
 
 <p align="center">
   <a href="docs/figures/external_source_decomposition.png">
-    <img src="docs/figures/external_source_decomposition.png" alt="外部 MAE 来源分解与参与者、视频、时间异质性" width="100%">
+    <img src="docs/figures/external_source_decomposition.png" alt="Held-out-cohort MAE source decomposition and heterogeneity across participants, videos, and time" width="100%">
   </a>
 </p>
-<p align="center"><em>图 4｜外部 MAE 来源分解：总体改善同时包含参与者、视频和时间层面的局部增益与损失。</em></p>
+<p align="center"><em>Figure 4 | Held-out-cohort MAE source decomposition. The aggregate improvement contains local gains and losses across participants, videos, and playback time.</em></p>
 
 <p align="center">
   <a href="docs/figures/external_video_time_mae.png">
-    <img src="docs/figures/external_video_time_mae.png" alt="视频—时间先验与固定融合的视频与归一化时间 MAE 热力图" width="100%">
+    <img src="docs/figures/external_video_time_mae.png" alt="Video-by-normalized-time MAE heatmaps for the video–time prior and fixed fusion" width="100%">
   </a>
 </p>
-<p align="center"><em>图 5｜外部视频×归一化时间 MAE：固定融合的小幅总体增益并非在所有网格单元中一致出现。</em></p>
+<p align="center"><em>Figure 5 | Held-out-cohort video-by-normalized-time MAE. The small aggregate fusion gain is not uniform across grid cells.</em></p>
 
-## 项目结构
+## Repository structure
 
-- `src/merps/`：特征提取、视频—时间先验、生理模型、校准工具和推理代码。
-- `scripts/`：训练、参与者留出评估、外部评估、数据下载、模型包导出和本地验证脚本。
-- `tests/`：来源构建、指标、校准和模型包配置的单元测试。
-- `docs/`：中文方法、数据与取得低 MAE 后的消融分析说明。
-- `data/`：本地研究数据、外部评估数据和特征缓存；均不纳入版本控制。
-- `checkpoints/`：本地生理模型检查点与视频—时间先验；不纳入版本控制。
-- `artifacts/`：训练日志、评估结果、模型包和完整流程审计；不纳入版本控制。
+- `src/merps/`: feature extraction, the video–time prior, physiological modeling, calibration utilities, and inference code.
+- `scripts/`: training, participant-held-out evaluation, held-out cohort evaluation, data download, model-bundle export, and local validation scripts.
+- `tests/`: unit tests for source construction, metrics, calibration, and model-bundle configuration.
+- `docs/`: English documentation for the method, data, and post-result ablation analyses.
+- `data/`: local research data, held-out evaluation data, and feature caches; none are version controlled.
+- `checkpoints/`: local physiological-model checkpoints and video–time priors; not version controlled.
+- `artifacts/`: training logs, evaluation outputs, model bundles, and end-to-end audit outputs; not version controlled.
 
-## 环境配置
+## Environment setup
 
 ```bash
 python3 -m venv .venv
@@ -96,74 +100,74 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
 
-项目使用 Python 完成训练、评估、模型包导出与推理。若下载环境经过 SOCKS 代理，`requirements.txt` 中的 `socksio` 用于补齐网络依赖。
+Python is used for training, evaluation, model-bundle export, and inference. If downloads pass through a SOCKS proxy, `socksio` in `requirements.txt` supplies the required network dependency.
 
-## 数据准备
+## Data preparation
 
-训练/验证数据默认位于：
+The training and validation data are expected at:
 
 ```text
 data/MER_PS_trainval/
 ```
 
-外部参与者独立评估数据默认位于：
+The participant-disjoint held-out evaluation data are expected at:
 
 ```text
 data/download/MER_PS_public_evaluation/
 ```
 
-设置数据提供方给出的仓库标识后，可使用本地 `huggingface_token.json` 下载外部数据：
+After setting the repository identifier supplied by the data provider, download the held-out data with the local `huggingface_token.json` file:
 
 ```bash
-MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
+MERPS_EXTERNAL_REPO_ID='<external-dataset-repository-id>' \
   bash scripts/download_external_data.sh
 ```
 
-令牌文件已由 `.gitignore` 排除。脚本只读取令牌，不会把令牌写入下载目录、日志或版本控制。完整数据结构与校验结果见 [`data/DATASET.md`](data/DATASET.md) 和 [`docs/dataset.md`](docs/dataset.md)。外部标签覆盖与视频—时间分布见下方补充数据诊断图。
+Token files are excluded by `.gitignore`. The script reads the token but does not write it to the download directory, logs, or version control. See [`data/DATASET.md`](data/DATASET.md) and [`docs/dataset.md`](docs/dataset.md) for the full data structure and validation results. The supplementary diagnostic below summarizes label coverage and video–time variation in the held-out cohort.
 
 <p align="center">
   <a href="docs/figures/external_data_landscape.png">
-    <img src="docs/figures/external_data_landscape.png" alt="外部标签覆盖与视频时间分布诊断图" width="100%">
+    <img src="docs/figures/external_data_landscape.png" alt="Diagnostic view of held-out-cohort label coverage and video–time variation" width="100%">
   </a>
 </p>
-<p align="center"><em>补充数据诊断图｜外部效价—唤醒度覆盖及其随视频和归一化播放时间的描述性变化。</em></p>
+<p align="center"><em>Supplementary diagnostic | Held-out-cohort valence–arousal coverage and descriptive variation across videos and normalized playback time.</em></p>
 
-## 从训练到后处理的完整流程
+## End-to-end workflow
 
-以下命令覆盖特征准备、固定划分训练、五折训练、MAE 评估与来源分解、外部评估、模型包导出和端到端推理。正式训练会使用 GPU 并持续较长时间；如仅检查训练代码，可在固定划分命令中加入 `--test-mode`。
+The commands below cover feature preparation, fixed-split training, five-fold training, MAE evaluation and source decomposition, held-out cohort evaluation, model-bundle export, and end-to-end inference. Full training uses a GPU and can take substantial time. Add `--test-mode` to the fixed-split command for a lightweight code-path check.
 
 ```bash
-# 1. 固定 20/4 参与者划分训练
+# 1. Train on a fixed 20/4 participant split
 PYTHONPATH=src .venv/bin/python scripts/train_split.py --device auto
 
-# 2. 五折参与者留出训练
+# 2. Train five participant-held-out folds
 PYTHONPATH=src .venv/bin/python scripts/train_cv.py \
   --device auto --metrics-json artifacts/cv_metrics.json
 
-# 3. 五折 MAE 评估与来源分解
+# 3. Evaluate five-fold MAE and decompose prediction sources
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate.py \
   --blend-checkpoints \
   --output-json artifacts/source_evaluation.json \
   --source-data-csv artifacts/source_data_components.csv
 
-# 4. 外部参与者独立评估与分层源数据
+# 4. Evaluate the participant-disjoint held-out cohort and export grouped source data
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate_external.py \
   --source-data-dir artifacts/external_source_data
 
-# 5. 导出并验证本地模型包
+# 5. Export and validate the local model bundle
 .venv/bin/python scripts/export_model_bundle.py
 .venv/bin/python scripts/validate_model_bundle.py \
   artifacts/model_bundle_source_explicit.zip \
   --subject test_1 --video 1 --count 8
 
-# 6. 单元测试
+# 6. Run unit tests
 PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 ```
 
-本项目已在本地实际跑通上述完整链路，包括从原始 MAT 文件重建约 1.1 GB 特征缓存、固定划分训练、五折训练、MAE 评估与来源分解、外部评估、模型包导出和端到端推理。完整运行产物保存在忽略目录 `artifacts/full_pipeline_run/`，不会覆盖正式检查点。
+The complete workflow has been run locally, including reconstruction of an approximately 1.1 GB feature cache from the raw MAT files, fixed-split and five-fold training, MAE evaluation and source decomposition, held-out cohort evaluation, model-bundle export, and end-to-end inference. Complete run outputs are stored in the ignored directory `artifacts/full_pipeline_run/` and do not overwrite the formal checkpoints.
 
-## 数据与共享边界
+## Data and sharing boundaries
 
-仓库仅提交源代码与必要的复现文档。本地数据、特征缓存、模型检查点、生成的模型包、评估产物和账户凭据均不纳入版本控制；共享前应核对数据许可证，并单独确认模型检查点是否允许重新分发。
+The repository contains only source code and essential reproducibility documentation. Local data, feature caches, model checkpoints, generated model bundles, evaluation outputs, and account credentials are excluded from version control. Verify the data license before sharing, and separately confirm whether model checkpoints may be redistributed.

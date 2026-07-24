@@ -1,28 +1,28 @@
-# 研究所用 MER-PS 数据
+# MER-PS Data Used in This Study
 
-## 数据组成
+## Data Composition
 
-本研究使用两个互不重叠的参与者集合：24 名开发集参与者用于训练与五折 MAE 评估，4 名外部参与者用于独立验证及来源分解。两部分数据都包含同步 EEG、fNIRS、静息基线和 1 Hz 效价—唤醒度标注。
+This study uses two non-overlapping participant sets: 24 development-set participants for training and five-fold MAE evaluation, and 4 participants in a participant-disjoint held-out cohort for evaluation and source decomposition. Both data components contain synchronized EEG, fNIRS, resting-state baselines, and 1 Hz valence–arousal annotations.
 
-| 数据部分 | 参与者数 | 视频数 | 试验数 | 秒级样本数 | 默认本地路径 |
+| Data component | Participants | Videos | Trials | 1 Hz samples | Default local path |
 | --- | ---: | ---: | ---: | ---: | --- |
-| 训练/验证数据 | 24 | 15 | 360 | 36,864 | `data/MER_PS_trainval/` |
-| 外部评估数据 | 4 | 15 | 60 | 6,143 | `data/download/MER_PS_public_evaluation/` |
+| Training/validation data | 24 | 15 | 360 | 36,864 | `data/MER_PS_trainval/` |
+| Participant-disjoint held-out cohort | 4 | 15 | 60 | 6,143 | `data/download/MER_PS_public_evaluation/` |
 
-两部分数据均采用 CC BY-NC-SA 4.0 许可证，仅用于非商业科研。下载、使用或重新分发前，应再次核对数据提供方的访问条件，并保护匿名参与者隐私。
+Both data components are licensed under CC BY-NC-SA 4.0 and restricted to non-commercial scientific research. Before downloading, using, or redistributing the data, verify the access conditions specified by the data provider and protect the privacy of anonymized participants.
 
-## 研究任务与标签
+## Study Task and Labels
 
-MER-PS 记录参与者观看情绪诱发视频时的同步 EEG 与 fNIRS 信号，用于连续效价—唤醒度回归。动态标签以 1 Hz 记录两个维度：
+MER-PS records synchronized EEG and fNIRS signals while participants watch emotion-eliciting videos. These signals support continuous valence–arousal regression. Dynamic labels are recorded at 1 Hz along two dimensions:
 
-- `valence`：效价，表示情感的愉悦程度；
-- `arousal`：唤醒度，表示情感的激活程度。
+- `valence`: the pleasantness of the affective state;
+- `arousal`: the activation level of the affective state.
 
-两个维度均采用 `[1, 255]` 的整数尺度，中性中心为 128。
+Both dimensions use an integer scale of `[1, 255]`, with 128 as the neutral center.
 
-## 信号结构
+## Signal Structure
 
-每个参与者目录包含：
+Each participant directory contains:
 
 ```text
 EEG_baselines.mat
@@ -31,9 +31,9 @@ fNIRS_baselines.mat
 fNIRS_videos.mat
 ```
 
-动态标注位于 `annotations/`，每名参与者对应一个 MAT 文件。EEG 记录包含 64 个通道，fNIRS 在 51 个通道上包含 6 类信号；每次试验另有 5 秒静息片段。EEG 数组按“通道 × 时间”组织，fNIRS 数组按“信号类型 × 通道 × 时间”组织。
+Dynamic annotations are stored in `annotations/`, with one MAT file per participant. EEG recordings contain 64 channels, whereas fNIRS recordings contain 6 signal types across 51 channels. Each trial also includes a 5-s resting-state segment. EEG arrays are organized as channel × time, and fNIRS arrays as signal type × channel × time.
 
-外部评估目录还包含：
+The participant-disjoint held-out cohort directory additionally contains:
 
 ```text
 sample_ids.csv
@@ -42,63 +42,63 @@ annotations/<subject>_label.mat
 data/<subject>/
 ```
 
-`sample_ids.csv` 定义样本顺序与参与者、视频、秒级时间戳；`targets.csv` 以逐行形式保存效价与唤醒度；MAT 标注提供同一目标的原始试验级组织。
+`sample_ids.csv` defines the sample order and the participant, video, and second-level timestamp associated with each sample. `targets.csv` stores valence and arousal row by row. The MAT annotations provide the same targets in their original trial-level organization.
 
-## 本地下载
+## Local Download
 
-训练/验证数据仓库为：<https://huggingface.co/datasets/MER-PS/MER-PS-trainval>。获得访问权限后运行：
+The training/validation data repository is <https://huggingface.co/datasets/MER-PS/MER-PS-trainval>. After access has been granted, run:
 
 ```bash
 bash scripts/download_data.sh
 ```
 
-外部评估数据通过本地令牌文件下载。将数据提供方给出的仓库标识放入环境变量：
+The participant-disjoint held-out cohort data are downloaded using a local token file. Pass the repository identifier supplied by the data provider through an environment variable:
 
 ```bash
-MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
+MERPS_EXTERNAL_REPO_ID='<external-data-repository-id>' \
   bash scripts/download_external_data.sh
 ```
 
-脚本默认读取项目根目录中的 `huggingface_token.json`，并把数据写入 `data/download/MER_PS_public_evaluation/`。令牌文件、下载目录和所有原始数据均已由 `.gitignore` 排除。
+By default, the script reads `huggingface_token.json` from the project root and writes the data to `data/download/MER_PS_public_evaluation/`. The token file, download directory, and all raw data are excluded by `.gitignore`.
 
-## 外部数据完整性审计
+## Participant-Disjoint Held-Out Cohort Data Integrity Audit
 
-本地下载完成后已执行三层校验：
+Three levels of verification were performed after the local download:
 
-- 27/27 个仓库文件的本地字节数与下载元数据一致；
-- 16/16 个大型 EEG/fNIRS 生理文件的 SHA-256 与远端对象标识一致；
-- `targets.csv` 与 4 个 MAT 标注文件逐值一致，差异计数为 0。
+- local byte counts matched the download metadata for 27/27 repository files;
+- SHA-256 hashes for 16/16 large EEG/fNIRS physiological-signal files matched the remote object identifiers;
+- `targets.csv` was element-wise identical to the 4 MAT annotation files, with a difference count of 0.
 
-评估脚本还验证：
+The evaluation script additionally verifies that:
 
-- `sample_ids.csv` 与 `targets.csv` 顺序完全一致且无重复样本键；
-- 每个参与者—视频试验的时间戳从 0 连续递增；
-- 每个试验的样本数与对应 MAT 标签长度一致；
-- 所有目标均为有限值并位于 `[1, 255]`。
+- `sample_ids.csv` and `targets.csv` have identical ordering and contain no duplicate sample keys;
+- timestamps increase continuously from 0 within each participant–video trial;
+- the sample count for each trial matches the length of the corresponding MAT labels;
+- all targets are finite and lie within `[1, 255]`.
 
-审计结果写入：
+Audit results are written to:
 
 ```text
 artifacts/external_evaluation/data_audit.json
 artifacts/external_evaluation/trial_summary.csv
 ```
 
-## 数据在项目中的作用
+## Role of the Data in This Project
 
-所有参与者观看相同且时间对齐的视频，因此项目把首要任务定义为降低“新观众观看熟悉视频”时的 MAE。每个外层折内只使用训练参与者构建视频—时间先验，并将其与 EEG--fNIRS 分支固定融合；融合预测器用于取得最低 MAE，先验则提供低成本群体基线。
+All participants watch the same time-aligned videos. The primary task is therefore to reduce mean absolute error (MAE) for new viewers watching familiar videos. Within each outer fold, the video–time prior is constructed using only the training participants and combined with the EEG–fNIRS branch through fixed fusion. The fused predictor is used to achieve the lowest MAE, whereas the prior provides a low-cost population baseline.
 
-外部数据首先用于验证最低 MAE 是否在新的参与者群体上复现；确认主结果后，再利用逐样本成对预测分析：
+The participant-disjoint held-out cohort is first used to assess whether the performance ranking persists among non-overlapping participants. After the main result has been established, paired sample-level predictions are used to analyze:
 
-- 全局标签中心与视频身份的差异；
-- 视频身份与视频内时间动态的差异；
-- EEG--fNIRS 分支在强刺激先验之上的残差增量；
-- 增量在参与者、视频和归一化视频时间上的异质性。
+- the difference between the global label center and video identity;
+- the difference between video identity and within-video temporal dynamics;
+- the residual contribution of the EEG–fNIRS branch beyond a strong stimulus prior;
+- the heterogeneity of this contribution across participants, videos, and normalized video time.
 
-当前协议支持关于“新观众观看这 15 个熟悉视频”的低 MAE 结论，但不能证明模型能够泛化到未见视频。视频剪辑、广告投放和内容推荐等用途也尚未经过下游验证。若研究目标扩展到新内容或刺激无关的生理解码，应进一步采用视频留出或参与者×刺激交叉留出设计。
+The protocol establishes participant disjointness only; it is not independent cross-site or cross-condition external validation and does not evaluate unseen videos. The current results therefore support conclusions about low MAE only for new viewers watching these 15 familiar videos. Downstream uses in video editing, advertisement placement, and content recommendation have also not been validated. If the research objective is extended to new content or stimulus-invariant physiological decoding, a video-held-out or participant × stimulus crossed holdout design will be required.
 
-## 本地推理输入与输出
+## Local Inference Inputs and Outputs
 
-模型包输入目录采用：
+The model package expects the following input directory structure:
 
 ```text
 sample_ids.csv
@@ -109,10 +109,10 @@ data/<participant_id>/
   fNIRS_videos.mat
 ```
 
-推理结果写入 `predictions.csv`：
+Inference results are written to `predictions.csv`:
 
 ```text
 sample_id,valence,arousal
 ```
 
-`sample_id` 唯一标识样本，`valence` 和 `arousal` 分别对应两个连续情感维度的预测。
+`sample_id` uniquely identifies each sample. `valence` and `arousal` are the predictions for the two continuous affective dimensions.
