@@ -171,3 +171,7 @@ The complete workflow has been run locally, including reconstruction of an appro
 ## Data and sharing boundaries
 
 The repository contains only source code and essential reproducibility documentation. Local data, feature caches, model checkpoints, generated model bundles, evaluation outputs, and account credentials are excluded from version control. Verify the data license before sharing, and separately confirm whether model checkpoints may be redistributed.
+
+## License
+
+Complete source implementations of all algorithms evaluated in this project are provided in this repository. Unless otherwise noted, repository-authored source code is licensed under the [Apache License 2.0](LICENSE). Datasets, model checkpoints, generated artifacts, and third-party dependencies remain subject to their own terms.

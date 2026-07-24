@@ -1,11 +1,13 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "merps-low-mae-regression"
 version = "1.0.0"
 description = "Low-MAE EEG-fNIRS emotion regression with video-time priors"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
