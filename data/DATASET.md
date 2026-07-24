@@ -100,11 +100,11 @@ Targeted_emotions.txt
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate_external.py \
-  --source-data-dir paper/figures
+  --source-data-dir artifacts/external_source_data
 ```
 
 脚本把数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测写入 `artifacts/external_evaluation/`。该目录可由代码重新生成，因此不上传仓库。
 
 ## 数据使用边界
 
-两部分数据的本地说明均记录为 CC BY-NC-SA 4.0，仅用于非商业科学研究。使用或重新分发前，应再次核对数据提供方的访问条件。详细任务结构、信号定义和论文中的评估作用见 [`../docs/dataset.md`](../docs/dataset.md)。
+两部分数据的本地说明均记录为 CC BY-NC-SA 4.0，仅用于非商业科学研究。使用或重新分发前，应再次核对数据提供方的访问条件。详细任务结构、信号定义和项目中的评估作用见 [`../docs/dataset.md`](../docs/dataset.md)。

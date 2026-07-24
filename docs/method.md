@@ -100,18 +100,14 @@ PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate.py --blend-checkpoints
 ```
 
-运行外部参与者独立评估，并把紧凑图件源数据写入论文目录：
+运行外部参与者独立评估，并把紧凑分析源数据写入本地运行产物目录：
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate_external.py \
-  --source-data-dir paper/figures
+  --source-data-dir artifacts/external_source_data
 ```
 
-评估产物位于 `artifacts/external_evaluation/`，包括数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测。生成论文图件：
+评估产物位于 `artifacts/external_evaluation/`，包括数据审计、总体指标、参与者/视频/时间分层指标和逐样本成对预测；紧凑分析源数据位于 `artifacts/external_source_data/`。这些目录均可由代码重新生成，不纳入版本控制。
 
-```bash
-.venv/bin/python paper/figures/make_external_figures.py
-```
-
-模型包仅作为完整数据训练后的推理与复现产物。论文中的最低 MAE 结论来自五折与外部参与者独立评估，来源与异质性结论来自随后开展的组件对比和本地外部成对评估。
+模型包仅作为完整数据训练后的推理与复现产物。项目报告的最低 MAE 结论来自五折与外部参与者独立评估，来源与异质性结论来自随后开展的组件对比和本地外部成对评估。

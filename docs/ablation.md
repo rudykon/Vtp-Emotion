@@ -59,7 +59,7 @@
 - 这一优势随后持续缩小；在最后五个区间中，视频身份先验反而略优。
 - 因而，总体 `5.3217` 的时间增益主要集中在特定视频阶段，而不是均匀分布在整个视频过程中。
 
-## 分析价值与论文定位
+## 分析价值与项目定位
 
 这组消融不取代降低 MAE 的主目标，而是在主结果之后解释为什么视频—时间先验有效、为什么生理融合仍有小幅增益。它把群体先验拆成视频身份与视频内时间动态，表明视频身份先带来第一层改善，时间坐标又带来独立且阶段特异的降误差作用。EEG--fNIRS 分支虽然不能单独匹配强先验，但固定融合在总体指标上继续改善，并保留了参与者和视频层面的增益与损失。
 
@@ -73,21 +73,17 @@
 - 所有外部参与者仍观看开发阶段出现过的视频，结果不能外推到未见刺激。
 - 当前只有一个外部参与者群体，仍需在更多数据和参与者×刺激交叉设计中验证来源排序。
 
-## 复现与图件
+## 复现
 
 ```bash
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate_external.py \
-  --source-data-dir paper/figures
-
-.venv/bin/python paper/figures/make_external_figures.py
+  --source-data-dir artifacts/external_source_data
 ```
 
 主要输出包括：
 
 - `artifacts/external_evaluation/metrics.json`：五种变体的总体指标；
-- `metrics_by_subject.csv`、`metrics_by_video.csv`、`metrics_by_time_bin.csv`：分层结果；
-- `paired_predictions.csv`：逐样本目标、预测与样本元数据；
-- `paper/figures/external_source_decomposition.{pdf,svg}`：论文主图；
-- `paper/figures/external_data_landscape.{pdf,svg}`：标签覆盖与视频—时间数据景观图；
-- `paper/figures/source_data_external_*.csv`：可追溯图件源数据。
+- `artifacts/external_evaluation/metrics_by_subject.csv`、`metrics_by_video.csv`、`metrics_by_time_bin.csv`：分层结果；
+- `artifacts/external_evaluation/paired_predictions.csv`：逐样本目标、预测与样本元数据；
+- `artifacts/external_source_data/source_data_external_*.csv`：可追溯的紧凑分析源数据。

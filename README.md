@@ -45,7 +45,6 @@
 
 ## 项目结构
 
-- `paper/`：英文论文、中文对照稿、参考文献、论文图件及图件源数据。
 - `src/merps/`：特征提取、视频—时间先验、生理模型、校准工具和推理代码。
 - `scripts/`：训练、参与者留出评估、外部评估、数据下载、模型包导出和本地验证脚本。
 - `tests/`：来源构建、指标、校准和模型包配置的单元测试。
@@ -62,7 +61,7 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
 
-项目使用 Python 完成训练、评估、绘图与图件导出。若下载环境经过 SOCKS 代理，`requirements.txt` 中的 `socksio` 用于补齐网络依赖。
+项目使用 Python 完成训练、评估、模型包导出与推理。若下载环境经过 SOCKS 代理，`requirements.txt` 中的 `socksio` 用于补齐网络依赖。
 
 ## 数据准备
 
@@ -89,7 +88,7 @@ MERPS_EXTERNAL_REPO_ID='<外部数据仓库标识>' \
 
 ## 从训练到后处理的完整流程
 
-以下命令覆盖特征准备、固定划分训练、五折训练、MAE 评估与来源分解、外部评估、绘图、模型包导出和端到端推理。正式训练会使用 GPU 并持续较长时间；如仅检查训练代码，可在固定划分命令中加入 `--test-mode`。
+以下命令覆盖特征准备、固定划分训练、五折训练、MAE 评估与来源分解、外部评估、模型包导出和端到端推理。正式训练会使用 GPU 并持续较长时间；如仅检查训练代码，可在固定划分命令中加入 `--test-mode`。
 
 ```bash
 # 1. 固定 20/4 参与者划分训练
@@ -104,43 +103,25 @@ PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate.py \
   --blend-checkpoints \
   --output-json artifacts/source_evaluation.json \
-  --source-data-csv paper/figures/source_data_components.csv
+  --source-data-csv artifacts/source_data_components.csv
 
 # 4. 外部参与者独立评估与分层源数据
 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python scripts/evaluate_external.py \
-  --source-data-dir paper/figures
+  --source-data-dir artifacts/external_source_data
 
-# 5. Python 论文图件
-.venv/bin/python paper/figures/make_figures.py
-.venv/bin/python paper/figures/make_external_figures.py
-
-# 6. 导出并验证本地模型包
+# 5. 导出并验证本地模型包
 .venv/bin/python scripts/export_model_bundle.py
 .venv/bin/python scripts/validate_model_bundle.py \
   artifacts/model_bundle_source_explicit.zip \
   --subject test_1 --video 1 --count 8
 
-# 7. 单元测试
+# 6. 单元测试
 PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 ```
 
-本项目已在本地实际跑通上述完整链路，包括从原始 MAT 文件重建约 1.1 GB 特征缓存、固定划分训练、五折训练、MAE 评估与来源分解、模型包推理、图件生成和论文编译。完整运行产物保存在忽略目录 `artifacts/full_pipeline_run/`，不会覆盖正式检查点。
-
-## 构建论文
-
-```bash
-cd paper
-../.venv/bin/python figures/make_figures.py
-../.venv/bin/python figures/make_external_figures.py
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
-latexmk -xelatex -interaction=nonstopmode -halt-on-error main_zh.tex
-```
-
-生成结果包括英文论文 `paper/main.pdf`、中文论文 `paper/main_zh.pdf`，以及可编辑的 PDF/SVG 图件。PNG 预览和 600 dpi TIFF 在本地生成，但默认不上传仓库。
+本项目已在本地实际跑通上述完整链路，包括从原始 MAT 文件重建约 1.1 GB 特征缓存、固定划分训练、五折训练、MAE 评估与来源分解、外部评估、模型包导出和端到端推理。完整运行产物保存在忽略目录 `artifacts/full_pipeline_run/`，不会覆盖正式检查点。
 
 ## 数据与共享边界
 
-本地数据、特征缓存、模型检查点、生成的模型包、编译产物和账户凭据均不纳入版本控制。共享项目前应核对数据许可证，并单独确认模型检查点是否允许重新分发。论文源文件、源代码、小型汇总表、图件源数据和复现说明是仓库的主要共享内容。
-
-详细的凭据、数据、图件源数据与 Git 历史风险边界见 [`docs/repository_audit.md`](docs/repository_audit.md)。
+仓库仅提交源代码与必要的复现文档。本地数据、特征缓存、模型检查点、生成的模型包、评估产物和账户凭据均不纳入版本控制；共享前应核对数据许可证，并单独确认模型检查点是否允许重新分发。
