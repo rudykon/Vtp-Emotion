@@ -53,6 +53,24 @@ COLORS = {
 }
 EDGE_COLOR = "#444444"
 GUIDE_COLOR = "#E2E2E2"
+VIDEO_TIME_MAE_CMAP = mpl.colors.LinearSegmentedColormap.from_list(
+    "video_time_mae_blue_orange",
+    ("#173F6B", "#6FA8C9", "#F3F1E8", "#EFA47A", "#C84E3F"),
+)
+
+RESULT_SOURCE_FIELDS = (
+    "sample_id",
+    "subject",
+    "video",
+    "timestamp",
+    "relative_time_bin",
+    "target_valence",
+    "target_arousal",
+    "video_time_valence",
+    "video_time_arousal",
+    "fixed_fusion_valence",
+    "fixed_fusion_arousal",
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -375,6 +393,44 @@ def ensure_sample_source_data(evaluation_dir: Path, source_dir: Path) -> Path:
     return source_path
 
 
+def ensure_prediction_source_data(evaluation_dir: Path, source_dir: Path) -> Path:
+    """Return local sample-level source data needed by result figures.
+
+    The cache contains gated targets and is intentionally excluded from version
+    control. Publication figures remain versioned, but redrawing them requires
+    locally restored evaluation artifacts under the applicable data terms.
+    """
+    source_path = source_dir / "source_data_external_predictions.csv"
+    paired_path = evaluation_dir / "paired_predictions.csv"
+
+    if paired_path.exists():
+        rows = read_csv(paired_path)
+        missing = set(RESULT_SOURCE_FIELDS).difference(rows[0] if rows else ())
+        if missing:
+            raise ValueError(f"{paired_path} is missing required fields: {sorted(missing)}")
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        with source_path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=RESULT_SOURCE_FIELDS,
+                lineterminator="\n",
+            )
+            writer.writeheader()
+            for row in rows:
+                writer.writerow({field: row[field] for field in RESULT_SOURCE_FIELDS})
+        return source_path
+
+    if not source_path.exists():
+        raise FileNotFoundError(
+            f"Neither {source_path} nor {paired_path} is available for result figures"
+        )
+    rows = read_csv(source_path)
+    missing = set(RESULT_SOURCE_FIELDS).difference(rows[0] if rows else ())
+    if missing:
+        raise ValueError(f"{source_path} is missing required fields: {sorted(missing)}")
+    return source_path
+
+
 def aggregate_video_time_targets(rows: list[dict[str, str]]) -> tuple[np.ndarray, np.ndarray]:
     videos = sorted({int(row["video"]) for row in rows})
     bins = sorted({int(row["relative_time_bin"]) for row in rows})
@@ -391,6 +447,44 @@ def aggregate_video_time_targets(rows: list[dict[str, str]]) -> tuple[np.ndarray
         [[np.mean(arousal[(video, time_bin)]) for time_bin in bins] for video in videos]
     )
     return valence_matrix, arousal_matrix
+
+
+def aggregate_video_time_mae(
+    rows: list[dict[str, str]],
+    variant: str,
+) -> tuple[np.ndarray, np.ndarray, list[int], list[int]]:
+    videos = sorted({int(row["video"]) for row in rows})
+    bins = sorted({int(row["relative_time_bin"]) for row in rows})
+    errors: dict[tuple[int, int], list[float]] = defaultdict(list)
+    for row in rows:
+        key = (int(row["video"]), int(row["relative_time_bin"]))
+        valence_error = abs(
+            float(row[f"{variant}_valence"]) - float(row["target_valence"])
+        )
+        arousal_error = abs(
+            float(row[f"{variant}_arousal"]) - float(row["target_arousal"])
+        )
+        errors[key].append((valence_error + arousal_error) / 2.0)
+
+    missing = [
+        (video, time_bin)
+        for video in videos
+        for time_bin in bins
+        if not errors[(video, time_bin)]
+    ]
+    if missing:
+        raise ValueError(f"Missing video-time cells for {variant}: {missing}")
+
+    matrix = np.asarray(
+        [
+            [np.mean(errors[(video, time_bin)]) for time_bin in bins]
+            for video in videos
+        ]
+    )
+    counts = np.asarray(
+        [[len(errors[(video, time_bin)]) for time_bin in bins] for video in videos]
+    )
+    return matrix, counts, videos, bins
 
 
 def make_data_landscape_figure(
@@ -464,6 +558,146 @@ def make_data_landscape_figure(
     save_publication_figure(fig, output_dir / "external_data_landscape")
 
 
+def make_prediction_quality_figure(
+    evaluation_dir: Path,
+    source_dir: Path,
+    output_dir: Path,
+) -> None:
+    source_path = ensure_prediction_source_data(evaluation_dir, source_dir)
+    rows = read_csv(source_path)
+    if not rows:
+        raise ValueError(f"No paired predictions in {source_path}")
+
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.25), layout="constrained")
+    collections = []
+    maximum_count = 1.0
+    for index, (axis, dimension, label) in enumerate(
+        zip(axes, ("valence", "arousal"), ("Valence", "Arousal"))
+    ):
+        target = np.asarray([float(row[f"target_{dimension}"]) for row in rows])
+        prediction = np.asarray(
+            [float(row[f"fixed_fusion_{dimension}"]) for row in rows]
+        )
+        mae = float(np.mean(np.abs(prediction - target)))
+        density = axis.hexbin(
+            target,
+            prediction,
+            gridsize=35,
+            extent=(1, 255, 1, 255),
+            mincnt=1,
+            cmap="Blues",
+            linewidths=0.0,
+        )
+        collections.append(density)
+        maximum_count = max(maximum_count, float(np.max(density.get_array())))
+
+        axis.plot(
+            [1, 255],
+            [1, 255],
+            color=COLORS["fixed_fusion"],
+            linewidth=1.1,
+            linestyle="--",
+            zorder=3,
+        )
+        axis.axvline(128, color=COLORS["reference"], linewidth=0.55, linestyle=":")
+        axis.axhline(128, color=COLORS["reference"], linewidth=0.55, linestyle=":")
+        axis.set_xlim(1, 255)
+        axis.set_ylim(1, 255)
+        axis.set_xticks([1, 64, 128, 192, 255])
+        axis.set_yticks([1, 64, 128, 192, 255])
+        axis.set_aspect("equal", adjustable="box")
+        axis.set_xlabel(f"True {dimension}")
+        axis.set_ylabel(f"Predicted {dimension}")
+        axis.set_title(f"{label} (MAE = {mae:.2f})", loc="left")
+        add_panel_label(axis, chr(ord("a") + index), x=-0.17)
+
+    shared_norm = mpl.colors.LogNorm(vmin=1.0, vmax=maximum_count)
+    for collection in collections:
+        collection.set_norm(shared_norm)
+    colorbar = fig.colorbar(collections[0], ax=axes, fraction=0.035, pad=0.03)
+    colorbar.set_label("Samples per hexagon (log scale)")
+
+    save_publication_figure(fig, output_dir / "external_prediction_quality")
+
+
+def make_video_time_mae_figure(
+    evaluation_dir: Path,
+    source_dir: Path,
+    output_dir: Path,
+) -> None:
+    source_path = ensure_prediction_source_data(evaluation_dir, source_dir)
+    rows = read_csv(source_path)
+    prior, prior_counts, videos, bins = aggregate_video_time_mae(rows, "video_time")
+    fusion, fusion_counts, fusion_videos, fusion_bins = aggregate_video_time_mae(
+        rows,
+        "fixed_fusion",
+    )
+    if videos != fusion_videos or bins != fusion_bins:
+        raise ValueError("Prior and fusion video-time grids are misaligned")
+    if not np.array_equal(prior_counts, fusion_counts):
+        raise ValueError("Prior and fusion video-time grids use different samples")
+
+    overall_prior = float(np.average(prior, weights=prior_counts))
+    overall_fusion = float(np.average(fusion, weights=fusion_counts))
+    norm = mpl.colors.Normalize(vmin=0.0, vmax=65.0)
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(7.2, 3.4),
+        layout="constrained",
+        sharey=True,
+    )
+    images = []
+    titles = (
+        ("Video–time prior", overall_prior, COLORS["video_time"]),
+        ("Fixed fusion", overall_fusion, COLORS["fixed_fusion"]),
+    )
+    for index, (axis, matrix, title_info) in enumerate(
+        zip(axes, (prior, fusion), titles)
+    ):
+        title, overall_mae, title_color = title_info
+        image = axis.imshow(
+            matrix,
+            aspect="auto",
+            interpolation="nearest",
+            cmap=VIDEO_TIME_MAE_CMAP,
+            norm=norm,
+        )
+        images.append(image)
+        axis.set_title(title, loc="left")
+        axis.text(
+            1.0,
+            1.01,
+            f"Overall MAE = {overall_mae:.2f}",
+            transform=axis.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=6.4,
+            fontweight="bold",
+            color=title_color,
+        )
+        axis.set_xticks(
+            np.arange(len(bins)),
+            [f"{(time_bin + 0.5) * 100.0 / len(bins):g}" for time_bin in bins],
+        )
+        axis.set_xlabel("Normalized video time (%)")
+        axis.set_yticks(np.arange(len(videos)), [f"V{video}" for video in videos])
+        if index == 0:
+            axis.set_ylabel("Video")
+        add_panel_label(axis, chr(ord("a") + index), x=-0.17)
+
+    colorbar = fig.colorbar(
+        images[0],
+        ax=axes,
+        fraction=0.035,
+        pad=0.03,
+        ticks=[0, 20, 40, 60],
+    )
+    colorbar.set_label("Overall MAE (lower is better)")
+
+    save_publication_figure(fig, output_dir / "external_video_time_mae")
+
+
 def main() -> None:
     args = parse_args()
     evaluation_dir = args.evaluation_dir.resolve()
@@ -472,6 +706,8 @@ def main() -> None:
     apply_publication_style()
     make_source_decomposition_figure(source_dir, output_dir)
     make_data_landscape_figure(evaluation_dir, source_dir, output_dir)
+    make_prediction_quality_figure(evaluation_dir, source_dir, output_dir)
+    make_video_time_mae_figure(evaluation_dir, source_dir, output_dir)
     print(f"Wrote external analysis figures to {output_dir}")
 
 

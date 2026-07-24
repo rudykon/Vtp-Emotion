@@ -142,3 +142,5 @@ latexmk -xelatex -interaction=nonstopmode -halt-on-error main_zh.tex
 ## 数据与共享边界
 
 本地数据、特征缓存、模型检查点、生成的模型包、编译产物和账户凭据均不纳入版本控制。共享项目前应核对数据许可证，并单独确认模型检查点是否允许重新分发。论文源文件、源代码、小型汇总表、图件源数据和复现说明是仓库的主要共享内容。
+
+详细的凭据、数据、图件源数据与 Git 历史风险边界见 [`docs/repository_audit.md`](docs/repository_audit.md)。

@@ -50,3 +50,12 @@ Thumbs.db
 paper/figures/*.png
 paper/figures/*.tif
 paper/figures/*.tiff
+
+# Gated subject-disjoint cohort labels and sample-level derivatives
+paper/figures/source_data_external_samples.csv
+paper/figures/source_data_external_predictions.csv
+paper/figures/source_data_external_trials.csv
+
+# Local review notes and verification reports
+paper/reference_verification_*.md
+paper/图2改造为结果图的建议.md

@@ -240,24 +240,6 @@ interpretable.
 \section{Experimental Setup}
 \label{sec:setup}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{external_data_landscape.pdf}
-  \caption{External label coverage and video--time variation. (a) Joint
-  distribution of 6,143 one-second target observations from 60 trials involving
-  four external participants and 15 familiar videos. Hexagon colour gives the
-  observation count on a logarithmic scale; dashed lines mark the neutral score
-  of 128. (b,c) Sample-weighted mean valence and arousal, respectively, for each
-  video across ten equal bins of normalized playback time, with bin midpoints
-  from 5\% to 95\%. The heatmaps share a diverging scale centred at 128; blue
-  and red denote values below and above neutral. These repeated observations
-  were examined only after prediction generation and are used descriptively.}
-  \Description{A hexbin plot shows the external valence--arousal distribution,
-  and two heatmaps show mean valence and arousal for 15 videos over ten
-  normalized playback-time bins.}
-  \label{fig:external-data-landscape}
-\end{figure*}
-
 \subsection{Dataset and participants}
 
 The MER-PS 2026 training and validation data contain 24 participants, 15
@@ -289,11 +271,6 @@ development participants. Each of the five participant-grouped fold checkpoints 
 feature-standardization statistics computed from its training participants.
 Fixed fusion combines this ensemble with a video--time prior built from all 24
 development participants.
-
-Figure~\ref{fig:external-data-landscape} summarizes the external label
-distribution and its variation across videos and normalized playback time. This
-descriptive analysis was performed after prediction generation and does not
-enter any predictor.
 
 \subsection{Source variants}
 
@@ -343,11 +320,14 @@ identical participant--video--time samples. We also computed overall MSE as a
 secondary external diagnostic; MAE remains the primary endpoint. For external
 heterogeneity analysis, paired errors are also aggregated by participant, by
 familiar video,
-and by ten equal bins of normalized within-video time. These grouped summaries
-are descriptive because the external cohort is small and adjacent one-second
-targets are temporally correlated. For the internal evaluation, only aggregate
-component metrics are available, so paired sample-level residual analysis is
-performed on the external cohort.
+and by ten equal bins of normalized within-video time. For each video--time
+cell, MAE equally pools the valence and arousal absolute errors of all
+one-second samples assigned to that cell. These grouped summaries and the
+predicted-versus-observed densities are descriptive because the external cohort
+is small and adjacent one-second targets are temporally correlated. The 6,143
+one-second observations are therefore not treated as independent replicates.
+For the internal evaluation, only aggregate component metrics are available,
+so paired sample-level residual analysis is performed on the external cohort.
 
 \section{Results and Analysis}
 \label{sec:results}
@@ -399,6 +379,30 @@ large reduction from the EEG--fNIRS branch to the final predictor was almost
 entirely recovered by the video--time prior, while fusion supplied the smallest
 final step.
 
+Figure~\ref{fig:external-prediction-quality} complements the scalar external
+scores with a descriptive view of calibration and error structure. Fixed fusion
+achieved valence MAE of 25.20 and arousal MAE of 30.25. Both densities showed
+prediction-range compression toward the middle of the scale, with the effect
+more pronounced for arousal. These plots identify score ranges that contributed
+to error, but they do not treat the temporally correlated second-level
+observations as independent evidence.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{external_prediction_quality.pdf}
+  \caption{External fixed-fusion predicted-versus-observed densities. (a,b)
+  Hexbin densities compare predictions with observed valence and arousal,
+  respectively, for 6,143 one-second samples. The dashed diagonal marks exact
+  prediction; dotted horizontal and vertical lines mark the neutral score of
+  128. Colour gives sample count on a logarithmic scale, and panel titles report
+  MAE on the original \([1,255]\) scale. Both panels show prediction-range
+  compression toward the middle of the scale, particularly for arousal.}
+  \Description{Two hexbin plots compare fixed-fusion predictions with observed
+  valence and arousal. Dashed diagonals mark exact prediction, dotted lines mark
+  the neutral score of 128, and predicted arousal is concentrated mid-range.}
+  \label{fig:external-prediction-quality}
+\end{figure*}
+
 \subsection{RQ2: Source decomposition}
 
 The staged external variants identify the source of the reduction. Replacing
@@ -440,12 +444,38 @@ from a 0.06-point worsening to a 0.69-point improvement. Video-level changes
 ranged from a 0.30-point worsening to a 1.31-point improvement. The lower
 aggregate fusion MAE therefore coexisted with localized gains and losses.
 
-The contribution of within-video time also varied across a video
-(Figure~\ref{fig:external-decomposition}d). In the first normalized time bin,
-video identity reached 45.53 MAE and the video--time prior reached 13.40. This
-advantage narrowed over time, and video identity was slightly better in each of
-the final five bins. The aggregate temporal gain was therefore concentrated in
-specific phases rather than distributed uniformly.
+The contribution of within-video time also varied over playback.
+Figure~\ref{fig:external-decomposition}d provides a one-dimensional marginal
+after pooling errors across videos within each normalized time bin. In the first
+bin, video identity reached 45.53 MAE and the video--time prior reached 13.40.
+This advantage narrowed over time, and video identity was slightly better in
+each of the final five bins. The aggregate temporal gain was therefore
+concentrated in specific phases rather than distributed uniformly.
+
+Figure~\ref{fig:external-video-time-mae} restores the two-dimensional
+video--time structure hidden by that marginal summary. Overall MAE was 28.04
+for the video--time prior and 27.72 for fixed fusion. Across the 150 cells,
+fusion had lower MAE in 76, equal MAE in 7, and higher MAE in 67. The two
+methods shared 9 of their 10 highest-error cells. Their main hotspot occurred
+in the latter half of V1. Thus, the small aggregate fusion gain reflected many
+local changes of both signs rather than a uniform reduction across the grid.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{external_video_time_mae.pdf}
+  \caption{External video--time MAE. (a) Video--time prior and (b) fixed fusion
+  across 15 familiar videos and ten equal bins of normalized playback time.
+  Each cell equally pools valence and arousal absolute errors over all
+  one-second samples assigned to that video--time cell. Both panels use the
+  same fixed 0--65 MAE scale, with deep blue denoting lower error and
+  orange--red denoting higher error. Overall MAE was 28.04 for the prior and
+  27.72 for fusion.}
+  \Description{Two side-by-side heatmaps compare video--time prior and fixed
+  fusion MAE across 15 videos and ten normalized playback-time bins. Deep blue
+  denotes lower error and orange--red denotes higher error; the strongest
+  hotspot occurs in the latter half of video V1.}
+  \label{fig:external-video-time-mae}
+\end{figure*}
 
 \section{Discussion and Limitations}
 \label{sec:discussion}
