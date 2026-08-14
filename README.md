@@ -2,6 +2,10 @@
   <strong>English</strong> · <a href="README_zh.md">中文</a>
 </p>
 
+<p align="center">
+  <img src="docs/brand-mark.svg" width="520" alt="MER Affect brand mark">
+</p>
+
 <h1 align="center">Low-MAE EEG–fNIRS Continuous Affect Regression</h1>
 
 <p align="center">
@@ -269,3 +273,4 @@ The available workflow has been run locally, including reconstruction of an appr
 ## License
 
 Complete source implementations of all algorithms evaluated in this project are provided in this repository. Unless otherwise noted, repository-authored source code is licensed under the [Apache License 2.0](LICENSE). Datasets, model checkpoints, generated artifacts, and third-party dependencies remain subject to their own terms.
+

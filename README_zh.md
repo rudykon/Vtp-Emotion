@@ -2,6 +2,10 @@
   <a href="README.md">English</a> · <strong>中文</strong>
 </p>
 
+<p align="center">
+  <img src="docs/brand-mark.svg" width="520" alt="MER Affect 品牌标识">
+</p>
+
 <h1 align="center">低 MAE EEG–fNIRS 连续情感回归</h1>
 
 <p align="center">
@@ -269,3 +273,4 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 ## 开源许可证
 
 本仓库完整提供了本项目评估的全部算法源码实现。除另有说明外，仓库中由项目作者编写的源代码采用 [Apache License 2.0](LICENSE) 开源；数据集、模型检查点、生成产物和第三方依赖仍分别适用其自身条款。
+
