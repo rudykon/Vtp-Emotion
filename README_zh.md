@@ -48,7 +48,7 @@
 潜在用途包括预测观众的大致情绪曲线，为视频剪辑、广告投放或内容推荐提供群体反应基线，以及为新观众的情绪预测提供粗略初始化；这些目前是应用动机，尚未验证具体下游效果。
 
 <p align="center">
-  <a href="docs/figures/method_overview.pdf">
+  <a href="docs/figures/method_overview.svg">
     <img src="docs/figures/method_overview.png" alt="视频—时间先验与 EEG–fNIRS 固定融合方法概览" width="92%">
   </a>
 </p>

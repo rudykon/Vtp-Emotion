@@ -48,7 +48,7 @@ This project predicts 1 Hz continuous valence and arousal for new viewers watchi
 Potential uses—treated here as motivations rather than validated downstream outcomes—include estimating approximate audience emotion curves, providing a group-response baseline for editing, advertising, or recommendation, and coarsely initializing predictions for a new viewer.
 
 <p align="center">
-  <a href="docs/figures/method_overview.pdf">
+  <a href="docs/figures/method_overview.svg">
     <img src="docs/figures/method_overview.png" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="92%">
   </a>
 </p>
