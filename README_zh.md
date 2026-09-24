@@ -49,7 +49,7 @@
 
 <p align="center">
   <a href="docs/figures/method_overview.svg">
-    <img src="docs/figures/method_overview.png" alt="视频—时间先验与 EEG–fNIRS 固定融合方法概览" width="92%">
+    <img src="docs/figures/method_overview.svg" alt="视频—时间先验与 EEG–fNIRS 固定融合方法概览" width="92%">
   </a>
 </p>
 <p align="center"><em>图 1｜视频—时间群体先验与 EEG–fNIRS 预测通过固定融合共同用于降低 MAE。</em></p>

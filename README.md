@@ -49,7 +49,7 @@ Potential uses—treated here as motivations rather than validated downstream ou
 
 <p align="center">
   <a href="docs/figures/method_overview.svg">
-    <img src="docs/figures/method_overview.png" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="92%">
+    <img src="docs/figures/method_overview.svg" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="92%">
   </a>
 </p>
 <p align="center"><em>Figure 1 | A video–time population prior is combined with EEG–fNIRS predictions to minimize MAE.</em></p>
