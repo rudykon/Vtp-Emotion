@@ -11,7 +11,8 @@ hide:
   <p class="project-subtitle">预测熟悉视频中新观众的情感变化</p>
   <p class="project-lead">视频—时间先验刻画群体共享的情感轨迹，EEG 与 fNIRS 提供幅度较小的个体修正。通过连续效价—唤醒度回归，分析预测准确性究竟来自哪里。</p>
   <div class="project-actions">
-    <a class="md-button md-button--primary" href="https://github.com/rudykon/Vtp-Emotion" target="_blank" rel="noopener">查看 GitHub</a>
+    <a class="md-button md-button--primary" href="demo/">本地演示</a>
+    <a class="md-button" href="https://github.com/rudykon/Vtp-Emotion" target="_blank" rel="noopener">查看 GitHub</a>
     <a class="md-button" href="guide/method/">方法</a>
     <a class="md-button" href="research/evidence/">实验结果</a>
     <a class="md-button" href="reference/reproduction/">复现</a>

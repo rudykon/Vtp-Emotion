@@ -9,6 +9,9 @@ on:
       - "docs/brand-mark.svg"
       - "docs/figures/**"
       - "scripts/build_site.py"
+      - "scripts/export_browser_demo.py"
+      - "requirements-demo.txt"
+      - "tests/test_browser_demo.cjs"
       - "mkdocs.yml"
       - "requirements-docs.txt"
       - ".github/workflows/deploy-docs.yml"
@@ -18,6 +21,9 @@ on:
       - "docs/brand-mark.svg"
       - "docs/figures/**"
       - "scripts/build_site.py"
+      - "scripts/export_browser_demo.py"
+      - "requirements-demo.txt"
+      - "tests/test_browser_demo.cjs"
       - "mkdocs.yml"
       - "requirements-docs.txt"
       - ".github/workflows/deploy-docs.yml"
@@ -46,6 +52,14 @@ jobs:
 
       - name: Install documentation dependencies
         run: python -m pip install -r requirements-docs.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check browser computation
+        run: node --test tests/test_browser_demo.cjs
 
       - name: Build bilingual documentation
         run: python scripts/build_site.py

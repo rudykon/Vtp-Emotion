@@ -21,6 +21,7 @@
 
 <p align="center">
   <a href="https://rudykon.github.io/Vtp-Emotion/">Project website</a> ·
+  <a href="https://rudykon.github.io/Vtp-Emotion/demo/">Browser demo</a> ·
   <a href="#project-overview">Overview</a> ·
   <a href="#method">Method</a> ·
   <a href="#results">Results</a> ·
@@ -289,8 +290,25 @@ Training writes checkpoints under `checkpoints/`; evaluation outputs and model b
 
 This repository publishes source code, dataset descriptions, method and usage documentation, and selected figure assets. Raw and processed data, model weights, design/revision records, manuscripts, and paper-figure generation programs remain local and are excluded from version control. Credentials, feature caches, and local run artifacts are also excluded. Dataset and third-party terms apply separately.
 
+
+## Browser demo
+
+[Open the browser demo](https://rudykon.github.io/Vtp-Emotion/demo/). Computation runs on the visitor's CPU in a background worker. The default example illustrates fixed fusion with synthetic trajectories and simulated physiological outputs. For trained-model inference, select a local model package and a prepared feature file; neither is uploaded.
+
+Prepare private files after installing the repository's regular dependencies and obtaining the data and checkpoints:
+
+```bash
+.venv/bin/pip install -r requirements-demo.txt
+.venv/bin/python scripts/export_browser_demo.py model
+.venv/bin/python scripts/export_browser_demo.py input \
+  --data-root data/MER_PS_trainval --subject test_1 --video 1 --count 60
+```
+
+Select `artifacts/browser/model.vtp-model.json` and `artifacts/browser/input.vtp-input.json` on the demo page. MAT preprocessing runs locally in Python; browser inference uses ONNX Runtime Web with checkpoint-specific standardization, the six-model ensemble, prior lookup, fixed fusion, and round-to-even output conversion. The `best_v3.pt` fallback caveat above still applies. Data, models, and generated files remain excluded from publication.
+
+The website build downloads an integrity-checked ONNX Runtime Web 1.22.0 runtime and serves it with the static pages. Run browser numerical and input-validation tests with `node --test tests/test_browser_demo.cjs` (Node.js 22).
+
 <a id="open-source-license"></a>
 ## License
 
 Complete source implementations of all algorithms evaluated in this project are provided in this repository. Unless otherwise noted, repository-authored source code is licensed under the [Apache License 2.0](LICENSE). Datasets, model checkpoints, generated artifacts, and third-party dependencies remain subject to their own terms.
-

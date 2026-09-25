@@ -106,3 +106,8 @@ Thumbs.db
 # Static website build output and isolated preview environment
 /site/
 /.venv-site/
+
+# Local browser inference models, feature inputs, and downloaded results
+*.vtp-model.json
+*.vtp-input.json
+vtp-*-predictions.json

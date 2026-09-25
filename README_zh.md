@@ -21,6 +21,7 @@
 
 <p align="center">
   <a href="https://rudykon.github.io/Vtp-Emotion/zh/">项目展示页</a> ·
+  <a href="https://rudykon.github.io/Vtp-Emotion/zh/demo/">浏览器演示</a> ·
   <a href="#project-overview">概览</a> ·
   <a href="#method">方法</a> ·
   <a href="#results">结果</a> ·
@@ -289,8 +290,25 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 
 本仓库公开源程序、数据描述、方法与使用说明，以及选定的图片。原始与处理后的数据、模型参数、方案设计修改记录、论文及论文图片生成程序均保留在本地，不纳入版本控制。凭据、特征缓存和本地运行产物同样排除；数据集与第三方组件分别适用其自身条款。
 
+
+## 浏览器演示
+
+[打开浏览器演示](https://rudykon.github.io/Vtp-Emotion/zh/demo/)。计算在访问者电脑的 CPU 上通过后台线程执行。默认示例使用合成轨迹与模拟生理输出说明固定融合；使用训练后的模型时，在页面选择本地模型包和准备好的特征文件，两者均不会上传。
+
+安装仓库常规依赖、准备好本地数据和检查点后，导出私有文件：
+
+```bash
+.venv/bin/pip install -r requirements-demo.txt
+.venv/bin/python scripts/export_browser_demo.py model
+.venv/bin/python scripts/export_browser_demo.py input \
+  --data-root data/MER_PS_trainval --subject test_1 --video 1 --count 60
+```
+
+在页面选择 `artifacts/browser/model.vtp-model.json` 和 `artifacts/browser/input.vtp-input.json`。MAT 特征预处理在本机 Python 中完成；浏览器通过 ONNX Runtime Web 执行各检查点标准化、六模型集成、先验查询、固定融合及向偶数取整。上文关于 `best_v3.pt` 回退检查点的复现限制仍然适用。数据、模型和生成文件均不纳入发布。
+
+网站构建会下载经过完整性校验的 ONNX Runtime Web 1.22.0 运行库，与静态页面一同部署。浏览器数值和输入校验测试使用 `node --test tests/test_browser_demo.cjs`（Node.js 22）。
+
 <a id="open-source-license"></a>
 ## 开源许可证
 
 本仓库完整提供了本项目评估的全部算法源码实现。除另有说明外，仓库中由项目作者编写的源代码采用 [Apache License 2.0](LICENSE) 开源；数据集、模型检查点、生成产物和第三方依赖仍分别适用其自身条款。
-

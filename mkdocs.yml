@@ -79,6 +79,7 @@ plugins:
             Method: 方法
             Results: 实验结果
             Reproduce: 复现
+            Demo: 本地演示
 
 markdown_extensions:
   - admonition
@@ -94,6 +95,9 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/demo.css
+extra_javascript:
+  - javascripts/demo/app.js
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -106,4 +110,5 @@ nav:
   - Method: guide/method.md
   - Results: research/evidence.md
   - Reproduce: reference/reproduction.md
+  - Demo: demo/index.md
   - GitHub ↗: https://github.com/rudykon/Vtp-Emotion
