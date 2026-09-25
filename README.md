@@ -286,7 +286,7 @@ Training writes checkpoints under `checkpoints/`; evaluation outputs and model b
 - **Descriptive comparisons.** Four external participants provide limited evidence about population-level variation; second-level observations are correlated.
 - **Unmeasured deployment benefits.** The prior needs earlier viewers' labels but avoids new physiological acquisition. Latency, energy savings, and downstream application benefits were not measured.
 
-Raw data, credentials, feature caches, trained checkpoints, and local run artifacts are excluded from version control. Dataset and third-party terms apply separately.
+This repository publishes source code, dataset descriptions, method and usage documentation, and selected figure assets. Raw and processed data, model weights, design/revision records, manuscripts, and paper-figure generation programs remain local and are excluded from version control. Credentials, feature caches, and local run artifacts are also excluded. Dataset and third-party terms apply separately.
 
 <a id="open-source-license"></a>
 ## License

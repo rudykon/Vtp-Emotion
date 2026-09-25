@@ -1,10 +1,11 @@
-# Secrets
+# Credentials
 *_token.json
 token.json
 *.pem
 *.key
 *.token
 .env
+.env.*
 
 # Python environments and caches
 .venv/
@@ -16,20 +17,85 @@ __pycache__/
 *.egg-info/
 build/
 
-# Local datasets and generated features
-data/MER_PS_trainval/
-data/feature_cache/
-data/download/
+# Data stay local; only top-level dataset descriptions are published.
+/data/*
+!/data/*.md
+*.mat
 *.npy
+*.npz
+*.csv
+*.tsv
+*.parquet
+*.arrow
+*.feather
+*.h5
+*.hdf5
 
-# Local model checkpoints and generated run artifacts
-checkpoints/
-artifacts/
+# Model weights, checkpoints, exported bundles, and local run outputs
+/checkpoints/
+/artifacts/
+/results/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.pkl
+*.pickle
+*.bin
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
 
-# Local manuscript and private audit materials
-paper/
+# Manuscripts, related papers, and local figure-design materials
+/paper/
+/papers/
+/manuscripts/
+/*_paper/
+/docs/*related_papers/
+/docs/track4画图/
+*.tex
+*.bib
+*.bst
+*.sty
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+*.docx
+*.pptx
+*.pdf
+# Selected rendered PDF figures are allowed alongside PNG/SVG previews.
+!/docs/figures/**/*.pdf
+
+# Design/revision histories and private audit documents
+/notes/
+/plans/
+/design_notes/
+/revision_notes/
 docs/repository_audit.md
-results/training_log*.txt
+revision_notes*.md
+response_to_reviewers*.md
+*修改记录*.md
+*修订记录*.md
+*审稿意见*.md
+
+# Paper-figure generation programs remain local; rendered figures may be published.
+build_figures.py
+build_assets.py
+/scripts/plot_*.py
+/scripts/plot_*.R
+/scripts/generate_*figure*.py
+/scripts/generate_*figure*.R
+/docs/figures/**/*.py
+/docs/figures/**/*.R
+/docs/figures/**/*.ipynb
 
 # OS/editor noise
 .DS_Store
