@@ -14,36 +14,22 @@
 </p>
 
 <p align="center">
-  <a href="#paper"><img src="https://img.shields.io/badge/ICASSP%202027-Manuscript-4C78A8?style=flat-square" alt="ICASSP 2027 manuscript"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10 or newer"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-4C78A8?style=flat-square" alt="Apache License 2.0"></a>
   <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-MER--PS-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="MER-PS data on Hugging Face"></a>
 </p>
 
 <p align="center">
-  <a href="#paper">Paper</a> ·
   <a href="#project-overview">Overview</a> ·
   <a href="#method">Method</a> ·
   <a href="#results">Results</a> ·
   <a href="#analysis">Analysis</a> ·
   <a href="#getting-started">Quick Start</a> ·
-  <a href="#reproduction">Reproduction</a> ·
-  <a href="#citation">Citation</a>
+  <a href="#reproduction">Reproduction</a>
 </p>
 
 > [!IMPORTANT]
 > **Main finding:** the video–time prior supplies most of the MAE reduction relative to the EEG–fNIRS branch. Fixed fusion adds a small, heterogeneous improvement. Evaluation concerns new viewers of the same videos seen during training; the physiological branch uses future context and supports offline prediction.
-
-<a id="paper"></a>
-## Paper
-
-**Video–Time Priors for EEG–fNIRS Emotion Regression on Familiar Videos**
-
-Minghao Kong, Ying Gao, Jiurun Chen, Muyao Chen, Zheng Ge, Jianxin Wu, and Rongjie Wang.
-
-School of Electronics and Communication Engineering, Sun Yat-sen University; Department of Network Intelligence, Pengcheng Laboratory. Corresponding authors: Jianxin Wu and Rongjie Wang.
-
-This README follows the **24 September 2026 revision of the manuscript prepared for ICASSP 2027**. Publication details will be added when available; the citation below identifies the current work as an unpublished manuscript.
 
 <a id="project-overview"></a>
 ## Overview
@@ -285,7 +271,7 @@ Training writes checkpoints under `checkpoints/`; evaluation outputs and model b
 | `scripts/` | Data download, training, evaluation, source decomposition, and model-bundle tools |
 | `tests/` | Unit tests for metrics, calibration, source construction, and bundle configuration |
 | `docs/` | Additional method, dataset, and analysis documentation |
-| `docs/figures/icassp2027/` | Figures from the current ICASSP manuscript, with PNG previews and PDF versions |
+| `docs/figures/icassp2027/` | Method and result figures, with PNG previews and PDF versions |
 | `data/` | Tracked local-data instructions; raw data, downloads, and feature caches are ignored |
 | `checkpoints/` | Local physiological checkpoints and priors; not version controlled |
 | `artifacts/` | Logs, evaluation outputs, figures, and model bundles; not version controlled |
@@ -301,22 +287,6 @@ Training writes checkpoints under `checkpoints/`; evaluation outputs and model b
 - **Unmeasured deployment benefits.** The prior needs earlier viewers' labels but avoids new physiological acquisition. Latency, energy savings, and downstream application benefits were not measured.
 
 Raw data, credentials, feature caches, trained checkpoints, and local run artifacts are excluded from version control. Dataset and third-party terms apply separately.
-
-<a id="citation"></a>
-## Citation
-
-Use the manuscript entry below for the current version. Replace it with the archival citation when publication metadata becomes available.
-
-```bibtex
-@unpublished{kong2026vtpemotion,
-  title  = {Video--Time Priors for {EEG}--{fNIRS} Emotion Regression on Familiar Videos},
-  author = {Kong, Minghao and Gao, Ying and Chen, Jiurun and Chen, Muyao and
-            Ge, Zheng and Wu, Jianxin and Wang, Rongjie},
-  year   = {2026},
-  note   = {Manuscript prepared for ICASSP 2027, revised September 24, 2026},
-  url    = {https://github.com/rudykon/Vtp-Emotion}
-}
-```
 
 <a id="open-source-license"></a>
 ## License

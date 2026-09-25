@@ -14,36 +14,22 @@
 </p>
 
 <p align="center">
-  <a href="#paper"><img src="https://img.shields.io/badge/ICASSP%202027-Manuscript-4C78A8?style=flat-square" alt="ICASSP 2027 工作稿"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10 或更高版本"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-4C78A8?style=flat-square" alt="Apache License 2.0"></a>
   <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-MER--PS-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="Hugging Face 上的 MER-PS 数据"></a>
 </p>
 
 <p align="center">
-  <a href="#paper">论文</a> ·
   <a href="#project-overview">概览</a> ·
   <a href="#method">方法</a> ·
   <a href="#results">结果</a> ·
   <a href="#analysis">分析</a> ·
   <a href="#getting-started">快速开始</a> ·
-  <a href="#reproduction">复现</a> ·
-  <a href="#citation">引用</a>
+  <a href="#reproduction">复现</a>
 </p>
 
 > [!IMPORTANT]
 > **核心发现：**相对于 EEG–fNIRS 分支，视频—时间先验贡献了绝大部分 MAE 下降；固定融合带来的额外收益较小，且因参与者和视频而异。评估对象是观看训练中相同视频的新观众；生理分支使用未来上下文，仅支持离线预测。
-
-<a id="paper"></a>
-## 论文
-
-**Video–Time Priors for EEG–fNIRS Emotion Regression on Familiar Videos**
-
-Minghao Kong、Ying Gao、Jiurun Chen、Muyao Chen、Zheng Ge、Jianxin Wu、Rongjie Wang。
-
-单位：中山大学电子与通信工程学院、鹏城实验室网络智能部。通讯作者：Jianxin Wu、Rongjie Wang。
-
-本 README 对应 **2026 年 9 月 24 日修订的 ICASSP 2027 工作稿**。正式发表信息将在获得后补充；下方引用条目按未发表稿件记录。
 
 <a id="project-overview"></a>
 ## 概览
@@ -285,7 +271,7 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 | `scripts/` | 数据下载、训练、评估、来源分解和模型包工具 |
 | `tests/` | 指标、校准、来源构建和模型包配置单元测试 |
 | `docs/` | 补充方法、数据集及分析文档 |
-| `docs/figures/icassp2027/` | 当前 ICASSP 工作稿图件，提供 PNG 预览与 PDF 版本 |
+| `docs/figures/icassp2027/` | 方法与结果图件，提供 PNG 预览与 PDF 版本 |
 | `data/` | 跟踪本地数据说明；原始数据、下载文件和特征缓存均被忽略 |
 | `checkpoints/` | 本地生理模型检查点与先验；不纳入版本控制 |
 | `artifacts/` | 日志、评估产物、图件和模型包；不纳入版本控制 |
@@ -301,22 +287,6 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 - **部署收益尚未测量。** 先验需要已有观众标签，但无需新增生理信号采集；延迟、能耗和下游应用收益均未测量。
 
 原始数据、凭据、特征缓存、训练检查点和本地运行产物不纳入版本控制；数据集与第三方组件分别适用其自身条款。
-
-<a id="citation"></a>
-## 引用
-
-当前版本请使用以下工作稿条目；正式发表信息确定后再替换为出版版本引用。
-
-```bibtex
-@unpublished{kong2026vtpemotion,
-  title  = {Video--Time Priors for {EEG}--{fNIRS} Emotion Regression on Familiar Videos},
-  author = {Kong, Minghao and Gao, Ying and Chen, Jiurun and Chen, Muyao and
-            Ge, Zheng and Wu, Jianxin and Wang, Rongjie},
-  year   = {2026},
-  note   = {Manuscript prepared for ICASSP 2027, revised September 24, 2026},
-  url    = {https://github.com/rudykon/Vtp-Emotion}
-}
-```
 
 <a id="open-source-license"></a>
 ## 开源许可证
