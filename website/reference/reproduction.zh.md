@@ -115,6 +115,8 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 
 文中报告的留出 MAE **27.72** 使用 `checkpoints/final_v3.pt` 作为六模型生理集成中的全开发集模型。本仓库目前没有提供重建该检查点的训练命令，训练后检查点也不纳入版本控制。因此，在干净仓库中，留出评估与模型包导出会回退到固定划分生成的 `checkpoints/best_v3.pt`；这条公开回退路径可以完整运行，但其留出指标不应被期望精确复现 **27.72**。
 
+浏览器演示提供由 `final_v3.pt` 与五个折模型转换的 ONNX 推理包；它不包含原始 PyTorch 训练检查点。
+
 训练检查点写入 `checkpoints/`；评估产物与模型包写入 `artifacts/`，其中外部队列评估写入 `artifacts/external_evaluation/`。
 
 ## 构建展示网站
@@ -130,4 +132,4 @@ python3 -m venv .venv-site
 
 构建程序将网页和选定的现有图片汇入 `build/site_docs/`，再将静态网站输出至 `site/`。`main` 分支的网站源文件更新后，GitHub Actions 自动部署。
 
-网站仅包含选定的公开页面与图片。研究数据、模型参数、论文、方案设计修改记录及科研图片生成程序均保留在本地。
+网站包含选定的公开页面、图片，以及获授权的浏览器推理模型和 30 秒真实特征样本。演示资源采用 CC BY-NC-SA 4.0，详见[真实推理演示](../demo/index.md#sample-source)。其他研究数据、训练检查点、论文、方案设计修改记录及科研图片生成程序均保留在本地。

@@ -115,6 +115,8 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 
 The reported held-out MAE of **27.72** used `checkpoints/final_v3.pt` as the full-development member of the six-model physiological ensemble. The repository does not currently provide a command that recreates this checkpoint, and trained checkpoints are not version controlled. In a clean checkout, held-out evaluation and bundle export therefore fall back to the fixed-split `checkpoints/best_v3.pt`; this public fallback path remains fully runnable, but its held-out metrics should not be expected to reproduce **27.72** exactly.
 
+The browser demo provides an ONNX inference export of `final_v3.pt` and the five fold models; it does not include the original PyTorch training checkpoints.
+
 Training writes checkpoints under `checkpoints/`; evaluation outputs and model bundles are written under `artifacts/`, with external-cohort evaluation under `artifacts/external_evaluation/`.
 
 ## Build this website
@@ -130,4 +132,4 @@ python3 -m venv .venv-site
 
 The builder assembles the pages and selected existing figures in `build/site_docs/`, then writes the static site to `site/`. The GitHub Actions workflow publishes the site when its source changes on `main`.
 
-Only the selected public pages and figures enter the website. Research data, model weights, manuscripts, design/revision records, and scientific-figure generation programs remain local.
+The website includes selected public pages, figures, and the approved browser inference model with a 30-second real feature excerpt. The demo assets use CC BY-NC-SA 4.0; see the [real inference demo](../demo/index.md#sample-source). Other research data, training checkpoints, manuscripts, design/revision records, and scientific-figure generation programs remain local.
