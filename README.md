@@ -3,137 +3,166 @@
 </p>
 
 <p align="center">
-  <img src="docs/brand-mark.svg" width="520" alt="MER Affect brand mark">
+  <img src="docs/brand-mark.svg" width="520" alt="Project brand mark">
 </p>
 
-<h1 align="center">Low-MAE EEG–fNIRS Continuous Affect Regression</h1>
+<h1 align="center">Vtp-Emotion</h1>
 
 <p align="center">
-  <strong>Predicting valence–arousal curves for new viewers of familiar videos</strong><br>
-  A reproducible Python pipeline that combines a low-cost video–time population prior with EEG–fNIRS predictions.
+  <strong>Video–Time Priors for EEG–fNIRS Emotion Regression on Familiar Videos</strong><br>
+  Separating shared stimulus responses from viewer-specific physiological correction.
 </p>
 
 <p align="center">
+  <a href="#paper"><img src="https://img.shields.io/badge/ICASSP%202027-Manuscript-4C78A8?style=flat-square" alt="ICASSP 2027 manuscript"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10 or newer"></a>
-  <a href="#results"><img src="https://img.shields.io/badge/Objective-MAE%20%E2%86%93-F28E2B?style=flat-square" alt="Primary objective: lower MAE"></a>
-  <a href="#getting-started"><img src="https://img.shields.io/badge/Tests-15%2F15%20passing-2CA02C?style=flat-square" alt="15 of 15 tests passing"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-4C78A8?style=flat-square" alt="Apache License 2.0"></a>
-  <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-Hugging%20Face-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="Data on Hugging Face"></a>
+  <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-MER--PS-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="MER-PS data on Hugging Face"></a>
 </p>
 
 <p align="center">
+  <a href="#paper">Paper</a> ·
   <a href="#project-overview">Overview</a> ·
+  <a href="#method">Method</a> ·
   <a href="#results">Results</a> ·
   <a href="#analysis">Analysis</a> ·
   <a href="#getting-started">Quick Start</a> ·
-  <a href="#data">Data</a> ·
   <a href="#reproduction">Reproduction</a> ·
-  <a href="#open-source-license">License</a>
+  <a href="#citation">Citation</a>
 </p>
 
 > [!IMPORTANT]
-> **Primary objective:** minimize mean absolute error (MAE). Physiological-only and prior-only comparisons are used after the main result to explain where the MAE reduction comes from.
+> **Main finding:** the video–time prior supplies most of the MAE reduction relative to the EEG–fNIRS branch. Fixed fusion adds a small, heterogeneous improvement. Evaluation concerns new viewers of the same videos seen during training; the physiological branch uses future context and supports offline prediction.
+
+<a id="paper"></a>
+## Paper
+
+**Video–Time Priors for EEG–fNIRS Emotion Regression on Familiar Videos**
+
+Minghao Kong, Ying Gao, Jiurun Chen, Muyao Chen, Zheng Ge, Jianxin Wu, and Rongjie Wang.
+
+School of Electronics and Communication Engineering, Sun Yat-sen University; Department of Network Intelligence, Pengcheng Laboratory. Corresponding authors: Jianxin Wu and Rongjie Wang.
+
+This README follows the **24 September 2026 revision of the manuscript prepared for ICASSP 2027**. Publication details will be added when available; the citation below identifies the current work as an unpublished manuscript.
 
 <a id="project-overview"></a>
 ## Overview
 
-This project predicts 1 Hz continuous valence and arousal for new viewers watching familiar, temporally aligned videos. Because video identity and playback time are available at inference, a protocol-matched video–time prior provides a strong, low-cost population-response baseline: it is fitted within each training fold for five-fold evaluation and on the full development cohort for held-out evaluation. Fixed fusion combines this prior with the EEG–fNIRS branch and achieves the lowest overall MAE under both protocols.
+Do a new viewer's EEG and fNIRS signals improve continuous emotion regression beyond the response shared across viewers of the same stimulus? Vtp-Emotion examines this question on MER-PS 2026, predicting valence and arousal at **1 Hz on the original [1, 255] scale**.
 
-| Research goal | Implemented approach | Evaluation boundary |
+Because video identity and aligned playback time are known at inference, earlier viewers' labels can supply a shared affect trajectory. We compare this **video–time prior**, a graph-based **EEG–fNIRS branch**, and their **fixed-weight fusion**. Global-constant and video-identity baselines further separate the contributions associated with label level, video identity, and within-video time.
+
+| Component | Inputs at inference | Role |
 | --- | --- | --- |
-| Reduce MAE for new viewers of known videos | Protocol-matched video–time prior + EEG–fNIRS branch + fixed fusion | Participant-disjoint evaluation on the same 15 familiar videos |
-| Provide a practical population-response baseline | Video identity and within-video time available at inference | Not cross-site, cross-condition, or unseen-video validation |
-| Explain the source of the gain | Source decomposition by participant, video, and normalized time | Physiological comparisons are post-result analyses |
+| Video–time prior | Known video identity and aligned second | Shared response estimated from training participants' labels; no new-viewer physiology required |
+| EEG–fNIRS branch | New viewer's physiological signals, resting baseline, and temporal context | Viewer-specific prediction from graph encoders and bidirectional cross-modal attention |
+| Fixed fusion | Prior and physiological prediction | Prior weights of 0.99 for valence and 0.92 for arousal |
 
-Potential uses—treated here as motivations rather than validated downstream outcomes—include estimating approximate audience emotion curves, providing a group-response baseline for editing, advertising, or recommendation, and coarsely initializing predictions for a new viewer.
+Held-out participants' labels are excluded from prior construction, feature standardization, model training, and prediction. Checkpoint and fusion-weight selection were **not fully nested**, as discussed under [scope and limitations](#scope).
+
+<a id="method"></a>
+## Method
 
 <p align="center">
-  <a href="docs/figures/method_overview.svg">
-    <img src="docs/figures/method_overview.svg" alt="Overview of the video–time prior and EEG–fNIRS fixed-fusion framework" width="92%">
+  <a href="docs/figures/icassp2027/method_overview.pdf">
+    <img src="docs/figures/icassp2027/method_overview.png" alt="Known video and time feed a training-label prior; new-viewer EEG and fNIRS feed graph encoders and cross-modal attention; fixed fusion combines both predictions" width="100%">
   </a>
 </p>
-<p align="center"><em>Figure 1 | A video–time population prior is combined with EEG–fNIRS predictions to minimize MAE.</em></p>
+<p align="center"><em>Figure 1 | Familiar-video regression with a fold-wise label prior and an offline EEG–fNIRS branch. Output curves are schematic. Click any paper figure for its PDF.</em></p>
+
+1. **Build the prior.** For each video, second, and target, take the median label over the available training participants, then apply a radius-three moving average within the video boundary. Internal evaluation rebuilds this prior within each training fold; external-cohort evaluation uses all 24 development participants.
+2. **Extract physiological features.** Center signals using the corresponding five-second resting baseline and resample EEG to 200 Hz. EEG features combine six-band relative log power, differential entropy, and Hjorth statistics. fNIRS features summarize HbO, HbR, HbT, and absorbance at 780, 805, and 830 nm using mean, standard deviation, slope, skewness, and kurtosis. Concatenating `t−1`, `t`, and `t+1` produces EEG tensors of `64 × 45` and fNIRS tensors of `51 × 90`, with edge padding at trial boundaries.
+3. **Predict and fuse.** Learned-adjacency graph encoders with 32-dimensional channel embeddings and four-head bidirectional cross-modal attention feed a regressor. The fold models train with MSE plus `0.01 ×` contrastive alignment loss, dropout `0.7`, AdamW, and early stopping on validation MSE. Predictions are returned to the original label scale and fused as follows:
+
+```text
+prediction = [0.99, 0.92] * video_time_prior
+           + [0.01, 0.08] * eeg_fnirs_prediction
+# Target order: [valence, arousal].
+```
+
+The same weights are retained for the external cohort. Resting-output calibration is disabled. The use of `t+1` physiological features makes this an **offline estimator**.
 
 <a id="results"></a>
-## Primary MAE results
+## Results
 
-| Evaluation protocol | Cohort | EEG–fNIRS branch | Video–time prior | Fixed fusion |
-| --- | --- | ---: | ---: | ---: |
-| Five-fold participant-held-out | 24 participants · 15 videos · 36,864 samples | 47.35 | 29.06 | **29.01** |
-| Participant-disjoint held-out | 4 new viewers · 60 trials · 6,143 samples | 42.75 | 28.04 | **27.72** |
+All values are **sample-pooled MAE on [1, 255]**, with lower values better. Bold marks the lowest value among the evaluated variants within each protocol.
 
-**Protocol details.** The five-fold row uses five out-of-fold physiological models, a video–time prior fitted within each training fold, and floating-point predictions. The held-out row uses a six-model physiological ensemble—one full-development model plus five fold models—a video–time prior fitted on the full development cohort, and predictions rounded with `numpy.rint` and then clipped to `[1, 255]` before scoring. The two rows should therefore be interpreted only within their own protocols: **29.01 and 27.72 are not a direct cross-cohort improvement estimate for the same estimator.**
+**Internal evaluation — five participant-held-out folds, 24 participants, 15 videos, 360 trials, 36,864 one-second samples.**
 
-Fixed fusion achieved the lowest MAE in both evaluations. Internally, the video–time prior was only 0.05 points above fusion and reduced MAE by 18.29 points relative to the EEG–fNIRS branch. In the participant-disjoint held-out cohort, fusion improved on the video–time prior by a further 0.32 points.
+| Variant | Overall | Valence | Arousal |
+| --- | ---: | ---: | ---: |
+| EEG–fNIRS branch | 47.35 | 51.35 | 43.35 |
+| Video–time prior | 29.06 | 26.67 | 31.46 |
+| **Fixed fusion** | **29.01** | **26.66** | **31.37** |
 
-<p align="center">
-  <a href="docs/figures/source_dominance.png">
-    <img src="docs/figures/source_dominance.png" alt="Internal participant-held-out MAE and source decomposition" width="52%">
-  </a>
-</p>
-<p align="center"><em>Figure 2 | Internal participant-held-out MAE. The video–time prior accounts for most of the error reduction, while fixed fusion reaches the lowest value.</em></p>
+**External cohort — 4 additional participants excluded from training, the same 15 videos, 60 trials, 6,143 one-second samples.**
 
-<details>
-<summary><strong>Full held-out source decomposition</strong></summary>
+| Variant | Overall | Valence | Arousal |
+| --- | ---: | ---: | ---: |
+| Global constant | 44.33 | 47.46 | 41.20 |
+| Video identity | 33.36 | 32.56 | 34.17 |
+| EEG–fNIRS branch | 42.75 | 45.29 | 40.21 |
+| Video–time prior | 28.04 | 25.34 | 30.74 |
+| **Fixed fusion** | **27.72** | **25.20** | **30.25** |
 
-| Prediction source | Overall MAE |
-| --- | ---: |
-| Global constant | 44.33 |
-| Video identity prior | 33.36 |
-| Video–time prior | 28.04 |
-| EEG–fNIRS branch | 42.75 |
-| **Fixed fusion** | **27.72** |
+The global constant is the coordinate-wise median of all development labels. The video-identity baseline uses the temporal median of each video's smoothed prior.
 
-</details>
+| Protocol detail | Internal evaluation | External cohort |
+| --- | --- | --- |
+| Physiological prediction | Each participant's matching held-out fold model | Average of five fold models and one all-development checkpoint |
+| Prior and feature standardization | Corresponding training participants only | Prior from all 24 development participants; each checkpoint retains its own training standardization |
+| Scoring | Pooled out-of-fold floating-point predictions | Each variant rounded with `numpy.rint`, then clipped to `[1, 255]` |
 
-<p align="center">
-  <a href="docs/figures/external_prediction_quality.png">
-    <img src="docs/figures/external_prediction_quality.png" alt="Fixed-fusion predictions versus observed targets in the participant-disjoint held-out cohort" width="92%">
-  </a>
-</p>
-<p align="center"><em>Figure 3 | Fixed-fusion predictions versus observed targets. Predictions in both dimensions contract toward the middle of the scale.</em></p>
-
-> [!NOTE]
-> This protocol establishes participant disjointness only. It is not independent cross-site or cross-condition external validation, and it does not evaluate unseen videos.
+**29.01 and 27.72 are not a direct cross-cohort improvement estimate:** the participants, ensemble construction, and rounding differ. The external cohort establishes participant disjointness within the familiar-video setting; it does not establish cross-site or unseen-video generalization.
 
 <a id="analysis"></a>
-## Analysis after achieving low MAE
+## What explains the error reduction?
 
-The following comparisons explain the source and limits of the lowest MAE; they do not replace MAE reduction as the primary objective.
+On the external cohort, moving from the global constant to video identity reduces overall MAE by **10.97 points**; adding playback time reduces it by another **5.32 points**. Fixed fusion adds **0.32 points** of improvement over the video–time prior. Internally, its increment is only **0.05 points**.
 
-- The within-fold video–time prior accounts for approximately **99.7%** of the internal MAE reduction from the EEG–fNIRS branch to fixed fusion.
-- In held-out evaluation, video identity is associated with a **10.97-point** reduction in overall MAE, and within-video time is associated with a further descriptive reduction of **5.32 points**.
-- Fusion gains are heterogeneous, improving performance for **3 of 4 participants** and **9 of 15 videos**.
-- The temporal prior is phase dependent: in the first normalized time bin, video identity and video–time priors achieve MAEs of **45.53** and **13.40**, while video identity is slightly better in each of the final five bins.
+Relative to the reduction from EEG–fNIRS alone to fusion, the prior accounts for **99.73% internally** and **97.89% externally**, computed before display rounding. These are descriptive ratios of error reduction, not a causal decomposition of information in the signals.
 
-Detailed methods and analyses are available in [`docs/method.md`](docs/method.md) and [`docs/ablation.md`](docs/ablation.md).
+<p align="center">
+  <a href="docs/figures/icassp2027/external_source_decomposition.pdf">
+    <img src="docs/figures/icassp2027/external_source_decomposition.png" alt="External-cohort overall MAE, paired fusion gains for all four participants and fifteen videos, and errors across ten normalized playback-time bins" width="100%">
+  </a>
+</p>
+<p align="center"><em>Figure 2 | Source contributions and heterogeneous fusion gains. Positive prior-minus-fusion MAE favors fusion; circles mark gains and crosses mark losses.</em></p>
+
+| External-cohort comparison: fusion vs. prior | Observation |
+| --- | --- |
+| Participants | Lower MAE for 3 of 4 |
+| Videos | Lower MAE for 9 of 15; largest gain +1.31 (V7), largest loss −0.30 (V11) |
+| Participant–video trials | Lower MAE in 38 of 60; higher in 22 |
+| Normalized playback time | Higher MAE in the first 3 bins; lower in the remaining 7 |
+| Video × time cells | Lower MAE in 76 of 150 cells, equal in 7, higher in 67 |
+
+Time conditioning also helps unevenly. In the first normalized bin, video identity and the video–time prior yield MAEs of **45.53** and **13.40**. Video identity is better in each of the final five bins: the prior's pooled **11.89-point reduction** in the first half outweighs its **1.33-point increase** in the second half.
+
+<p align="center">
+  <a href="docs/figures/icassp2027/external_diagnostics.pdf">
+    <img src="docs/figures/icassp2027/external_diagnostics.png" alt="Fixed-fusion prediction densities for valence and arousal and prior/fusion MAE heatmaps over fifteen videos and ten time bins" width="100%">
+  </a>
+</p>
+<p align="center"><em>Figure 3 | Diagnostics using all 6,143 external samples. Prediction densities share a log-count scale; heatmaps share a 0–65 MAE scale.</em></p>
+
+Prediction ranges are compressed, and the prior and fusion share **9 of their 10 highest-error cells**. Much of the prior's error structure remains after fusion.
 
 <details>
-<summary><strong>Open additional held-out analysis figures</strong></summary>
-<br>
+<summary><strong>Post hoc weight sensitivity</strong></summary>
 
-<p align="center">
-  <a href="docs/figures/external_source_decomposition.png">
-    <img src="docs/figures/external_source_decomposition.png" alt="Held-out-cohort MAE source decomposition across participants, videos, and time" width="95%">
-  </a>
-</p>
-<p align="center"><em>Figure 4 | Aggregate improvement contains local gains and losses across participants, videos, and playback time.</em></p>
-
-<p align="center">
-  <a href="docs/figures/external_video_time_mae.png">
-    <img src="docs/figures/external_video_time_mae.png" alt="Video-by-normalized-time MAE heatmaps for the video–time prior and fixed fusion" width="95%">
-  </a>
-</p>
-<p align="center"><em>Figure 5 | The small aggregate fusion gain is not uniform across video-by-time cells.</em></p>
+A diagnostic sweep over prior weights from 0 to 1 in steps of 0.01 finds internal target-wise minima at `[0.99, 0.92]`. At these weights, fusion improves on the prior in only 3 of 5 folds. This sweep does not reproduce the original selection procedure. External-cohort minima shift to `[0.83, 0.82]` (MAE 26.91), but use held-out outcomes and are diagnostic only. All main results retain the original fixed weights `[0.99, 0.92]`.
 
 </details>
+
+These analyses are descriptive. With only four external participant clusters, correlated seconds are not treated as independent replicates for significance testing.
 
 <a id="getting-started"></a>
 ## Quick start
 
 ```bash
-git clone https://github.com/rudykon/MER2026track4-EEG-fNIRS-Affect-Regression.git
-cd MER2026track4-EEG-fNIRS-Affect-Regression
+git clone https://github.com/rudykon/Vtp-Emotion.git
+cd Vtp-Emotion
 
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
@@ -245,7 +274,7 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 
 The reported held-out MAE of **27.72** used `checkpoints/final_v3.pt` as the full-development member of the six-model physiological ensemble. The repository does not currently provide a command that recreates this checkpoint, and trained checkpoints are not version controlled. In a clean checkout, held-out evaluation and bundle export therefore fall back to the fixed-split `checkpoints/best_v3.pt`; this public fallback path remains fully runnable, but its held-out metrics should not be expected to reproduce **27.72** exactly.
 
-The available workflow has been run locally, including reconstruction of an approximately 1.1 GB feature cache, fixed-split and five-fold training, MAE evaluation, source decomposition, held-out evaluation, model-bundle export, and end-to-end inference. Outputs from that earlier isolated audit were retained under the ignored `artifacts/full_pipeline_run/` directory. The commands shown above use their documented defaults instead: training writes checkpoints under `checkpoints/`, general evaluation and export write under `artifacts/`, and held-out evaluation writes under `artifacts/external_evaluation/`.
+Training writes checkpoints under `checkpoints/`; evaluation outputs and model bundles are written under `artifacts/`, with external-cohort evaluation under `artifacts/external_evaluation/`.
 
 <a id="repository"></a>
 ## Repository map
@@ -255,19 +284,39 @@ The available workflow has been run locally, including reconstruction of an appr
 | `src/merps/` | Feature extraction, video–time prior, physiological model, calibration, and inference |
 | `scripts/` | Data download, training, evaluation, source decomposition, and model-bundle tools |
 | `tests/` | Unit tests for metrics, calibration, source construction, and bundle configuration |
-| `docs/` | Method, dataset, and post-result analysis documentation |
+| `docs/` | Additional method, dataset, and analysis documentation |
+| `docs/figures/icassp2027/` | Figures from the current ICASSP manuscript, with PNG previews and PDF versions |
 | `data/` | Tracked local-data instructions; raw data, downloads, and feature caches are ignored |
 | `checkpoints/` | Local physiological checkpoints and priors; not version controlled |
 | `artifacts/` | Logs, evaluation outputs, figures, and model bundles; not version controlled |
 
 <a id="scope"></a>
-## Scope and sharing boundaries
+## Scope and limitations
 
-- The current findings apply to new viewers watching the same 15 familiar videos.
-- The study does not establish transfer to unseen videos, new sites, or new experimental conditions.
-- Downstream effects on editing, advertising, or recommendation have not yet been validated.
-- Local data, feature caches, checkpoints, generated bundles, evaluation outputs, and credentials are excluded from version control.
-- Dataset, checkpoint, generated-artifact, and third-party terms must be checked separately before redistribution.
+- **Familiar videos only.** The same 15 videos occur in training and evaluation. Unseen-video, cross-site, and cross-condition transfer have not been evaluated.
+- **Offline physiology.** Features include `t+1`; no temporal lag compensates for the fNIRS haemodynamic delay.
+- **Selection limits.** Checkpoint and weight selection were not fully nested. Fully nested participant splits are needed to estimate the small fusion increment more reliably.
+- **One physiological architecture.** EEG-only, fNIRS-only, graph, and attention contributions were not isolated. The results neither establish nor rule out independent affective information in either modality.
+- **Descriptive comparisons.** Four external participants provide limited evidence about population-level variation; second-level observations are correlated.
+- **Unmeasured deployment benefits.** The prior needs earlier viewers' labels but avoids new physiological acquisition. Latency, energy savings, and downstream application benefits were not measured.
+
+Raw data, credentials, feature caches, trained checkpoints, and local run artifacts are excluded from version control. Dataset and third-party terms apply separately.
+
+<a id="citation"></a>
+## Citation
+
+Use the manuscript entry below for the current version. Replace it with the archival citation when publication metadata becomes available.
+
+```bibtex
+@unpublished{kong2026vtpemotion,
+  title  = {Video--Time Priors for {EEG}--{fNIRS} Emotion Regression on Familiar Videos},
+  author = {Kong, Minghao and Gao, Ying and Chen, Jiurun and Chen, Muyao and
+            Ge, Zheng and Wu, Jianxin and Wang, Rongjie},
+  year   = {2026},
+  note   = {Manuscript prepared for ICASSP 2027, revised September 24, 2026},
+  url    = {https://github.com/rudykon/Vtp-Emotion}
+}
+```
 
 <a id="open-source-license"></a>
 ## License
