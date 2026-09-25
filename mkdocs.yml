@@ -1,0 +1,109 @@
+site_name: Vtp-Emotion
+site_url: https://rudykon.github.io/Vtp-Emotion/
+site_description: Video–time priors and EEG–fNIRS for continuous emotion regression in new viewers of familiar videos.
+repo_name: rudykon/Vtp-Emotion
+repo_url: https://github.com/rudykon/Vtp-Emotion
+edit_uri: ""
+docs_dir: build/site_docs
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  logo: assets/brand/icon.svg
+  favicon: assets/brand/icon.svg
+  font: false
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search:
+      lang: en
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: false
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: zh
+          name: 简体中文
+          build: true
+          site_name: Vtp-Emotion
+          site_description: 面向熟悉视频新观众的连续情感回归，区分视频—时间先验与 EEG–fNIRS 生理修正。
+          theme:
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: custom
+                accent: custom
+                toggle:
+                  icon: material/weather-night
+                  name: 切换至深色模式
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: custom
+                accent: custom
+                toggle:
+                  icon: material/weather-sunny
+                  name: 切换至浅色模式
+          nav_translations:
+            Overview: 概览
+            Method: 方法
+            Results: 实验结果
+            Reproduce: 复现
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/extra.css
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/rudykon/Vtp-Emotion
+      name: Source on GitHub
+  generator: false
+copyright: Vtp-Emotion · Apache-2.0
+nav:
+  - Overview: index.md
+  - Method: guide/method.md
+  - Results: research/evidence.md
+  - Reproduce: reference/reproduction.md
+  - GitHub ↗: https://github.com/rudykon/Vtp-Emotion

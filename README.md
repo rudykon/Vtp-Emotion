@@ -20,6 +20,7 @@
 </p>
 
 <p align="center">
+  <a href="https://rudykon.github.io/Vtp-Emotion/">Project website</a> ·
   <a href="#project-overview">Overview</a> ·
   <a href="#method">Method</a> ·
   <a href="#results">Results</a> ·

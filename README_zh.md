@@ -20,6 +20,7 @@
 </p>
 
 <p align="center">
+  <a href="https://rudykon.github.io/Vtp-Emotion/zh/">项目展示页</a> ·
   <a href="#project-overview">概览</a> ·
   <a href="#method">方法</a> ·
   <a href="#results">结果</a> ·

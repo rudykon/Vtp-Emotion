@@ -102,3 +102,7 @@ build_assets.py
 Thumbs.db
 *.swp
 *.swo
+
+# Static website build output and isolated preview environment
+/site/
+/.venv-site/
