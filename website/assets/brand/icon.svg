@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon-only variant of docs/brand-mark.svg; original vector shapes unchanged. -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 936 419" xml:space="preserve" role="img" aria-label="Vtp-Emotion symbol">
+<g id="_x30_1_EEG_Signal">
+	<g id="_x30_1_x5F_EEG_x5F_Signal">
+		<path style="fill:none;stroke:#00B6F7;stroke-width:17;stroke-linecap:round;stroke-linejoin:round;" d="M22,209    c16-12,19,16,30,15c15-1,13-61,29-57c17,4,8,96,24,94c17-2,20-136,37-135c17-1,4,156,23,155c17,2,12-96,28-92c15,3,15,55,46,50" />
+	</g>
+</g>
+<g id="_x30_2_Affect_Signal">
+	<g id="_x30_2_x5F_Affect_x5F_Signal">
+
+			<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="1.2813" y1="551.037" x2="1.5313" y2="550.037" gradientTransform="matrix(256 0 0 -146 350 80578)">
+			<stop offset="0" style="stop-color:#FF718C" />
+			<stop offset="1" style="stop-color:#FA2058" />
+		</linearGradient>
+		<path style="fill:none;stroke:url(#SVGID_1_);stroke-width:18;stroke-linecap:round;stroke-linejoin:round;" d="M605,251    c40,11,32-58,51-61c18-4,11,78,26,77s15-129,34-130c19,0,15,146,32,146c18,0,13-75,30-73s12,46,43,57c16,7,27-2,40-14" />
+
+			<linearGradient id="SVGID_00000001635019974058864900000004638549029476603801_" gradientUnits="userSpaceOnUse" x1="1.3943" y1="551.0464" x2="1.6443" y2="550.0464" gradientTransform="matrix(100.027 0 0 -91.5081 707.946 50577.4297)">
+			<stop offset="0" style="stop-color:#FF455C" />
+			<stop offset="1" style="stop-color:#FF6D00" />
+		</linearGradient>
+
+			<path style="fill:none;stroke:url(#SVGID_00000001635019974058864900000004638549029476603801_);stroke-width:17;stroke-linecap:round;stroke-linejoin:round;" d="    M858,253c-25-22-52-44-51-67c2-30,38-33,50-6c13-30,50-20,50,7C907,211,879,237,858,253" />
+		<path style="fill:none;stroke:#FF9F00;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;" d="M833,130l-16-22" />
+		<path style="fill:none;stroke:#FF9F00;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;" d="M867,121l3-31" />
+		<path style="fill:none;stroke:#FF9F00;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;" d="M901,137l18-14" />
+	</g>
+</g>
+<g id="_x30_3_Brain_Left_Silhouette">
+	<g id="_x30_3_x5F_Brain_x5F_Left_x5F_Silhouette">
+
+			<linearGradient id="SVGID_00000179643036380751586360000011055996395088253856_" gradientUnits="userSpaceOnUse" x1="1.3886" y1="551.0848" x2="1.6386" y2="550.0848" gradientTransform="matrix(197.9378 0 0 -367.9698 35.1244 202775.4219)">
+			<stop offset="0" style="stop-color:#E1F6FF" />
+			<stop offset="1" style="stop-color:#AFE1FA" />
+		</linearGradient>
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000179643036380751586360000011055996395088253856_);" d="    M430,31c-36-6-74,2-104,20c-39,20-65,51-80,85c-17,37-20,68,0,96c-21,17-16,52,0,70c8,11,21,14,35,14c14,38,54,63,96,64v17h53V31z    " />
+
+			<path style="fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#006BAB;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="    M430,31c-36-6-74,2-104,20c-39,20-65,51-80,85c-17,37-20,68,0,96c-21,17-16,52,0,70c8,11,21,14,35,14c14,38,54,63,96,64v17" />
+	</g>
+</g>
+<g id="_x30_4_Brain_Right_Silhouette">
+	<g id="_x30_4_x5F_Brain_x5F_Right_x5F_Silhouette">
+
+			<linearGradient id="SVGID_00000145023973323642691090000014709011111550785674_" gradientUnits="userSpaceOnUse" x1="1.2832" y1="551.0588" x2="1.5332" y2="550.0588" gradientTransform="matrix(184.2598 0 0 -372.6481 246.7402 205348.4375)">
+			<stop offset="0" style="stop-color:#FFF5F3" />
+			<stop offset="1" style="stop-color:#FFDDDF" />
+		</linearGradient>
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000145023973323642691090000014709011111550785674_);" d="    M430,31c28-12,50-8,76,14c42,5,73,37,85,69c20,33,13,67,5,86c23,17,23,34,4,39c20,21,18,49,0,67c-8,8-17,10-26,10    c-17,38-53,61-95,64v17h-49V31z" />
+
+			<linearGradient id="SVGID_00000012474098649093651810000008238707602267848101_" gradientUnits="userSpaceOnUse" x1="422" y1="210.676" x2="622.2598" y2="210.676">
+			<stop offset="0" style="stop-color:#FF718C" />
+			<stop offset="1" style="stop-color:#FA2058" />
+		</linearGradient>
+
+			<path style="fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:url(#SVGID_00000012474098649093651810000008238707602267848101_);stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="    M430,31c28-12,50-8,76,14c42,5,73,37,85,69c20,33,13,67,5,86c23,17,23,34,4,39c20,21,18,49,0,67c-8,8-17,10-26,10    c-17,38-53,61-95,64v17" />
+	</g>
+</g>
+<g id="_x30_5_Central_Division">
+	<g id="_x30_5_x5F_Central_x5F_Division">
+		<path style="fill:none;stroke:#FFF8F7;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;" d="M430,34v363" />
+	</g>
+</g>
+<g id="_x30_6_Left_Cortex">
+	<g id="_x30_6_x5F_Left_x5F_Cortex">
+
+			<linearGradient id="SVGID_00000015342767080042322680000016738229707123695004_" gradientUnits="userSpaceOnUse" x1="1.3403" y1="551.0531" x2="1.5903" y2="550.0531" gradientTransform="matrix(161.0797 0 0 -149.2124 109.1678 82257.2812)">
+			<stop offset="0" style="stop-color:#46CBFF" />
+			<stop offset="1" style="stop-color:#08A2EB" />
+		</linearGradient>
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000015342767080042322680000016738229707123695004_);" d="    M318,81c2-27,36-42,61-28c14-15,41-3,44,16v32c-14,16-33,0-49,2c-16,16-39,14-48-2c-16,13-38,12-41,32c-4,19,13,30,30,24    c6,22,29,24,44,11c16-8,21-31,40-36c27-4,40,20,25,46c-15,29-51,18-55-5c-19,19-43,11-53-7c-21,18-46,8-46-12c-5-24,16-45,31-48    C294,93,303,81,318,81z" />
+		<path style="fill:none;stroke:#BCEFFF;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;" d="M334,91c5-24,24-29,41-24     M374,106c4-19,16-27,32-25 M301,147c5-13,20-15,32-7 M362,156c0-21,18-36,37-36" />
+	</g>
+</g>
+<g id="_x30_7_Right_Cortex">
+	<g id="_x30_7_x5F_Right_x5F_Cortex">
+
+			<linearGradient id="SVGID_00000131362488158103703760000014679606594893498528_" gradientUnits="userSpaceOnUse" x1="1.2857" y1="551.0428" x2="1.5357" y2="550.0428" gradientTransform="matrix(159.5099 0 0 -165.7341 276.67 91372.8359)">
+			<stop offset="0" style="stop-color:#FF9B87" />
+			<stop offset="1" style="stop-color:#FF5A61" />
+		</linearGradient>
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000131362488158103703760000014679606594893498528_);" d="    M447,89c-10-19,6-34,25-30c21,1,17,20,31,28c19,12,33,2,41,22c19-1,34,15,25,34c13,10,14,30-1,40c16-8,32,9,25,27    c-7,21-34,17-34-2c-16,2-26-9-24-23c-17,11-38,2-38-12c-16,30-56,26-61,0c-4-19,7-32,25-35c-8-15,2-27,19-28c-21,3-47,3-44-11    C437,94,441,91,447,89z" />
+		<path style="fill:none;stroke:#FFE7E2;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;" d="M463,94c15,8,12,17,14,22     M457,133c11-26,42-28,57-8c8,10,10,21,4,32 M522,144c15-15,35-9,45,3" />
+	</g>
+</g>
+<g id="_x30_8_Neural_Connections">
+	<g id="_x30_8_x5F_Neural_x5F_Connections">
+		<path style="fill:none;stroke:#00649F;stroke-width:13;stroke-linecap:round;stroke-linejoin:round;" d="M297,69l44,52l-92,28    l43,58 M341,121l25,51 M297,69c30-26,61-32,93-29" />
+	</g>
+</g>
+<g id="_x30_9_EEG_Nodes">
+	<g id="_x30_9_x5F_EEG_x5F_Nodes">
+		<ellipse style="fill:#04274D;" cx="297" cy="69" rx="26" ry="26" />
+		<ellipse style="fill:#F2FBFF;" cx="297" cy="69" rx="10" ry="10" />
+		<ellipse style="fill:#04274D;" cx="391" cy="40" rx="26" ry="26" />
+		<ellipse style="fill:#F2FBFF;" cx="391" cy="40" rx="10" ry="10" />
+		<ellipse style="fill:#04274D;" cx="341" cy="121" rx="26" ry="26" />
+		<ellipse style="fill:#F2FBFF;" cx="341" cy="121" rx="10" ry="10" />
+		<ellipse style="fill:#04274D;" cx="249" cy="149" rx="26" ry="26" />
+		<ellipse style="fill:#F2FBFF;" cx="249" cy="149" rx="10" ry="10" />
+		<ellipse style="fill:#04274D;" cx="292" cy="207" rx="26" ry="26" />
+		<ellipse style="fill:#F2FBFF;" cx="292" cy="207" rx="10" ry="10" />
+	</g>
+</g>
+<g id="_x31_0_fNIRS_Nodes">
+	<g id="_x31_0_x5F_fNIRS_x5F_Nodes">
+		<ellipse style="fill:#FF5B04;" cx="528" cy="61" rx="27" ry="27" />
+		<ellipse style="fill:#FFEF0A;" cx="528" cy="61" rx="11" ry="11" />
+		<ellipse style="fill:#FF7000;" cx="601" cy="148" rx="27" ry="27" />
+		<ellipse style="fill:#FFF018;" cx="601" cy="148" rx="11" ry="11" />
+	</g>
+</g>
+<g id="_x31_1_Orbit_Accents">
+	<g id="_x31_1_x5F_Orbit_x5F_Accents">
+		<path style="fill:none;stroke:#B3E6F8;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;" d="M188,150    c8-40,28-65,59-77" />
+		<path style="fill:none;stroke:#B3E6F8;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;" d="M194,301    c16,34,42,55,77,65" />
+		<path style="fill:none;stroke:#FFE8E8;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;" d="M607,71    c30,16,50,42,58,78" />
+		<path style="fill:none;stroke:#FFE8E8;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;" d="M660,301    c-16,35-42,54-77,66" />
+	</g>
+</g>
+<g id="_x31_2_Face">
+	<g id="_x31_2_x5F_Face">
+		<path style="fill:none;stroke:#04274D;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;" d="M333,247c8-20,36-20,47,0    " />
+		<path style="fill:none;stroke:#04274D;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;" d="M481,247c8-21,35-20,47,0    " />
+		<path style="fill:none;stroke:#04274D;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;" d="M407,291c5,20,37,21,46,0    " />
+		<ellipse style="fill:#34BBF0;" cx="326" cy="287" rx="23" ry="22" />
+		<ellipse style="fill:#FC85A4;" cx="534" cy="287" rx="23" ry="22" />
+	</g>
+</g>
+</svg>

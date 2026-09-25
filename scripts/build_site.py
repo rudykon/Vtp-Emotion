@@ -16,7 +16,7 @@ PAGES = (
     "guide/method.md", "guide/method.zh.md",
     "research/evidence.md", "research/evidence.zh.md",
     "reference/reproduction.md", "reference/reproduction.zh.md",
-    "stylesheets/extra.css",
+    "stylesheets/extra.css", "assets/brand/icon.svg",
 )
 FIGURES = (
     "icassp2027/method_overview.png", "icassp2027/method_overview.pdf",
@@ -30,10 +30,7 @@ FIGURES = (
 def main():
     sources = [(ROOT / "website" / name, Path(name)) for name in PAGES]
     sources += [(ROOT / "docs" / "figures" / name, Path("assets/figures") / name) for name in FIGURES]
-    # Both public logo URLs reuse the project artwork. Keep icon.svg working for
-    # existing links without maintaining another logo in the repository.
     sources += [(ROOT / "docs/brand-mark.svg", Path("assets/brand/wordmark.svg")),
-                (ROOT / "docs/brand-mark.svg", Path("assets/brand/icon.svg")),
                 (ROOT / "LICENSE", Path("assets/LICENSE.txt"))]
     for source, _ in sources:
         if not source.is_file() or source.is_symlink():

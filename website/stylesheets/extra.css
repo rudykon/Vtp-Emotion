@@ -67,11 +67,11 @@ pre {
 }
 
 .md-header__button.md-logo img,
-.md-header__button.md-logo svg {
-  width: auto;
+.md-header__button.md-logo svg,
+.md-nav__button.md-logo img {
+  width: 4.2rem;
   height: 1.9rem;
-  max-width: 10rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.1rem;
   border-radius: 0.25rem;
   background: #fff;
   object-fit: contain;
