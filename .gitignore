@@ -111,3 +111,7 @@ Thumbs.db
 *.vtp-model.json
 *.vtp-input.json
 vtp-*-predictions.json
+
+# Explicitly approved public browser inference assets only.
+!website/assets/demo/model.vtp-model.json
+!website/assets/demo/sample.vtp-input.json

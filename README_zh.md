@@ -288,14 +288,16 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 - **描述性比较。** 四名外部参与者对总体差异的证据有限，秒级观测之间存在相关性。
 - **部署收益尚未测量。** 先验需要已有观众标签，但无需新增生理信号采集；延迟、能耗和下游应用收益均未测量。
 
-本仓库公开源程序、数据描述、方法与使用说明，以及选定的图片。原始与处理后的数据、模型参数、方案设计修改记录、论文及论文图片生成程序均保留在本地，不纳入版本控制。凭据、特征缓存和本地运行产物同样排除；数据集与第三方组件分别适用其自身条款。
+本仓库公开源程序、数据描述、方法与使用说明，以及选定的图片。`website/assets/demo/` 下获授权的浏览器演示资源是模型与数据的唯一例外，包含推理模型和一段 30 秒真实特征，采用 CC BY-NC-SA 4.0。其他原始与处理后的数据、训练检查点、方案设计修改记录、论文及论文图片生成程序均保留在本地，不纳入版本控制。凭据、特征缓存和本地运行产物同样排除；数据集与第三方组件分别适用其自身条款。
 
 
 ## 浏览器演示
 
-[打开浏览器演示](https://rudykon.github.io/Vtp-Emotion/zh/demo/)。计算在访问者电脑的 CPU 上通过后台线程执行。默认示例使用合成轨迹与模拟生理输出说明固定融合；使用训练后的模型时，在页面选择本地模型包和准备好的特征文件，两者均不会上传。
+[打开浏览器演示](https://rudykon.github.io/Vtp-Emotion/zh/demo/)。计算在访问者电脑的 CPU 上通过后台线程执行。页面自动下载训练好的六模型集成和 30 秒真实 EEG–fNIRS 特征，在本机计算预测，无需账号、手动选择文件或推理服务器。也可选择自己的本地模型与特征文件，这些文件不会上传。
 
-安装仓库常规依赖、准备好本地数据和检查点后，导出私有文件：
+默认片段来自 [MER-PS 训练/验证数据](https://huggingface.co/datasets/MER-PS/MER-PS-trainval)，对应 `test_1`、视频 1、第 0–29 秒，用于展示真实记录上的推理过程，不作为留出准确率评估。公开模型和样本采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)，详见[来源说明](website/assets/demo/NOTICE.txt)和[带校验值的资源清单](website/assets/demo/manifest.json)。
+
+如需使用自己的文件，安装仓库常规依赖、准备好本地数据和检查点后，导出私有文件：
 
 ```bash
 .venv/bin/pip install -r requirements-demo.txt
@@ -304,7 +306,7 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
   --data-root data/MER_PS_trainval --subject test_1 --video 1 --count 60
 ```
 
-在页面选择 `artifacts/browser/model.vtp-model.json` 和 `artifacts/browser/input.vtp-input.json`。MAT 特征预处理在本机 Python 中完成；浏览器通过 ONNX Runtime Web 执行各检查点标准化、六模型集成、先验查询、固定融合及向偶数取整。上文关于 `best_v3.pt` 回退检查点的复现限制仍然适用。数据、模型和生成文件均不纳入发布。
+切换至「使用自己的本地模型与数据」，选择 `artifacts/browser/model.vtp-model.json` 和 `artifacts/browser/input.vtp-input.json`。MAT 特征预处理在本机 Python 中完成；浏览器通过 ONNX Runtime Web 执行各检查点标准化、六模型集成、先验查询、固定融合及向偶数取整。上文关于 `best_v3.pt` 回退检查点的复现限制仍然适用。其他本地导出文件不纳入发布。
 
 网站构建会下载经过完整性校验的 ONNX Runtime Web 1.22.0 运行库，与静态页面一同部署。浏览器数值和输入校验测试使用 `node --test tests/test_browser_demo.cjs`（Node.js 22）。
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Export private, local-only model and feature files for the browser demo.
+"""Export model and feature files for the browser demo.
 
-Outputs belong in artifacts/ and must not be published with the static site.
+Outputs default to ignored artifacts/. Publication requires explicit authorization
+and a compatible dataset license; only approved exports belong in website/assets/demo.
 The browser consumes prepared features; MAT preprocessing remains a local step.
 """
 from __future__ import annotations

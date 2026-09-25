@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Build the public website from an explicit allowlist of pages and existing figures.
 
-This assembles a static website; it neither reads research data nor generates
-scientific figures. Keep manuscripts, weights, and private notes out of the build.
+This assembles selected static assets without generating scientific figures.
+Only the explicitly approved demo export is public; keep other weights,
+manuscripts, raw data, and private notes out of the build.
 """
 from pathlib import Path
 import base64
 import hashlib
 import io
+import json
 import tarfile
 from urllib.request import urlopen
 import shutil
@@ -24,6 +26,8 @@ PAGES = (
     "stylesheets/extra.css", "assets/brand/icon.svg",
     "demo/index.md", "demo/index.zh.md", "stylesheets/demo.css",
     "javascripts/demo/core.js", "javascripts/demo/worker.js", "javascripts/demo/app.js",
+    "assets/demo/manifest.json", "assets/demo/NOTICE.txt",
+    "assets/demo/model.vtp-model.json", "assets/demo/sample.vtp-input.json",
     "licenses/onnxruntime.txt", "licenses/onnxruntime-third-party.txt",
 )
 FIGURES = (
@@ -68,7 +72,21 @@ def stage_browser_runtime():
                 (destination / name).write_bytes(source.read())
 
 
+def validate_demo_assets():
+    """Only publish the two approved, checksummed inference assets."""
+    directory = ROOT / "website/assets/demo"
+    manifest = json.loads((directory / "manifest.json").read_text())
+    if manifest.get("format") != "vtp-browser-demo-v1":
+        raise ValueError("Invalid public demo manifest")
+    for key, name in (("model", "model.vtp-model.json"), ("input", "sample.vtp-input.json")):
+        entry = manifest["assets"][key]
+        payload = (directory / name).read_bytes()
+        if entry["file"] != name or len(payload) != entry["bytes"] or hashlib.sha256(payload).hexdigest() != entry["sha256"]:
+            raise ValueError(f"Public demo asset failed integrity verification: {name}")
+
+
 def main():
+    validate_demo_assets()
     sources = [(ROOT / "website" / name, Path(name)) for name in PAGES]
     sources += [(ROOT / "docs" / "figures" / name, Path("assets/figures") / name) for name in FIGURES]
     sources += [(ROOT / "docs/brand-mark.svg", Path("assets/brand/wordmark.svg")),

@@ -1,0 +1,35 @@
+{
+  "format": "vtp-browser-demo-v1",
+  "feature_version": "merps-context-r1-baseline-v1",
+  "assets": {
+    "model": {
+      "file": "model.vtp-model.json",
+      "bytes": 3084360,
+      "sha256": "3ae38451353fc9c9146148fedd6e5e2e11e97be2887f34a2b97f1482462ccb34"
+    },
+    "input": {
+      "file": "sample.vtp-input.json",
+      "bytes": 4590696,
+      "sha256": "7c489c82c1ab2ce936ebc55b7f341eb3cdccfad870b19f272d9537c513a8b183"
+    }
+  },
+  "source": {
+    "dataset": "MER-PS/MER-PS-trainval",
+    "url": "https://huggingface.co/datasets/MER-PS/MER-PS-trainval",
+    "revision": "776227330531a705a55bfd52f74ea5b537f89e75",
+    "license": "CC-BY-NC-SA-4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "attribution": "MER-PS dataset creators",
+    "split": "training/validation",
+    "subject": "test_1",
+    "video": 1,
+    "start_second": 0,
+    "sample_count": 30,
+    "transformation": "Baseline-corrected EEG/fNIRS features with previous/current/next-second context, extracted by scripts/export_browser_demo.py; no raw signals, demographics, or individual labels are included. This development-set excerpt is not a held-out accuracy benchmark."
+  },
+  "model": {
+    "count": 6,
+    "full_checkpoint": "final_v3.pt",
+    "license": "CC-BY-NC-SA-4.0"
+  }
+}

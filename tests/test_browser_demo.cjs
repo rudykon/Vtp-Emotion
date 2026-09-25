@@ -26,13 +26,6 @@ test('fusion agrees with float32 reference and exact branch endpoints', () => {
   throwsCode(() => core.fuse([[100, 100]], null, [0.99, 0.92]), 'predictions');
   throwsCode(() => core.fuse([[100, 100]], [[100, 100]], [1.01, 0]), 'weights');
 });
-test('synthetic examples are deterministic, distinct across seeds, and bounded', () => {
-  const a = core.synthetic({count: 60, seed: 42, scenario: 'pulse'});
-  assert.deepEqual(a, core.synthetic({count: 60, seed: 42, scenario: 'pulse'}));
-  assert.notDeepEqual(a, core.synthetic({count: 60, seed: 43, scenario: 'pulse'}));
-  assert.ok([...a.prior, ...a.physiology].flat().every(x => x >= 1 && x <= 255));
-  throwsCode(() => core.synthetic({count: 100000}), 'example_settings');
-});
 test('input contract rejects misaligned rows, malformed features, and non-finite values', () => {
   assert.equal(core.validateInput(input()).eeg.length, 2 * 64 * 45);
   let invalid = input(); invalid.timestamps[1] = 8;
@@ -60,4 +53,29 @@ test('model contract accepts reordered JSON keys and rejects calibration or prio
 test('prior lookup clamps the final second and rejects an unknown video', () => {
   assert.deepEqual(core.lookupPrior(model(), {video: 1, timestamps: [0, 1, 2]}), [[100, 120], [130, 160], [130, 160]]);
   throwsCode(() => core.lookupPrior(model(), {video: 15, timestamps: [0]}), 'unknown_video');
+});
+test('published demo assets match the feature contract, provenance, and integrity manifest', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const {createHash} = require('node:crypto');
+  const directory = path.join(__dirname, '../website/assets/demo');
+  const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'), 'utf8'));
+  const assets = {};
+  for (const key of ['model', 'input']) {
+    const entry = manifest.assets[key];
+    const bytes = fs.readFileSync(path.join(directory, entry.file));
+    assert.equal(bytes.length, entry.bytes);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256);
+    assets[key] = JSON.parse(bytes);
+  }
+  const model = core.validateModel(assets.model);
+  const features = core.validateInput(assets.input);
+  assert.equal(model.model_count, 6);
+  assert.equal(model.full_checkpoint, 'final_v3.pt');
+  assert.equal(features.count, manifest.source.sample_count);
+  assert.equal(features.count, 30);
+  assert.equal(core.lookupPrior(model, assets.input).length, features.count);
+  assert.deepEqual(assets.input.source, manifest.source);
+  assert.equal(assets.input.source.license, 'CC-BY-NC-SA-4.0');
+  assert.equal(assets.input.source.split, 'training/validation');
 });

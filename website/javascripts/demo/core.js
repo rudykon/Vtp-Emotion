@@ -77,37 +77,7 @@
     if (!trajectory) fail('unknown_video');
     return input.timestamps.map(t => trajectory[Math.min(t, trajectory.length - 1)].map(f32));
   }
-  function synthetic({count = 120, seed = 2026, scenario = 'wave'}) {
-    if (!Number.isInteger(count) || count < 30 || count > 240 || !Number.isInteger(seed) || seed < 0 || seed > 4294967295 ||
-        !['wave', 'shift', 'pulse'].includes(scenario)) fail('example_settings');
-    let state = seed >>> 0;
-    const random = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296; };
-    const noise = () => random() + random() + random() + random() - 2;
-    const base = Array.from({length: count}, (_, t) => {
-      const x = t / Math.max(1, count - 1);
-      const pulse = Math.exp(-(((x - 0.55) / 0.14) ** 2));
-      return scenario === 'shift' ? [95 + 60 / (1 + Math.exp(-(x - 0.48) * 18)), 90 + 80 / (1 + Math.exp(-(x - 0.55) * 18))] :
-        scenario === 'pulse' ? [145 - 55 * pulse, 75 + 110 * pulse] :
-        [128 + 46 * Math.sin(2 * Math.PI * x), 125 + 43 * Math.cos(3 * Math.PI * x)];
-    });
-    const participants = Array.from({length: 12}, () => {
-      const bias = [noise() * 12, noise() * 12];
-      return base.map(p => p.map((v, target) => f32(clip(v + bias[target] + noise() * 15))));
-    });
-    const median = base.map((_, i) => [0, 1].map(target => {
-      const values = participants.map(p => p[i][target]).sort((a, b) => a - b);
-      return f32((values[5] + values[6]) / 2);
-    }));
-    const prior = median.map((_, i) => [0, 1].map(target => {
-      const window = median.slice(Math.max(0, i - 3), Math.min(count, i + 4));
-      return f32(window.reduce((sum, row) => sum + row[target], 0) / window.length);
-    }));
-    // These are simulated branch outputs, not trained-network predictions.
-    const physiology = base.map((p, i) => p.map((v, target) => f32(clip(v + 28 * Math.sin(i / 8 + target) + noise() * 26))));
-    return {prior, physiology, timestamps: Array.from({length: count}, (_, i) => i),
-      sample_ids: Array.from({length: count}, (_, i) => `synthetic_V01_T${String(i).padStart(3, '0')}`)};
-  }
-  const api = {VERSION, MAX_SAMPLES, fail, roundEven, fuse, validateModel, validateInput, lookupPrior, synthetic};
+  const api = {VERSION, MAX_SAMPLES, fail, roundEven, fuse, validateModel, validateInput, lookupPrior};
   globalThis.VtpDemoCore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })();

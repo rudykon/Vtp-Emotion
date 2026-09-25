@@ -1,0 +1,31 @@
+Vtp-Emotion public browser inference assets
+
+Sample attribution: MER-PS dataset creators.
+Source: MER 2026: MER-PS (Physiological Signal-Based Emotion) Codabench
+Public Training/Validation Data
+https://huggingface.co/datasets/MER-PS/MER-PS-trainval
+Dataset-card revision: 776227330531a705a55bfd52f74ea5b537f89e75
+
+sample.vtp-input.json is an adapted 30-second excerpt (test_1, video 1,
+seconds 0-29). Changes: baseline correction, feature extraction and
+previous/current/next-second context using the Vtp-Emotion feature pipeline.
+This includes derived physiological features, not raw signals, participant
+metadata, or individual emotion annotations. This is a development-set
+example and must not be presented as independent held-out evaluation.
+
+model.vtp-model.json contains the Vtp-Emotion six-model ONNX ensemble,
+checkpoint-specific standardization, and video-time prior learned from
+MER-PS training/validation data. Source implementation:
+https://github.com/rudykon/Vtp-Emotion
+
+Both JSON assets are distributed under Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+Use these assets for non-commercial scientific research. Retain attribution,
+link to the license, indicate changes, and share adaptations under the same
+license. No endorsement by the dataset creators is implied. These assets
+are not covered by the repository source-code Apache-2.0 license.
+
+Other datasets, raw recordings, participant metadata, individual labels,
+training checkpoints and unpublished research files are not part of this
+release. manifest.json records the asset sizes, checksums and provenance.

@@ -288,14 +288,16 @@ Training writes checkpoints under `checkpoints/`; evaluation outputs and model b
 - **Descriptive comparisons.** Four external participants provide limited evidence about population-level variation; second-level observations are correlated.
 - **Unmeasured deployment benefits.** The prior needs earlier viewers' labels but avoids new physiological acquisition. Latency, energy savings, and downstream application benefits were not measured.
 
-This repository publishes source code, dataset descriptions, method and usage documentation, and selected figure assets. Raw and processed data, model weights, design/revision records, manuscripts, and paper-figure generation programs remain local and are excluded from version control. Credentials, feature caches, and local run artifacts are also excluded. Dataset and third-party terms apply separately.
+This repository publishes source code, dataset descriptions, method and usage documentation, and selected figure assets. The approved browser-demo export in `website/assets/demo/` is the sole exception for model weights and data: it contains the inference ensemble and a 30-second real feature excerpt under CC BY-NC-SA 4.0. Other raw and processed data, training checkpoints, design/revision records, manuscripts, and paper-figure generation programs remain local and are excluded from version control. Credentials, feature caches, and local run artifacts are also excluded. Dataset and third-party terms apply separately.
 
 
 ## Browser demo
 
-[Open the browser demo](https://rudykon.github.io/Vtp-Emotion/demo/). Computation runs on the visitor's CPU in a background worker. The default example illustrates fixed fusion with synthetic trajectories and simulated physiological outputs. For trained-model inference, select a local model package and a prepared feature file; neither is uploaded.
+[Open the browser demo](https://rudykon.github.io/Vtp-Emotion/demo/). Computation runs on the visitor's CPU in a background worker. The page automatically downloads a trained six-model ensemble and 30 seconds of real EEG–fNIRS features, then computes predictions locally. No account, manual file selection, or inference server is required. You can also select your own local model and feature files; those files are not uploaded.
 
-Prepare private files after installing the repository's regular dependencies and obtaining the data and checkpoints:
+The included sample comes from [MER-PS training/validation data](https://huggingface.co/datasets/MER-PS/MER-PS-trainval), subject `test_1`, video 1, seconds 0–29. It demonstrates execution on real recordings and is not held-out accuracy evaluation. Public model and sample assets use [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/); see the [provenance notice](website/assets/demo/NOTICE.txt) and [checksummed manifest](website/assets/demo/manifest.json).
+
+To use your own files, prepare private exports after installing the repository's regular dependencies and obtaining the data and checkpoints:
 
 ```bash
 .venv/bin/pip install -r requirements-demo.txt
@@ -304,7 +306,7 @@ Prepare private files after installing the repository's regular dependencies and
   --data-root data/MER_PS_trainval --subject test_1 --video 1 --count 60
 ```
 
-Select `artifacts/browser/model.vtp-model.json` and `artifacts/browser/input.vtp-input.json` on the demo page. MAT preprocessing runs locally in Python; browser inference uses ONNX Runtime Web with checkpoint-specific standardization, the six-model ensemble, prior lookup, fixed fusion, and round-to-even output conversion. The `best_v3.pt` fallback caveat above still applies. Data, models, and generated files remain excluded from publication.
+Choose **Use local model and data files**, then select `artifacts/browser/model.vtp-model.json` and `artifacts/browser/input.vtp-input.json` on the demo page. MAT preprocessing runs locally in Python; browser inference uses ONNX Runtime Web with checkpoint-specific standardization, the six-model ensemble, prior lookup, fixed fusion, and round-to-even output conversion. The `best_v3.pt` fallback caveat above still applies. Additional local exports remain excluded from publication.
 
 The website build downloads an integrity-checked ONNX Runtime Web 1.22.0 runtime and serves it with the static pages. Run browser numerical and input-validation tests with `node --test tests/test_browser_demo.cjs` (Node.js 22).
 
