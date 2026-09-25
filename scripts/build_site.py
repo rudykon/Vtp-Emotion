@@ -25,7 +25,7 @@ PAGES = (
     "reference/reproduction.md", "reference/reproduction.zh.md",
     "stylesheets/extra.css", "assets/brand/icon.svg",
     "demo/index.md", "demo/index.zh.md", "stylesheets/demo.css",
-    "javascripts/demo/core.js", "javascripts/demo/worker.js", "javascripts/demo/app.js",
+    "javascripts/demo/core.js", "javascripts/demo/worker.js", "javascripts/demo/journey.js", "javascripts/demo/app.js",
     "assets/demo/manifest.json", "assets/demo/NOTICE.txt",
     "assets/demo/model.vtp-model.json", "assets/demo/sample.vtp-input.json",
     "licenses/onnxruntime.txt", "licenses/onnxruntime-third-party.txt",

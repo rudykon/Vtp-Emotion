@@ -293,7 +293,7 @@ This repository publishes source code, dataset descriptions, method and usage do
 
 ## Browser demo
 
-[Open the browser demo](https://rudykon.github.io/Vtp-Emotion/demo/). Computation runs on the visitor's CPU in a background worker. The page automatically downloads a trained six-model ensemble and 30 seconds of real EEG–fNIRS features, then computes predictions locally. No account, manual file selection, or inference server is required. You can also select your own local model and feature files; those files are not uploaded.
+[Open the browser demo](https://rudykon.github.io/Vtp-Emotion/demo/). Computation runs on the visitor's CPU in a background worker. The page automatically downloads a trained six-model ensemble and 30 seconds of real EEG–fNIRS features, then computes predictions locally. No account, manual file selection, or inference server is required. Replay the viewing journey with an illustrated emotion snapshot, pleasantness and activation scales, an emotion map, and automatically selected moments. The explanatory text is derived from the real predictions; numerical curves and model settings remain available in expandable panels. You can also select your own local model and feature files; those files are not uploaded.
 
 The included sample comes from [MER-PS training/validation data](https://huggingface.co/datasets/MER-PS/MER-PS-trainval), subject `test_1`, video 1, seconds 0–29. It demonstrates execution on real recordings and is not held-out accuracy evaluation. Public model and sample assets use [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/); see the [provenance notice](website/assets/demo/NOTICE.txt) and [checksummed manifest](website/assets/demo/manifest.json).
 

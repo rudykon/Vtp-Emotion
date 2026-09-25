@@ -11,7 +11,7 @@ hide:
   <p class="project-subtitle">Predict emotion for new viewers of familiar videos</p>
   <p class="project-lead">A video–time prior captures the shared affect trajectory. EEG and fNIRS add a small, viewer-specific correction. Explore continuous valence–arousal regression and where its accuracy comes from.</p>
   <div class="project-actions">
-    <a class="md-button md-button--primary" href="demo/">Try the demo</a>
+    <a class="md-button md-button--primary" href="demo/">Explore the viewing journey</a>
     <a class="md-button" href="https://github.com/rudykon/Vtp-Emotion" target="_blank" rel="noopener">View on GitHub</a>
     <a class="md-button" href="guide/method/">Method</a>
     <a class="md-button" href="research/evidence/">Results</a>

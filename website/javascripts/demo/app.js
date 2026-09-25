@@ -34,6 +34,18 @@
     weights: 'Prior weights must be between 0 and 1.', runtime: 'Inference failed. Check the model package and browser WebAssembly support.',
     unsupported: 'This browser does not support background workers. Use a recent browser.',
   };
+  const journey = globalThis.VtpJourney;
+  const words = zh ? {
+    v: ['偏不愉悦', '接近中性', '偏愉悦'], a: ['较平静', '活跃程度适中', '较活跃'],
+    play: '播放旅程', pause: '暂停回放', replay: '再看一遍',
+  } : {
+    v: ['Less pleasant', 'Near neutral', 'More pleasant'], a: ['calmer', 'moderate activation', 'more active'],
+    play: 'Play journey', pause: 'Pause replay', replay: 'Replay journey',
+  };
+  let playback = null;
+  let playbackStarted = 0;
+  let playbackBase = 0;
+  let highlights = null;
   let worker = null;
   let result = null;
   let runNumber = 0;
@@ -43,13 +55,19 @@
   function setBusy(busy) {
     $('settings').disabled = busy;
     $('run').disabled = busy;
+    $('form').querySelectorAll('button[type=submit]').forEach(button => { button.disabled = busy; });
     $('stop').disabled = !busy;
     $('progress').hidden = !busy;
     root.setAttribute('aria-busy', String(busy));
   }
   function terminate() { if (worker) worker.terminate(); worker = null; runNumber++; setBusy(false); }
   function clearResult() {
-    result = null;
+    stopPlayback();
+    result = null; highlights = null;
+    setPlaybackLabel(words.play, false);
+    $('experience').hidden = true;
+    $('play-top').disabled = true;
+    $('record').textContent = mode() === 'public' ? (zh ? '匿名观众 · 视频 1 · 30 秒记录' : 'Anonymous viewer · video 1 · 30-second recording') : (zh ? '你的本地记录' : 'Your local recording');
     $('plots').hidden = true; $('empty').hidden = false; $('table-details').hidden = true;
     $('empty').textContent = zh ? '等待真实模型推理结果。' : 'Waiting for trained-model predictions.';
     $('csv').disabled = true; $('json').disabled = true;
@@ -90,7 +108,8 @@
   function inspect() {
     if (!result) return;
     const i = Number($('cursor').value);
-    $('cursor-time').value = `${result.timestamps[i]} s`;
+    $('cursor-time').value = `${result.timestamps[i]} s / ${result.timestamps.at(-1)} s`;
+    updateSnapshot(i);
     const x = xPos(i, result.timestamps.length);
     root.querySelectorAll('.cursor-line').forEach(line => { line.setAttribute('x1', x); line.setAttribute('x2', x); });
     $('inspection').replaceChildren();
@@ -100,8 +119,98 @@
       $('inspection').append(row);
     }
   }
+  const describe = pair => {
+    const point = journey.snapshot(pair);
+    return `${words.v[point.valence + 1]} · ${words.a[point.arousal + 1]}`;
+  };
+  const signed = value => Math.abs(value) < 0.05 ? '0.0' : `${value > 0 ? '+' : '−'}${Math.abs(value).toFixed(1)}`;
+  const mapPoint = pair => {
+    const point = journey.snapshot(pair);
+    return [40 + point.x * 320, 36 + point.y * 240];
+  };
+  function updateSnapshot(i) {
+    const pair = result.floating[i];
+    const point = journey.snapshot(pair);
+    const moment = result.timestamps[i];
+    $('current-time').textContent = `${moment} s`;
+    $('mood').textContent = describe(pair);
+    $('mood-detail').textContent = zh ? `相对开始：愉悦 ${signed(pair[0] - result.floating[0][0])} · 活跃 ${signed(pair[1] - result.floating[0][1])}` :
+      `Since the start: pleasantness ${signed(pair[0] - result.floating[0][0])} · activation ${signed(pair[1] - result.floating[0][1])}`;
+    $('face').dataset.tone = String(point.valence);
+    $('mouth').setAttribute('d', `M38 75 Q60 ${point.mouth.toFixed(2)} 82 75`);
+    for (const eye of ['eye-left', 'eye-right']) $(eye).setAttribute('ry', point.eye.toFixed(2));
+    for (const [axis, value] of [['v', pair[0]], ['a', pair[1]]]) {
+      $(`${axis}-score`).textContent = `${value.toFixed(1)} / 255`;
+      $(`${axis}-dot`).style.left = `${(value - 1) / 254 * 100}%`;
+      $(`${axis}-meter`).setAttribute('aria-valuenow', value.toFixed(1));
+    }
+    const [x, y] = mapPoint(pair);
+    $('map-dot').setAttribute('cx', x); $('map-dot').setAttribute('cy', y);
+    $('map-played').setAttribute('points', result.floating.slice(0, i + 1).map(mapPoint).map(p => p.join(',')).join(' '));
+    $('map').setAttribute('aria-label', `${moment} s: ${describe(pair)}; ${pair.map(v => v.toFixed(1)).join(', ')}`);
+    $('cursor').setAttribute('aria-valuetext', `${moment} s: ${describe(pair)}`);
+    for (const [key, index] of [['start', 0], ['moment', highlights.moment], ['end', result.timestamps.length - 1]]) {
+      $(`jump-${key}`).setAttribute('aria-pressed', String(i === index));
+    }
+    if (playback === null) setPlaybackLabel(i === result.timestamps.length - 1 && i > 0 ? words.replay : words.play, false);
+  }
+  function renderJourney() {
+    const n = result.timestamps.length;
+    highlights = journey.summarize(result.floating);
+    $('record').textContent = (result.mode === 'public' ? (zh ? '匿名观众 · 视频 1' : 'Anonymous viewer · video 1') : (zh ? '你的本地记录' : 'Your local recording')) +
+      ` · ${result.timestamps[0]}–${result.timestamps.at(-1)} s · ${n} ${zh ? '个样本' : 'samples'}`;
+    $('map-path').setAttribute('points', result.floating.map(mapPoint).map(p => p.join(',')).join(' '));
+    const start = mapPoint(result.floating[0]);
+    $('map-start').setAttribute('cx', start[0]); $('map-start').setAttribute('cy', start[1]);
+    for (const [key, i] of [['start', 0], ['moment', highlights.moment], ['end', n - 1]]) {
+      $(`${key}-time`).textContent = `${result.timestamps[i]} s`;
+      $(`${key}-note`).textContent = key === 'moment' ? (highlights.maxStep === 0 ? (zh ? '这段预测没有逐秒变化' : 'No second-to-second change') :
+        (zh ? `与上一秒相比，两个分值一起看，变化最明显` : 'Largest combined movement from the previous second')) : describe(result.floating[i]);
+    }
+    const change = (value, label) => Math.abs(value) < 0.05 ? (zh ? `${label}基本不变` : `${label} is almost unchanged`) :
+      (zh ? `${label}${value > 0 ? '上升' : '下降'} ${Math.abs(value).toFixed(1)} 分` : `${label} ${value > 0 ? 'increases' : 'decreases'} by ${Math.abs(value).toFixed(1)} points`);
+    $('story').textContent = n === 1 ? (zh ? '这段记录只有一个时间点，可以查看该秒的预测，无法比较随时间的变化。' : 'This recording has one time point. You can inspect its prediction, but there is no temporal change to compare.') :
+      (zh ? `结束与开始相比，${change(highlights.delta[0], '愉悦程度')}，${change(highlights.delta[1], '活跃程度')}。结束时的预测落在「${describe(result.floating.at(-1))}」区域。` :
+        `From the start to the end, ${change(highlights.delta[0], 'pleasantness')}, and ${change(highlights.delta[1], 'activation')}. The final prediction is in the “${describe(result.floating.at(-1))}” region.`);
+    $('play').disabled = n < 2;
+    $('play-top').disabled = n < 2;
+    $('restart').disabled = n < 2;
+    $('speed').disabled = n < 2;
+    $('cursor').disabled = n < 2;
+  }
+  function setPlaybackLabel(label, playing) {
+    for (const id of ['play', 'play-top']) { $(id).textContent = label; $(id).setAttribute('aria-pressed', String(playing)); }
+  }
+  function stopPlayback() {
+    if (playback !== null) cancelAnimationFrame(playback);
+    playback = null;
+    setPlaybackLabel(result && Number($('cursor').value) === result.timestamps.length - 1 && result.timestamps.length > 1 ? words.replay : words.play, false);
+  }
+  function seek(index) {
+    stopPlayback();
+    if (!result) return;
+    $('cursor').value = String(Math.max(0, Math.min(result.timestamps.length - 1, index)));
+    inspect();
+  }
+  function play() {
+    if (!result || result.timestamps.length < 2) return;
+    if (Number($('cursor').value) === result.timestamps.length - 1) seek(0);
+    playbackBase = Number($('cursor').value);
+    playbackStarted = performance.now();
+    setPlaybackLabel(words.pause, true);
+    const tick = now => {
+      if (!result) { stopPlayback(); return; }
+      const i = Math.min(result.timestamps.length - 1, playbackBase + Math.floor((now - playbackStarted) * Number($('speed').value) / 1000));
+      if (i !== Number($('cursor').value)) { $('cursor').value = String(i); inspect(); }
+      if (i === result.timestamps.length - 1) { stopPlayback(); return; }
+      playback = requestAnimationFrame(tick);
+    };
+    playback = requestAnimationFrame(tick);
+  }
   function render() {
     $('empty').hidden = true; $('plots').hidden = false; $('table-details').hidden = false;
+    $('experience').hidden = false;
+    renderJourney();
     $('csv').disabled = false; $('json').disabled = false;
     const n = result.timestamps.length;
     $('sample-count').textContent = String(n);
@@ -155,10 +264,25 @@
   $('stop').addEventListener('click', () => { terminate(); clearResult(); status(text.stopped); });
   for (const id of ['mode', 'model', 'input', 'valence', 'arousal']) $(id).addEventListener('input', changed);
   $('reset').addEventListener('click', () => { $('valence').value = '0.99'; $('arousal').value = '0.92'; changed(); });
-  $('cursor').addEventListener('input', inspect);
+  $('cursor').addEventListener('input', () => { stopPlayback(); inspect(); });
+  $('play').addEventListener('click', () => { if (playback !== null) stopPlayback(); else play(); });
+  $('play-top').addEventListener('click', () => {
+    const wasPlaying = playback !== null;
+    $('play').click();
+    if (result && !wasPlaying) root.querySelector('.journey-snapshot').scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+  });
+  $('restart').addEventListener('click', () => seek(0));
+  $('speed').addEventListener('change', () => {
+    if (playback !== null) { playbackStarted = performance.now(); playbackBase = Number($('cursor').value); }
+  });
+  $('jump-start').addEventListener('click', () => seek(0));
+  $('jump-moment').addEventListener('click', () => { if (highlights) seek(highlights.moment); });
+  $('jump-end').addEventListener('click', () => { if (result) seek(result.timestamps.length - 1); });
+  $('technical').addEventListener('toggle', () => { if ($('technical').open) drawPlots(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopPlayback(); });
   $('csv').addEventListener('click', () => download('csv'));
   $('json').addEventListener('click', () => download('json'));
-  window.addEventListener('pagehide', terminate);
+  window.addEventListener('pagehide', () => { stopPlayback(); terminate(); });
   window.addEventListener('resize', drawPlots);
   clearResult(); status(text.ready);
   $('form').requestSubmit();

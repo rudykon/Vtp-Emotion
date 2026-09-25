@@ -79,3 +79,25 @@ test('published demo assets match the feature contract, provenance, and integrit
   assert.equal(assets.input.source.license, 'CC-BY-NC-SA-4.0');
   assert.equal(assets.input.source.split, 'training/validation');
 });
+
+const journey = require('../website/javascripts/demo/journey.js');
+test('journey maps score endpoints and the documented neutral display band without changing scores', () => {
+  assert.deepEqual([journey.snapshot([1, 1]).x, journey.snapshot([1, 1]).y], [0, 1]);
+  assert.deepEqual([journey.snapshot([255, 255]).x, journey.snapshot([255, 255]).y], [1, 0]);
+  assert.equal(journey.snapshot([128, 128]).x, 0.5);
+  assert.equal(journey.snapshot([116, 140]).valence, 0);
+  assert.equal(journey.snapshot([116, 140]).arousal, 0);
+  assert.equal(journey.snapshot([115, 141]).valence, -1);
+  assert.equal(journey.snapshot([115, 141]).arousal, 1);
+  assert.throws(() => journey.snapshot([128, Infinity]));
+});
+test('journey highlights the largest two-dimensional step and handles short or flat recordings', () => {
+  const pairs = [[128, 128], [140, 140], [141, 100], [160, 110]];
+  const original = structuredClone(pairs);
+  const summary = journey.summarize(pairs);
+  assert.equal(summary.moment, 2);
+  assert.deepEqual(summary.delta, [32, -18]);
+  assert.deepEqual(pairs, original);
+  assert.deepEqual(journey.summarize([[128, 128]]), {moment: 0, maxStep: 0, delta: [0, 0]});
+  assert.deepEqual(journey.summarize([[130, 130], [130, 130]]), {moment: 0, maxStep: 0, delta: [0, 0]});
+});

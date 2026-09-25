@@ -79,7 +79,7 @@ plugins:
             Method: 方法
             Results: 实验结果
             Reproduce: 复现
-            Demo: 本地演示
+            Demo: 观影体验
 
 markdown_extensions:
   - admonition
@@ -97,6 +97,7 @@ extra_css:
   - stylesheets/extra.css
   - stylesheets/demo.css
 extra_javascript:
+  - javascripts/demo/journey.js
   - javascripts/demo/app.js
 extra:
   social:

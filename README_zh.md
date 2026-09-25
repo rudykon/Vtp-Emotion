@@ -293,7 +293,7 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 
 ## 浏览器演示
 
-[打开浏览器演示](https://rudykon.github.io/Vtp-Emotion/zh/demo/)。计算在访问者电脑的 CPU 上通过后台线程执行。页面自动下载训练好的六模型集成和 30 秒真实 EEG–fNIRS 特征，在本机计算预测，无需账号、手动选择文件或推理服务器。也可选择自己的本地模型与特征文件，这些文件不会上传。
+[打开浏览器演示](https://rudykon.github.io/Vtp-Emotion/zh/demo/)。计算在访问者电脑的 CPU 上通过后台线程执行。页面自动下载训练好的六模型集成和 30 秒真实 EEG–fNIRS 特征，在本机计算预测，无需账号、手动选择文件或推理服务器。界面支持观影情绪回放、随预测变化的表情示意、愉悦与活跃刻度、情绪坐标及自动选取的关键时刻；文字解读来自真实预测，数值曲线与模型设置保留在展开面板中。也可选择自己的本地模型与特征文件，这些文件不会上传。
 
 默认片段来自 [MER-PS 训练/验证数据](https://huggingface.co/datasets/MER-PS/MER-PS-trainval)，对应 `test_1`、视频 1、第 0–29 秒，用于展示真实记录上的推理过程，不作为留出准确率评估。公开模型和样本采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)，详见[来源说明](website/assets/demo/NOTICE.txt)和[带校验值的资源清单](website/assets/demo/manifest.json)。
 
