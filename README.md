@@ -14,12 +14,14 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.03618"><img src="https://img.shields.io/badge/arXiv-2610.03618-B31B1B?style=flat-square" alt="arXiv:2610.03618"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10 or newer"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-4C78A8?style=flat-square" alt="Apache License 2.0"></a>
   <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-MER--PS-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="MER-PS data on Hugging Face"></a>
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.03618">Paper (arXiv)</a> ·
   <a href="https://rudykon.github.io/Vtp-Emotion/">Project website</a> ·
   <a href="https://rudykon.github.io/Vtp-Emotion/demo/">Browser demo</a> ·
   <a href="#project-overview">Overview</a> ·
@@ -27,7 +29,8 @@
   <a href="#results">Results</a> ·
   <a href="#analysis">Analysis</a> ·
   <a href="#getting-started">Quick Start</a> ·
-  <a href="#reproduction">Reproduction</a>
+  <a href="#reproduction">Reproduction</a> ·
+  <a href="#citation">Citation</a>
 </p>
 
 > [!IMPORTANT]
@@ -309,6 +312,24 @@ To use your own files, prepare private exports after installing the repository's
 Choose **Use local model and data files**, then select `artifacts/browser/model.vtp-model.json` and `artifacts/browser/input.vtp-input.json` on the demo page. MAT preprocessing runs locally in Python; browser inference uses ONNX Runtime Web with checkpoint-specific standardization, the six-model ensemble, prior lookup, fixed fusion, and round-to-even output conversion. The `best_v3.pt` fallback caveat above still applies. Additional local exports remain excluded from publication.
 
 The website build downloads an integrity-checked ONNX Runtime Web 1.22.0 runtime and serves it with the static pages. Run browser numerical and input-validation tests with `node --test tests/test_browser_demo.cjs` (Node.js 22).
+
+<a id="citation"></a>
+## Citation
+
+If you use this work in your research, please cite our [arXiv paper](https://arxiv.org/abs/2610.03618):
+
+```bibtex
+@misc{kong2026videotimepriors,
+  title         = {Video-Time Priors for {EEG-fNIRS} Emotion Regression on Familiar Videos},
+  author        = {Minghao Kong and Ying Gao and Jiurun Chen and Muyao Chen and Zheng Ge and Jianxin Wu and Rongjie Wang},
+  year          = {2026},
+  eprint        = {2610.03618},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  doi           = {10.48550/arXiv.2610.03618},
+  url           = {https://arxiv.org/abs/2610.03618}
+}
+```
 
 <a id="open-source-license"></a>
 ## License

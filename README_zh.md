@@ -14,12 +14,14 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.03618"><img src="https://img.shields.io/badge/arXiv-2610.03618-B31B1B?style=flat-square" alt="arXiv:2610.03618"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10 或更高版本"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-4C78A8?style=flat-square" alt="Apache License 2.0"></a>
   <a href="https://huggingface.co/datasets/MER-PS/MER-PS-trainval"><img src="https://img.shields.io/badge/Data-MER--PS-FFD21E?style=flat-square&logo=huggingface&logoColor=black" alt="Hugging Face 上的 MER-PS 数据"></a>
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.03618">论文（arXiv）</a> ·
   <a href="https://rudykon.github.io/Vtp-Emotion/zh/">项目展示页</a> ·
   <a href="https://rudykon.github.io/Vtp-Emotion/zh/demo/">浏览器演示</a> ·
   <a href="#project-overview">概览</a> ·
@@ -27,7 +29,8 @@
   <a href="#results">结果</a> ·
   <a href="#analysis">分析</a> ·
   <a href="#getting-started">快速开始</a> ·
-  <a href="#reproduction">复现</a>
+  <a href="#reproduction">复现</a> ·
+  <a href="#citation">引用</a>
 </p>
 
 > [!IMPORTANT]
@@ -309,6 +312,24 @@ PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 切换至「使用自己的本地模型与数据」，选择 `artifacts/browser/model.vtp-model.json` 和 `artifacts/browser/input.vtp-input.json`。MAT 特征预处理在本机 Python 中完成；浏览器通过 ONNX Runtime Web 执行各检查点标准化、六模型集成、先验查询、固定融合及向偶数取整。上文关于 `best_v3.pt` 回退检查点的复现限制仍然适用。其他本地导出文件不纳入发布。
 
 网站构建会下载经过完整性校验的 ONNX Runtime Web 1.22.0 运行库，与静态页面一同部署。浏览器数值和输入校验测试使用 `node --test tests/test_browser_demo.cjs`（Node.js 22）。
+
+<a id="citation"></a>
+## 引用
+
+如果本项目对您的研究有帮助，请引用我们的 [arXiv 论文](https://arxiv.org/abs/2610.03618)：
+
+```bibtex
+@misc{kong2026videotimepriors,
+  title         = {Video-Time Priors for {EEG-fNIRS} Emotion Regression on Familiar Videos},
+  author        = {Minghao Kong and Ying Gao and Jiurun Chen and Muyao Chen and Zheng Ge and Jianxin Wu and Rongjie Wang},
+  year          = {2026},
+  eprint        = {2610.03618},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  doi           = {10.48550/arXiv.2610.03618},
+  url           = {https://arxiv.org/abs/2610.03618}
+}
+```
 
 <a id="open-source-license"></a>
 ## 开源许可证
